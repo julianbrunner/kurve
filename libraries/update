@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -rf krach
+svn export http://krach.googlecode.com/svn/trunk krach
