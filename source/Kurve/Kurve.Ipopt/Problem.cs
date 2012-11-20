@@ -7,24 +7,26 @@ using System.Runtime.InteropServices;
 
 namespace Kurve.Ipopt
 {
-	public abstract class Problem : IDisposable
+	public class Problem : IDisposable
 	{
 		static Dictionary<IntPtr, Problem> instances = new Dictionary<IntPtr, Problem>();
 
-		readonly IntPtr problemHandle;
+		readonly Function objective;
+		readonly Function constraints;
 		readonly int positionSize;
 		readonly int constraintsSize;
+		readonly IntPtr problemHandle;
 		
 		bool disposed = false;
 
-		public abstract double EvaluateObjectiveValue(Matrix position);
-		public abstract Matrix EvaluateObjectiveGradient(Matrix position);
-		public abstract Matrix EvaluateObjectiveHessian(Matrix position, double objectiveFactor, Matrix constraintMultipliers);
-		public abstract Matrix EvaluateConstraintsValue(Matrix position);
-		public abstract Matrix EvaluateConstraintsJacobian(Matrix position);
-
-		public Problem(Range<Matrix> positionRange, Range<Matrix> constraintsRange)
+		public Problem(Function objective, Function constraints, Range<Matrix> positionRange, Range<Matrix> constraintsRange)
 		{
+			if (objective == null) throw new ArgumentNullException("objective");
+			if (constraints == null) throw new ArgumentNullException("constraints");
+
+			this.objective = objective;
+			this.constraints = constraints;
+
 			Vector2Integer positionSize = new Vector2Integer(Items.Equal(positionRange.Start.RowCount, positionRange.End.RowCount), Items.Equal(positionRange.Start.ColumnCount, positionRange.End.ColumnCount));
 			if (positionSize.Y != 1) throw new ArgumentException("Parameter positionRange is not a row vector range.");
 			this.positionSize = positionSize.X;
@@ -79,16 +81,16 @@ namespace Kurve.Ipopt
 			IEnumerable<double> result = x.Read<double>(positionSize);
 			Marshal.FreeCoTaskMem(x);
 
-			return Matrices.ValuesToMatrix(result);
+			return Matrix.FromRowVectors(result.Select(Matrix.CreateSingleton));
 		}
 
 		static bool eval_f(int n, IntPtr x, bool new_x, IntPtr obj_value, IntPtr user_data)
 		{
 			Problem problem = instances[user_data];
 
-			Matrix position = Matrices.ValuesToMatrix(x.Read<double>(problem.positionSize));
+			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.positionSize).Select(Matrix.CreateSingleton));
 
-			double value = problem.EvaluateObjectiveValue(position);
+			double value = problem.objective.GetValues(position).Single()[0, 0];
 
 			Marshal.StructureToPtr(value, obj_value, false);
 
@@ -98,38 +100,11 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			Matrix position = Matrices.ValuesToMatrix(x.Read<double>(problem.positionSize));
+			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.positionSize).Select(Matrix.CreateSingleton));
 
-			Matrix gradient = problem.EvaluateObjectiveGradient(position);
+			Matrix gradient = problem.objective.GetGradients(position).Single();
 
-			if (gradient.RowCount != problem.positionSize) throw new InvalidOperationException("Result from call to EvaluateConstraintsValue has wrong row count.");
-			if (gradient.ColumnCount != 1) throw new InvalidOperationException("Result from call to EvaluateConstraintsValue is not a row vector.");
-
-			grad_f.Write(Matrices.MatrixToValues(gradient));
-
-			return true;
-		}
-		static bool eval_h(int n, IntPtr x, bool new_x, double obj_factor, int m, IntPtr lambda, bool new_lambda, int nele_hess, IntPtr iRow, IntPtr jCol, IntPtr values, IntPtr user_data)
-		{
-			Problem problem = instances[user_data];
-
-			Matrix position = Matrices.ValuesToMatrix(x.Read<double>(problem.positionSize));
-			double objectiveFactor = obj_factor;
-			Matrix constraintMultipliers = Matrices.ValuesToMatrix(lambda.Read<double>(problem.constraintsSize));
-
-			Matrix objectiveHessian = problem.EvaluateObjectiveHessian(position, objectiveFactor, constraintMultipliers);
-
-			if (objectiveHessian.RowCount != problem.positionSize) throw new InvalidOperationException("Result from call to EvaluateObjectiveHessian has wrong row count.");
-			if (objectiveHessian.ColumnCount != problem.positionSize) throw new InvalidOperationException("Result from call to EvaluateObjectiveHessian has wrong column count.");
-
-			var entries =
-				from rowIndex in Enumerable.Range(0, objectiveHessian.RowCount)
-				from columnIndex in Enumerable.Range(0, objectiveHessian.ColumnCount)
-				select new { RowIndex = rowIndex, ColumnIndex = columnIndex, Value = objectiveHessian[rowIndex, columnIndex] };
-
-			iRow.Write(entries.Select(entry => entry.RowIndex));
-			jCol.Write(entries.Select(entry => entry.ColumnIndex));
-			values.Write(entries.Select(entry => entry.Value));
+			grad_f.Write(gradient.Columns.Single());
 
 			return true;
 		}
@@ -137,14 +112,11 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			Matrix position = Matrices.ValuesToMatrix(x.Read<double>(problem.positionSize));
+			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.positionSize).Select(Matrix.CreateSingleton));
 
-			Matrix constraints = problem.EvaluateConstraintsValue(position);
+			IEnumerable<double> values = problem.constraints.GetValues(position).Select(value => value[0, 0]);
 
-			if (constraints.RowCount != problem.constraintsSize) throw new InvalidOperationException("Result from call to EvaluateConstraintsValue has wrong row count.");
-			if (constraints.ColumnCount != 1) throw new InvalidOperationException("Result from call to EvaluateConstraintsValue is not a row vector.");
-
-			g.Write(Matrices.MatrixToValues(constraints));
+			g.Write(values);
 
 			return true;
 		}
@@ -152,17 +124,38 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			Matrix position = Matrices.ValuesToMatrix(x.Read<double>(problem.positionSize));
+			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.positionSize).Select(Matrix.CreateSingleton));
 
-			Matrix constraintsJacobian = problem.EvaluateConstraintsJacobian(position);
-
-			if (constraintsJacobian.RowCount != problem.constraintsSize) throw new InvalidOperationException("Result from call to EvaluateConstraintsJacobian has wrong row count.");
-			if (constraintsJacobian.ColumnCount != problem.positionSize) throw new InvalidOperationException("Result from call to EvaluateConstraintsJacobian has wrong column count.");
+			Matrix constraintsJacobian = Matrix.FromRowVectors(problem.constraints.GetGradients(position).Select(gradient => gradient.Transpose));
 
 			var entries =
 				from rowIndex in Enumerable.Range(0, constraintsJacobian.RowCount)
 				from columnIndex in Enumerable.Range(0, constraintsJacobian.ColumnCount)
 				select new { RowIndex = rowIndex, ColumnIndex = columnIndex, Value = constraintsJacobian[rowIndex, columnIndex] };
+
+			iRow.Write(entries.Select(entry => entry.RowIndex));
+			jCol.Write(entries.Select(entry => entry.ColumnIndex));
+			values.Write(entries.Select(entry => entry.Value));
+
+			return true;
+		}
+		static bool eval_h(int n, IntPtr x, bool new_x, double obj_factor, int m, IntPtr lambda, bool new_lambda, int nele_hess, IntPtr iRow, IntPtr jCol, IntPtr values, IntPtr user_data)
+		{
+			Problem problem = instances[user_data];
+
+			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.positionSize).Select(Matrix.CreateSingleton));
+			double objectiveFactor = obj_factor;
+			IEnumerable<double> constraintFactors = lambda.Read<double>(problem.constraintsSize);
+
+			Matrix objectiveHessian = objectiveFactor * problem.objective.GetHessians(position).Single();
+			IEnumerable<Matrix> constraintHessians = Enumerable.Zip(constraintFactors, problem.constraints.GetHessians(position), (factor, matrix) => factor * matrix);
+
+			Matrix result = objectiveHessian + constraintHessians.Aggregate(new Matrix(problem.positionSize, problem.positionSize), (current, matrix) => current + matrix);
+
+			var entries =
+				from rowIndex in Enumerable.Range(0, result.RowCount)
+				from columnIndex in Enumerable.Range(0, result.ColumnCount)
+				select new { RowIndex = rowIndex, ColumnIndex = columnIndex, Value = result[rowIndex, columnIndex] };
 
 			iRow.Write(entries.Select(entry => entry.RowIndex));
 			jCol.Write(entries.Select(entry => entry.ColumnIndex));

@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{21E52697-8DB2-4228-824D-BCDDBAA92691}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Kurve.Ipopt</RootNamespace>
-    <AssemblyName>Kurve.Ipopt</AssemblyName>
+    <ProjectGuid>{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Kurve.Test</RootNamespace>
+    <AssemblyName>Kurve.Test</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -18,7 +18,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -26,21 +26,21 @@
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Wrapper.cs" />
-    <Compile Include="Problem.cs" />
-    <Compile Include="ApplicationReturnStatus.cs" />
-    <Compile Include="Function.cs" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\Kurve.Ipopt\Kurve.Ipopt.csproj">
+      <Project>{21E52697-8DB2-4228-824D-BCDDBAA92691}</Project>
+      <Name>Kurve.Ipopt</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\libraries\krach\Source\Krach\Krach.csproj">
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
