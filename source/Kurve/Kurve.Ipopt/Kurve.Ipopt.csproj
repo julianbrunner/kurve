@@ -38,6 +38,8 @@
     <Compile Include="Problem.cs" />
     <Compile Include="ApplicationReturnStatus.cs" />
     <Compile Include="Function.cs" />
+    <Compile Include="CodomainConstrainedFunction.cs" />
+    <Compile Include="DomainConstrainedFunction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
