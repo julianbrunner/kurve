@@ -18,10 +18,11 @@ namespace Kurve.Ipopt
 		
 		bool disposed = false;
 
-		public Problem(Function objective) : this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension))) { }
-		public Problem(DomainConstrainedFunction objective)
+		public Problem(Function objective, Settings settings) : this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension)), settings) { }
+		public Problem(DomainConstrainedFunction objective, Settings settings)
 		{
 			if (objective == null) throw new ArgumentNullException("objective");
+			if (settings == null) throw new ArgumentNullException("settings");
 
 			this.objective = objective.Function;
 
@@ -34,6 +35,8 @@ namespace Kurve.Ipopt
 
 			this.problemHandle = Wrapper.CreateIpoptProblem(objective.Function.DomainDimension, x_L, x_U, 0, g_L, g_U, nele_jac, nele_hess, 0, eval_f, eval_g, eval_grad_f, eval_jac_g, eval_h);
 
+			settings.Apply(problemHandle);
+
 			Wrapper.SetIntermediateCallback(problemHandle, intermediate_cb);
 
 			Marshal.FreeCoTaskMem(x_L);
@@ -41,11 +44,12 @@ namespace Kurve.Ipopt
 
 			instances.Add(problemHandle, this);
 		}
-		public Problem(Function objective, CodomainConstrainedFunction constraints): this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension))) { }
-		public Problem(DomainConstrainedFunction objective, CodomainConstrainedFunction constraints)
+		public Problem(Function objective, CodomainConstrainedFunction constraints, Settings settings): this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension)), settings) { }
+		public Problem(DomainConstrainedFunction objective, CodomainConstrainedFunction constraints, Settings settings)
 		{
 			if (objective == null) throw new ArgumentNullException("objective");
 			if (constraints == null) throw new ArgumentNullException("constraints");
+			if (settings == null) throw new ArgumentNullException("settings");
 
 			if (objective.Function.DomainDimension != constraints.Function.DomainDimension) throw new ArgumentException("Domain dimension of objective and constraints functions do not match.");
 
@@ -60,6 +64,8 @@ namespace Kurve.Ipopt
 			int nele_hess = objective.Function.DomainDimension * objective.Function.DomainDimension;
 
 			this.problemHandle = Wrapper.CreateIpoptProblem(objective.Function.DomainDimension, x_L, x_U, constraints.Function.CodomainDimension, g_L, g_U, nele_jac, nele_hess, 0, eval_f, eval_g, eval_grad_f, eval_jac_g, eval_h);
+
+			settings.Apply(problemHandle);
 
 			Wrapper.SetIntermediateCallback(problemHandle, intermediate_cb);
 
@@ -95,7 +101,8 @@ namespace Kurve.Ipopt
 
 			ApplicationReturnStatus returnStatus = Wrapper.IpoptSolve(problemHandle, x, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, problemHandle);
 
-			if (returnStatus != ApplicationReturnStatus.Solve_Succeeded) throw new InvalidOperationException(string.Format("Error while solving problem: {0}.", returnStatus.ToString()));
+			if (returnStatus != ApplicationReturnStatus.Solve_Succeeded && returnStatus != ApplicationReturnStatus.Solved_To_Acceptable_Level)
+				throw new InvalidOperationException(string.Format("Error while solving problem: {0}.", returnStatus.ToString()));
 
 			IEnumerable<double> result = x.Read<double>(objective.DomainDimension);
 			Marshal.FreeCoTaskMem(x);
@@ -147,18 +154,29 @@ namespace Kurve.Ipopt
 
 			if (problem.constraints == null) return true;
 
-			Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.objective.DomainDimension).Select(Matrix.CreateSingleton));
+			if (values == IntPtr.Zero)
+			{
+				var entries =
+					from rowIndex in Enumerable.Range(0, problem.constraints.CodomainDimension)
+					from columnIndex in Enumerable.Range(0, problem.constraints.DomainDimension)
+					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
 
-			Matrix constraintsJacobian = Matrix.FromRowVectors(problem.constraints.GetGradients(position).Select(gradient => gradient.Transpose));
+				iRow.Write(entries.Select(entry => entry.RowIndex));
+				jCol.Write(entries.Select(entry => entry.ColumnIndex));
+			}
+			else
+			{
+				Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.objective.DomainDimension).Select(Matrix.CreateSingleton));
 
-			var entries =
-				from rowIndex in Enumerable.Range(0, constraintsJacobian.RowCount)
-				from columnIndex in Enumerable.Range(0, constraintsJacobian.ColumnCount)
-				select new { RowIndex = rowIndex, ColumnIndex = columnIndex, Value = constraintsJacobian[rowIndex, columnIndex] };
+				Matrix constraintsJacobian = Matrix.FromRowVectors(problem.constraints.GetGradients(position).Select(gradient => gradient.Transpose));
 
-			iRow.Write(entries.Select(entry => entry.RowIndex));
-			jCol.Write(entries.Select(entry => entry.ColumnIndex));
-			values.Write(entries.Select(entry => entry.Value));
+				var entries =
+					from rowIndex in Enumerable.Range(0, problem.constraints.CodomainDimension)
+					from columnIndex in Enumerable.Range(0, problem.constraints.DomainDimension)
+					select new { Value = constraintsJacobian[rowIndex, columnIndex] };
+
+				values.Write(entries.Select(entry => entry.Value));
+			}
 
 			return true;
 		}
@@ -166,55 +184,62 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			Option<Matrix> objectiveHessian = null;
-			Option<IEnumerable<Matrix>> constraintHessians = null;
-			
-			double objectiveFactor = obj_factor;
-			if (objectiveFactor != 0)
+			if (values == IntPtr.Zero)
 			{
-				Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.objective.DomainDimension).Select(Matrix.CreateSingleton));
+				var entries =
+					from rowIndex in Enumerable.Range(0, problem.objective.DomainDimension)
+					from columnIndex in Enumerable.Range(0, problem.objective.DomainDimension)
+					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
 
-				objectiveHessian = new Option<Matrix>(objectiveFactor * problem.objective.GetHessians(position).Single());
+				iRow.Write(entries.Select(entry => entry.RowIndex));
+				jCol.Write(entries.Select(entry => entry.ColumnIndex));
 			}
-			if (problem.constraints != null)
+			else
 			{
-				IEnumerable<double> constraintFactors = lambda.Read<double>(problem.constraints.CodomainDimension);
-				if (constraintFactors.Any(factor => factor != 0))
+				Option<Matrix> objectiveHessian = null;
+				Option<IEnumerable<Matrix>> constraintHessians = null;
+				
+				double objectiveFactor = obj_factor;
+				if (objectiveFactor != 0)
 				{
 					Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.objective.DomainDimension).Select(Matrix.CreateSingleton));
 
-					constraintHessians = new Option<IEnumerable<Matrix>>(Enumerable.Zip(constraintFactors, problem.constraints.GetHessians(position), (factor, matrix) => factor * matrix));
+					objectiveHessian = new Option<Matrix>(objectiveFactor * problem.objective.GetHessians(position).Single());
 				}
+				if (problem.constraints != null)
+				{
+					IEnumerable<double> constraintFactors = lambda.Read<double>(problem.constraints.CodomainDimension);
+					if (constraintFactors.Any(factor => factor != 0))
+					{
+						Matrix position = Matrix.FromRowVectors(x.Read<double>(problem.objective.DomainDimension).Select(Matrix.CreateSingleton));
+
+						constraintHessians = new Option<IEnumerable<Matrix>>(Enumerable.Zip(constraintFactors, problem.constraints.GetHessians(position), (factor, matrix) => factor * matrix));
+					}
+				}
+
+				Matrix result = new Matrix(problem.objective.DomainDimension, problem.objective.DomainDimension);
+				if (objectiveHessian != null) result += objectiveHessian.Item;
+				if (constraintHessians != null) result += constraintHessians.Item.Aggregate(new Matrix(problem.objective.DomainDimension, problem.objective.DomainDimension), (current, matrix) => current + matrix);
+
+				var entries =
+					from rowIndex in Enumerable.Range(0, result.RowCount)
+					from columnIndex in Enumerable.Range(0, result.ColumnCount)
+					select new { Value = result[rowIndex, columnIndex] };
+
+				values.Write(entries.Select(entry => entry.Value));
 			}
 
-			if (objectiveHessian == null && constraintHessians == null) return true;
-
-			Matrix result = new Matrix(problem.objective.DomainDimension, problem.objective.DomainDimension);
-			if (objectiveHessian != null) result += objectiveHessian.Item;
-			if (constraintHessians != null) result += constraintHessians.Item.Aggregate(new Matrix(problem.objective.DomainDimension, problem.objective.DomainDimension), (current, matrix) => current + matrix);
-
-			var entries =
-				from rowIndex in Enumerable.Range(0, result.RowCount)
-				from columnIndex in Enumerable.Range(0, result.ColumnCount)
-				select new { RowIndex = rowIndex, ColumnIndex = columnIndex, Value = result[rowIndex, columnIndex] };
-
-			iRow.Write(entries.Select(entry => entry.RowIndex));
-			jCol.Write(entries.Select(entry => entry.ColumnIndex));
-			values.Write(entries.Select(entry => entry.Value));
-
-			return true;
+ 			return true;
 		}
 		static bool intermediate_cb(int alg_mod, int iter_count, double obj_value, double inf_pr, double inf_du, double mu, double d_norm, double regularization_size, double alpha_du, double alpha_pr, int ls_trials, IntPtr user_data)
 		{
-			Console.WriteLine("lulz");
-
 			return true;
 		}
 
 		static Range<Matrix> CreateUnboundedConstraints(int size)
 		{
-			Matrix start = Matrix.FromRowVectors(Enumerable.Repeat(-5.0, size).Select(Matrix.CreateSingleton));
-			Matrix end = Matrix.FromRowVectors(Enumerable.Repeat(+5.0, size).Select(Matrix.CreateSingleton));
+			Matrix start = Matrix.FromRowVectors(Enumerable.Repeat(-1e20, size).Select(Matrix.CreateSingleton));
+			Matrix end = Matrix.FromRowVectors(Enumerable.Repeat(+1e20, size).Select(Matrix.CreateSingleton));
 
 			return new Range<Matrix>(start, end);
 		}

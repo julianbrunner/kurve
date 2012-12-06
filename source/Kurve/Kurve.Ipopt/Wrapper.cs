@@ -21,6 +21,13 @@ namespace Kurve.Ipopt
 		public static extern ApplicationReturnStatus IpoptSolve(IntPtr ipopt_problem, IntPtr x, IntPtr g, IntPtr obj_val, IntPtr mult_g, IntPtr mult_x_L, IntPtr mult_x_U, IntPtr user_data);
 		[DllImport("ipopt")]
 		public static extern bool SetIntermediateCallback(IntPtr ipopt_problem, IntermediateCallback intermediate_cb);
+
+		[DllImport("ipopt")]
+		public static extern bool AddIpoptStrOption(IntPtr ipopt_problem, string keyword, string val);
+		[DllImport("ipopt")]
+		public static extern bool AddIpoptNumOption(IntPtr ipopt_problem, string keyword, double val);
+		[DllImport("ipopt")]
+		public static extern bool AddIpoptIntOption(IntPtr ipopt_problem, string keyword, int val);
 	}
 }
 

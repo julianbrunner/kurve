@@ -11,14 +11,17 @@ namespace Kurve.Test
 	{
 		static void Main(string[] parameters)
 		{
-			Problem problem = new Problem(new F());
+			Console.WriteLine(Optimize(new QuadradicFunction(), Matrix.FromRowVectors(Enumerables.Create(1.0, 1.0).Select(Matrix.CreateSingleton))));
+			Console.WriteLine(Optimize(new Rosenbrock(), Matrix.FromRowVectors(Enumerables.Create(-1.2, 1.0).Select(Matrix.CreateSingleton))));
+		}
+		static Matrix Optimize(Function function, Matrix startPosition)
+		{
+			Problem problem = new Problem(function, new Settings { PrintLevel = 4, MaximumIterationCount = 9001 });
 
-			Matrix result = problem.Solve(Matrix.FromRowVectors(Enumerables.Create(1.0, 1.0).Select(Matrix.CreateSingleton)));
-
-			Console.WriteLine(result);
+			return problem.Solve(startPosition);
 		}
 	}
-	class F : Function
+	class QuadradicFunction : Function
 	{
 		readonly Matrix A = new Matrix
 		(
@@ -43,6 +46,44 @@ namespace Kurve.Test
 		public override IEnumerable<Matrix> GetHessians(Matrix position)
 		{
 			yield return A + A.Transpose;
+		}
+	}
+	class Rosenbrock : Function
+	{
+		public override int DomainDimension { get { return 2; } }
+		public override int CodomainDimension { get { return 1; } }
+
+		public override IEnumerable<Matrix> GetValues(Matrix position)
+		{
+			yield return new Matrix
+			(
+				new [,]
+				{
+					{ (1 - position[0, 0]).Square() + 100 * (position[1, 0] - position[0, 0].Square()).Square() }
+				}
+			);
+		}
+		public override IEnumerable<Matrix> GetGradients(Matrix position)
+		{
+			yield return new Matrix
+			(
+				new [,]
+				{
+					{ 2 * (200 * position[0, 0].Exponentiate(3) - 200 * position[0, 0] * position[1, 0] + position[0, 0] - 1) },
+					{ 200 * (position[1, 0] - position[0, 0].Square()) }
+				}
+			);
+		}
+		public override IEnumerable<Matrix> GetHessians(Matrix position)
+		{
+			yield return new Matrix
+			(
+				new [,]
+				{
+					{ 1200 * position[0, 0].Square() - 400 * position[1, 0] + 2, - 400 * position[0, 0] },
+					{ - 400 * position[0, 0], 200 }
+				}
+			);
 		}
 	}
 }
