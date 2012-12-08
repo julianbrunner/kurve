@@ -70,4 +70,14 @@
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
+      <Project>{7AC660D7-ED47-4DDB-A10F-DD480AC99286}</Project>
+      <Name>Kurve.Curves</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\libraries\krach\Source\Krach\Krach.csproj">
+      <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
+      <Name>Krach</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7AC660D7-ED47-4DDB-A10F-DD480AC99286}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Kurve.Curves</RootNamespace>
+    <AssemblyName>Kurve.Curves</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ParametricCurve.cs" />
+    <Compile Include="PolynomialParametricCurve.cs" />
+    <Compile Include="Specification.cs" />
+    <Compile Include="PolynomialFunction.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Kurve.Ipopt\Kurve.Ipopt.csproj">
+      <Project>{21E52697-8DB2-4228-824D-BCDDBAA92691}</Project>
+      <Name>Kurve.Ipopt</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\libraries\krach\Source\Krach\Krach.csproj">
+      <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
+      <Name>Krach</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
