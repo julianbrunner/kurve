@@ -10,6 +10,8 @@ namespace Kurve.Curves
 	{
 		PolynomialFunction polynomialFunction;
 
+		public override ParametricCurve Derivative { get { return new PolynomialParametricCurve(polynomialFunction.Derivative); } }
+
 		public PolynomialParametricCurve(PolynomialFunction polynomialFunction)
 		{
 			if (polynomialFunction == null) throw new ArgumentNullException("polynomialFunction");
