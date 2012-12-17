@@ -36,11 +36,11 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ParametricCurve.cs" />
     <Compile Include="PolynomialParametricCurve.cs" />
-    <Compile Include="PolynomialFunction.cs" />
     <Compile Include="Optimizer.cs" />
     <Compile Include="CurvePlaceSpecification.cs" />
     <Compile Include="ParametricCurveClassSpecification.cs" />
     <Compile Include="PolynomialParametricCurveClassSpecification.cs" />
+    <Compile Include="PolynomialFunction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

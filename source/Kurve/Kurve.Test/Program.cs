@@ -4,6 +4,7 @@ using Krach.Basics;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
+using Krach.Analysis;
 
 namespace Kurve.Test
 {
@@ -13,6 +14,7 @@ namespace Kurve.Test
 		{
 			Console.WriteLine(Optimize(new QuadradicFunction(), Matrix.FromRowVectors(Enumerables.Create(1.0, 1.0).Select(Matrix.CreateSingleton))));
 			Console.WriteLine(Optimize(new Rosenbrock(), Matrix.FromRowVectors(Enumerables.Create(-1.2, 1.0).Select(Matrix.CreateSingleton))));
+			Console.WriteLine(Optimize(new RosenbrockSymbolic(), Matrix.FromRowVectors(Enumerables.Create(-1.2, 1.0).Select(Matrix.CreateSingleton))));
 		}
 		static Matrix Optimize(Function function, Matrix startPosition)
 		{
@@ -85,5 +87,34 @@ namespace Kurve.Test
 				}
 			);
 		}
+	}
+	class RosenbrockSymbolic : SymbolicFunction
+	{
+		public RosenbrockSymbolic() :
+			base
+			(
+				Enumerables.Create(new Variable("x"), new Variable("y")),
+				Enumerables.Create
+				(
+					new Sum
+					(
+						new Product
+						(
+							new Sum(new Constant(1), new Product(new Constant(-1), new Variable("x"))),
+							new Sum(new Constant(1), new Product(new Constant(-1), new Variable("x")))
+						),
+						new Product
+						(
+							new Constant(100),
+							new Product
+							(
+								new Sum(new Variable("y"), new Product(new Constant(-1), new Product(new Variable("x"), new Variable("x")))),
+								new Sum(new Variable("y"), new Product(new Constant(-1), new Product(new Variable("x"), new Variable("x"))))
+							)
+						)
+					)
+				)
+			)
+		{ }
 	}
 }

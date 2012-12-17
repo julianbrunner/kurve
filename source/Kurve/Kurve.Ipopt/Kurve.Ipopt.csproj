@@ -37,7 +37,6 @@
     <Compile Include="Wrapper.cs" />
     <Compile Include="Problem.cs" />
     <Compile Include="ApplicationReturnStatus.cs" />
-    <Compile Include="Function.cs" />
     <Compile Include="CodomainConstrainedFunction.cs" />
     <Compile Include="DomainConstrainedFunction.cs" />
     <Compile Include="Settings.cs" />
