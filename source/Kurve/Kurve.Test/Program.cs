@@ -4,7 +4,7 @@ using Krach.Basics;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
-using Krach.Analysis;
+using Krach.Calculus;
 
 namespace Kurve.Test
 {

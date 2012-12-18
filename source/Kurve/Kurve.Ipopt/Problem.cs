@@ -5,7 +5,7 @@ using Krach.Basics;
 using Krach.Extensions;
 using System.Runtime.InteropServices;
 using Krach.Design;
-using Krach.Analysis;
+using Krach.Calculus;
 
 namespace Kurve.Ipopt
 {

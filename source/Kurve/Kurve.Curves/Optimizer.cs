@@ -4,62 +4,12 @@ using Kurve.Ipopt;
 using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Krach.Analysis;
+using Krach.Calculus;
 
 namespace Kurve.Curves
 {
 	public class Optimizer
 	{
-		class FairnessFunction : Function
-		{
-			readonly Optimizer optimizer;
-
-			public override int DomainDimension { get { return optimizer.DomainDimension; } }
-			public override int CodomainDimension { get { return 1; } }
-
-			public FairnessFunction(Optimizer optimizer)
-			{
-				if (optimizer == null) throw new ArgumentNullException("optimizer");
-
-				this.optimizer = optimizer;
-			}
-
-			public override IEnumerable<Matrix> GetValues(Matrix position)
-			{
-				double result = Enumerable.Zip
-				(
-					optimizer.GetVirtualPoints(position),
-					optimizer.placeSpecifications,
-					(virtualPoint, placeSpecification) => (virtualPoint - placeSpecification.Position).LengthSquared
-				)
-				.Sum();
-
-				yield return Matrix.CreateSingleton(result);
-			}
-			public override IEnumerable<Matrix> GetGradients(Matrix position)
-			{
-				IEnumerable<double> result1 =
-					from point in Enumerable.Zip
-					(
-						optimizer.GetVirtualPoints(position),
-						optimizer.placeSpecifications,
-						(virtualPoint, placeSpecification) => 2 * (virtualPoint - placeSpecification.Position)
-					)
-					from component in Enumerables.Create(point.X, point.Y)
-					select component;
-				IEnumerable<double> result2 = Enumerable.Repeat(0.0, (optimizer.placeSpecifications.Count() - 1) * optimizer.classSpecification.ParameterCount);
-
-				yield return Matrix.FromRowVectors(Enumerables.Concatenate(result1, result2).Select(Matrix.CreateSingleton));
-			}
-			public override IEnumerable<Matrix> GetHessians(Matrix position)
-			{
-				Matrix result = new Matrix(optimizer.DomainDimension, optimizer.DomainDimension);
-
-				for (int index = 0; index < optimizer.placeSpecifications.Count() * 2; index++) result[index, index] = 2;
-
-				yield return result;
-			}
-		}
 		class ConstraintsFunction : Function
 		{
 			readonly Optimizer optimizer;
@@ -101,6 +51,8 @@ namespace Kurve.Curves
 
 		readonly IEnumerable<CurvePlaceSpecification> placeSpecifications;
 		readonly ParametricCurveClassSpecification classSpecification;
+		readonly Function fairnessFunction;
+		readonly Function constraintsFunction;
 
 		int DomainDimension
 		{
@@ -121,6 +73,54 @@ namespace Kurve.Curves
 
 			this.placeSpecifications = placeSpecifications;
 			this.classSpecification = classSpecification;
+
+			IEnumerable<Variable> virtualPoints =
+				from virtualPointIndex in Enumerable.Range(0, placeSpecifications.Count())
+				from component in Enumerables.Create("x", "y")
+				select new Variable(string.Format("p_{0}_{1}", virtualPointIndex, component));
+			IEnumerable<Variable> parameters =
+				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
+				from parameterIndex in Enumerable.Range(0, classSpecification.ParameterCount)
+				from component in Enumerables.Create("x", "y")
+				select new Variable(string.Format("q_{0}_{1}_{2}", segmentIndex, parameterIndex, component));
+
+			IEnumerable<Variable> variables = Enumerables.Concatenate(virtualPoints, parameters).ToArray();
+
+			this.fairnessFunction = new SymbolicFunction
+			(
+				variables,
+				Enumerables.Create
+				(
+					(
+						from item in Enumerable.Zip(Enumerable.Range(0, placeSpecifications.Count()), placeSpecifications, Tuple.Create)
+						let virtualPoint = string.Format("p_{0}", item.Item1)
+						let placeSpecification = item.Item2
+						select Terms.Sum
+						(
+							Terms.Difference(Terms.Variable(virtualPoint + "_x"), Terms.Constant(placeSpecification.Position.X)).Square(),
+							Terms.Difference(Terms.Variable(virtualPoint + "_y"), Terms.Constant(placeSpecification.Position.Y)).Square()
+						)
+					)
+					.Sum()
+				)
+			);
+
+			// TODO: next steps
+			//   generalize ParametricCurve to use terms with parameter and position variables
+			//   make objects for things like curve segments
+
+//			this.constraintsFunction = new SymbolicFunction
+//			(
+//				variables,
+//				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
+//				let parametricCurve = parametricCurves.ElementAt(segmentIndex)
+//				from segmentPositionIndex in Enumerables.Create(0, 1)
+//				let listIndex = parametricCurveIndex * 2 + segmentPositionIndex
+//				let virtualPointIndex = (listIndex + 1) / 2
+//				let point = parametricCurve.EvaluatePoint(segmentPositionIndex) - virtualPoints.ElementAt(virtualPointIndex)
+//				from component in Enumerables.Create(point.X, point.Y)
+//				select Matrix.CreateSingleton(component);
+//			)
 		}
 
 		IEnumerable<Vector2Double> GetVirtualPoints(Matrix position)
