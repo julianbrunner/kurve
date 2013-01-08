@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
 using Krach.Calculus;
+using Krach.Calculus.Terms;
 
 namespace Kurve.Test
 {

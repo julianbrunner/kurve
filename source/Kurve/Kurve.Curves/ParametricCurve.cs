@@ -1,15 +1,27 @@
 using System;
 using Krach.Basics;
+using Krach.Calculus.Terms;
 
 namespace Kurve.Curves
 {
-	public abstract class ParametricCurve
+	public class ParametricCurve
 	{
-		public abstract ParametricCurve Derivative { get; }
+		readonly Term x;
+		readonly Term y;
 
-		public abstract Vector2Double EvaluatePoint(double position);
-		public abstract double EvaluateTangentDirection(double position);
-		public abstract double EvaluateCurvatureLength(double position);
+		public static Variable Position { get { return new Variable("position"); } }
+
+		public Term X { get { return x; } }
+		public Term Y { get { return y; } }
+
+		public ParametricCurve(Term x, Term y)
+		{
+			if (x == null) throw new ArgumentNullException("x");
+			if (y == null) throw new ArgumentNullException("y");
+
+			this.x = x;
+			this.y = y;
+		}
 	}
 }
 
