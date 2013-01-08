@@ -51,7 +51,7 @@ namespace Kurve.Curves
 //		}
 
 		readonly IEnumerable<CurvePlaceSpecification> placeSpecifications;
-		readonly UninstantiatedParametricCurve uninstantiatedParametricCurve;
+		readonly ParametricCurve parametricCurveTemplate;
 		readonly Function fairnessFunction;
 		readonly Function constraintsFunction;
 
@@ -63,17 +63,17 @@ namespace Kurve.Curves
 					// virtual points
 					placeSpecifications.Count() * 2 +
 					// parametric curve parameters
-					(placeSpecifications.Count() - 1) * uninstantiatedParametricCurve.Coefficients.Count();
+					(placeSpecifications.Count() - 1) * parametricCurveTemplate.Parameters.Count();
 			}
 		}
 
-		public Optimizer(IEnumerable<CurvePlaceSpecification> placeSpecifications, UninstantiatedParametricCurve uninstantiatedParametricCurve)
+		public Optimizer(IEnumerable<CurvePlaceSpecification> placeSpecifications, ParametricCurve parametricCurveTemplate)
 		{
 			if (placeSpecifications == null) throw new ArgumentNullException("placeSpecifications");
-			if (uninstantiatedParametricCurve == null) throw new ArgumentNullException("uninstantiatedParametricCurve");
+			if (parametricCurveTemplate == null) throw new ArgumentNullException("uninstantiatedParametricCurve");
 
 			this.placeSpecifications = placeSpecifications;
-			this.uninstantiatedParametricCurve = uninstantiatedParametricCurve;
+			this.parametricCurveTemplate = parametricCurveTemplate;
 
 			IEnumerable<Variable> virtualPoints =
 				from virtualPointIndex in Enumerable.Range(0, placeSpecifications.Count())
@@ -81,7 +81,7 @@ namespace Kurve.Curves
 				select new Variable(string.Format("p_{0}_{1}", virtualPointIndex, component));
 			IEnumerable<Variable> parameters =
 				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
-				from parameterIndex in Enumerable.Range(0, uninstantiatedParametricCurve.Coefficients.Count())
+				from parameterIndex in Enumerable.Range(0, parametricCurveTemplate.Parameters.Count())
 				from component in Enumerables.Create("x", "y")
 				select new Variable(string.Format("q_{0}_{1}_{2}", segmentIndex, parameterIndex, component));
 
@@ -95,19 +95,26 @@ namespace Kurve.Curves
 					Term.Sum
 					(
 						from item in Enumerable.Zip(Enumerable.Range(0, placeSpecifications.Count()), placeSpecifications, Tuple.Create)
-						let virtualPoint = string.Format("p_{0}", item.Item1)
+						let virtualPointX = Term.Variable(string.Format("p_{0}_x", item.Item1))
+						let virtualPointY = Term.Variable(string.Format("p_{0}_y", item.Item1))
 						let placeSpecification = item.Item2
 						select Term.Sum
 						(
-							Term.Difference(Term.Variable(virtualPoint + "_x"), Term.Constant(placeSpecification.Position.X)).Square(),
-							Term.Difference(Term.Variable(virtualPoint + "_y"), Term.Constant(placeSpecification.Position.Y)).Square()
+							Term.Difference(virtualPointX, Term.Constant(placeSpecification.Position.X)).Square(),
+							Term.Difference(virtualPointY, Term.Constant(placeSpecification.Position.Y)).Square()
 						)
 					)
 				)
 			);
+			this.constraintsFunction = new SymbolicFunction
+			(
+				variables,
+				null
+				// TODO: insert copies of curve template according to notes
+			);
 
 			// TODO: next steps
-			//   make objects for things like curve segments
+			//   think about how object encapsulation can be used to hide some of the index wars
 
 //			this.constraintsFunction = new SymbolicFunction
 //			(
@@ -121,28 +128,6 @@ namespace Kurve.Curves
 //				from component in Enumerables.Create(point.X, point.Y)
 //				select Matrix.CreateSingleton(component)
 //			);
-		}
-
-		IEnumerable<Vector2Double> GetVirtualPoints(Matrix position)
-		{
-			int offset = 0;
-
-			return
-				from pointIndex in Enumerable.Range(0, placeSpecifications.Count())
-				let x = position[offset + pointIndex * 2 + 0, 0]
-				let y = position[offset + pointIndex * 2 + 1, 0]
-				select new Vector2Double(x, y);
-		}
-		IEnumerable<ParametricCurve> GetParametricCurves(Matrix position)
-		{
-			int offset = placeSpecifications.Count() * 2;
-
-			return
-				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
-				let parameters =
-					from parameterIndex in Enumerable.Range(0, uninstantiatedParametricCurve.Coefficients.Count())
-					select position[offset + segmentIndex * uninstantiatedParametricCurve.Coefficients.Count() + parameterIndex, 0]
-				select uninstantiatedParametricCurve.Instantiate(parameters);
 		}
 	}
 }

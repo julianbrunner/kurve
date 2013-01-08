@@ -4,8 +4,10 @@ using Gdk;
 using Cairo;
 using Kurve.Curves;
 using Krach.Basics;
+using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
+using Krach.Calculus.Terms;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -23,8 +25,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
 		{
-			IEnumerable<double> coefficientValues = Enumerables.Create<double>(10, 10, 10, 200, 60, 10);
-			InstantiatedParametricCurve parametricCurve = UninstantiatedParametricCurve.CreatePolynomialParametricCurveClass(3).Instantiate(coefficientValues);
+			ParametricCurve parametricCurve = ParametricCurve.CreatePolynomialParametricCurveTemplate(3).InstantiateParameters
+			(
+				from coefficientValue in Enumerables.Create<double>(10, 10, 10, 200, 60, 10)
+				select Term.Constant(coefficientValue)
+			);
 
 			DrawParametricCurve(context, parametricCurve);
 
@@ -32,7 +37,7 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
-	static void DrawParametricCurve(Context context, InstantiatedParametricCurve curve)
+	static void DrawParametricCurve(Context context, ParametricCurve curve)
 	{
 		Vector2Double startPoint = curve.EvaluatePoint(0);
 		context.MoveTo(startPoint.X, startPoint.Y);

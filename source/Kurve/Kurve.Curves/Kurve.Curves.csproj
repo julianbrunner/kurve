@@ -37,8 +37,6 @@
     <Compile Include="ParametricCurve.cs" />
     <Compile Include="Optimizer.cs" />
     <Compile Include="CurvePlaceSpecification.cs" />
-    <Compile Include="InstantiatedParametricCurve.cs" />
-    <Compile Include="UninstantiatedParametricCurve.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
