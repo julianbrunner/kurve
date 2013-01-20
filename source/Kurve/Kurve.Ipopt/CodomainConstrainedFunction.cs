@@ -20,7 +20,7 @@ namespace Kurve.Ipopt
 
 			Vector2Integer constraintsSize = Items.Equal(constraints.Start.Size, constraints.End.Size);
 			if (constraintsSize.X != function.CodomainDimension) throw new ArgumentException("Parameter constraints doesn't match codomain dimension of function.");
-			if (constraintsSize.Y != 1) throw new ArgumentException("Parameter constraints is not a row vector range.");
+			if (constraintsSize.Y != 1) throw new ArgumentException("Parameter constraints is not a column vector range.");
 
 			this.function = function;
 			this.constraints = constraints;

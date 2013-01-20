@@ -96,7 +96,7 @@ namespace Kurve.Ipopt
 		public Matrix Solve(Matrix startPosition)
 		{
 			if (startPosition.RowCount != objective.DomainDimension) throw new ArgumentException("Parameter 'startPosition' has the wrong row count.");
-			if (startPosition.ColumnCount != 1) throw new ArgumentException("Parameter 'startPosition' is not a row vector.");
+			if (startPosition.ColumnCount != 1) throw new ArgumentException("Parameter 'startPosition' is not a column vector.");
 
 			IntPtr x = startPosition.Columns.Single().Copy();
 
