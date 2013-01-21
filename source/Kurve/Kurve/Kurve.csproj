@@ -18,7 +18,12 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="LD_PRELOAD" value="libipopt.so liblapack.so libdl.so libcoinmumps.so libblas.so libm.so libquadmath.so" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -26,7 +31,12 @@
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
+    <EnvironmentVariables>
+      <EnvironmentVariables>
+        <Variable name="LD_PRELOAD" value="libipopt.so liblapack.so libdl.so libcoinmumps.so libblas.so libm.so libquadmath.so" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

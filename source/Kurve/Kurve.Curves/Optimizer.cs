@@ -50,7 +50,7 @@ namespace Kurve.Curves
 				let segmentParameters = 
 					from parameterIndex in Enumerable.Range(0, parametricCurveTemplate.Parameters.Count())
 					select new Variable(string.Format("q_{0}_{1}", segmentIndex, parameterIndex))
-				select parametricCurveTemplate.InstantiateParameters(segmentParameters)
+				select parametricCurveTemplate.RenameParameters(segmentParameters)
 			)
 			.ToArray();
 			
@@ -88,7 +88,7 @@ namespace Kurve.Curves
 				select Term.Difference(parametricCurveTerms.ElementAt(componentIndex), virtualPoint)
 			);
 			
-			Range<Matrix> constraintsConstraints = new Range<Matrix>(new Matrix(1, placeSpecifications.Count() * 2 * 2));
+			Range<Matrix> constraintsConstraints = new Range<Matrix>(new Matrix(parametricCurves.Count() * 2 * 2, 1));
 			
 			this.constraints = new CodomainConstrainedFunction(constraintsFunction, constraintsConstraints);
 			// TODO: next steps
@@ -99,23 +99,33 @@ namespace Kurve.Curves
 		{
 			Problem problem = new Problem(objective, constraints, new Settings());
 			
-			Matrix startPosition = new Matrix(1, Variables.Count());
-			Matrix result = problem.Solve(startPosition);
-			
-			IEnumerable<double> parameterValues = result.Rows.Select(Enumerable.Single).Skip(VirtualPoints.Count());
-			
+			Matrix startPosition = new Matrix(Variables.Count(), 1);
+			IEnumerable<double> result = problem.Solve(startPosition).Rows.Select(Enumerable.Single);
+						
+			int virtualPointsCount = VirtualPoints.Count();
 			int parameterCount = parametricCurves.Select(parametricCurve => parametricCurve.Parameters.Count()).Distinct().Single();
 			
-			return 
+			IEnumerable<ParametricCurve> resultCurves = 
+			(
 				from parametricCurveIndex in Enumerable.Range(0, parametricCurves.Count())
 				let parametricCurve = parametricCurves.ElementAt(parametricCurveIndex)
-				let parameterTerms = parameterValues.GetRange
+				let parameterTerms = result.Skip(virtualPointsCount).GetRange
 				(
 					(parametricCurveIndex + 0) * parameterCount, 
 					(parametricCurveIndex + 1) * parameterCount
 				)
 				.Select(Term.Constant)
-				select parametricCurve.InstantiateParameters(parameterTerms);
+				select parametricCurve.InstantiateParameters(parameterTerms)
+			)	
+			.ToArray();
+			
+			Console.WriteLine(objective);
+			Console.WriteLine(constraints.Function);
+			
+			foreach (double position in result.Take(virtualPointsCount)) Console.WriteLine(position);
+			foreach (ParametricCurve curve in resultCurves) Console.WriteLine(curve);
+			
+			return resultCurves;
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace Kurve.Ipopt
 
 			instances.Add(problemHandle, this);
 		}
-		public Problem(Function objective, CodomainConstrainedFunction constraints, Settings settings): this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension)), settings) { }
+		public Problem(Function objective, CodomainConstrainedFunction constraints, Settings settings): this(new DomainConstrainedFunction(objective, CreateUnboundedConstraints(objective.DomainDimension)), constraints, settings) { }
 		public Problem(DomainConstrainedFunction objective, CodomainConstrainedFunction constraints, Settings settings)
 		{
 			if (objective == null) throw new ArgumentNullException("objective");

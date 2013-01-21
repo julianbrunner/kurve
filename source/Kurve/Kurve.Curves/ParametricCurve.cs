@@ -32,7 +32,12 @@ namespace Kurve.Curves
 			this.position = position;
 			this.parameters = parameters;
 		}
-
+		
+		public override string ToString()
+		{
+			return string.Format("{0}\n{1}", x, y);
+		}
+		
 		public Vector2Double EvaluatePoint(double positionValue)
 		{
 			ParametricCurve point = InstantiatePosition(new Constant(positionValue));
@@ -59,36 +64,50 @@ namespace Kurve.Curves
 		{
 			return new ParametricCurve(x.Substitute(position, term), y.Substitute(position, term), position, parameters);
 		}
+		public ParametricCurve RenamePosition(Variable newPosition)
+		{
+			return new ParametricCurve(x.Substitute(position, newPosition), y.Substitute(position, newPosition), newPosition, parameters);
+		}
 		public ParametricCurve InstantiateParameters(IEnumerable<Term> terms)
 		{
+			terms = terms.ToArray();
 			Term x = Enumerable.Zip(parameters, terms, Tuple.Create).Aggregate(X, (term, item) => term.Substitute(item.Item1, item.Item2));
 			Term y = Enumerable.Zip(parameters, terms, Tuple.Create).Aggregate(Y, (term, item) => term.Substitute(item.Item1, item.Item2));
 
 			return new ParametricCurve(x, y, position, parameters);
+		}
+		public ParametricCurve RenameParameters(IEnumerable<Variable> newParameters) 
+		{
+			newParameters = newParameters.ToArray();
+
+			Term x = Enumerable.Zip(parameters, newParameters, Tuple.Create).Aggregate(X, (term, item) => term.Substitute(item.Item1, item.Item2));
+			Term y = Enumerable.Zip(parameters, newParameters, Tuple.Create).Aggregate(Y, (term, item) => term.Substitute(item.Item1, item.Item2));
+
+			return new ParametricCurve(x, y, position, newParameters);
 		}
 
 		public static ParametricCurve CreatePolynomialParametricCurveTemplate(int degree)
 		{
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
 
-			Variable position = Term.Variable("position");
+			Variable position = new Variable("position");
 			IEnumerable<Variable> coefficients = 
 				from index in Enumerable.Range(0, degree)
 				from component in Enumerables.Create("x", "y")
-				select Term.Variable(string.Format("coefficient_{0}_{1}", index, component));
+				select new Variable(string.Format("coefficient_{0}_{1}", index, component));
 
 			Term x = Term.Sum
 			(
 				from index in Enumerable.Range(0, degree)
 				let coefficient = coefficients.ElementAt(index * 2 + 0)
-				let power = position.Exponentiate(Term.Constant(index))
+				let power = position.Exponentiate(new Constant(index))
 				select Term.Product(coefficient, power)
 			);
 			Term y = Term.Sum
 			(
 				from index in Enumerable.Range(0, degree)
 				let coefficient = coefficients.ElementAt(index * 2 + 1)
-				let power = position.Exponentiate(Term.Constant(index))
+				let power = position.Exponentiate(new Constant(index))
 				select Term.Product(coefficient, power)
 			);
 

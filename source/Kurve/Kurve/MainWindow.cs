@@ -32,7 +32,15 @@ public partial class MainWindow: Gtk.Window
 			);
 
 			DrawParametricCurve(context, parametricCurve);
-
+			
+			CurvePlaceSpecification startPoint = new CurvePlaceSpecification(new Vector2Double(100,100));
+			CurvePlaceSpecification endPoint = new CurvePlaceSpecification(new Vector2Double(150, 200));
+			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(2);
+			
+			Optimizer optimizer = new Optimizer(Enumerables.Create(startPoint, endPoint), curveTemplate);
+			ParametricCurve result = optimizer.Optimize().Single();
+			DrawParametricCurve(context, result);
+			
 			context.Target.Dispose();
 		}
 	}
