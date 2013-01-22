@@ -24,22 +24,15 @@ public partial class MainWindow: Gtk.Window
 	protected void OnDrawingarea1ExposeEvent(object o, ExposeEventArgs args)
 	{
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
-		{
-			ParametricCurve parametricCurve = ParametricCurve.CreatePolynomialParametricCurveTemplate(3).InstantiateParameters
-			(
-				from coefficientValue in Enumerables.Create<double>(10, 10, 10, 200, 60, 10)
-				select Term.Constant(coefficientValue)
-			);
-
-			DrawParametricCurve(context, parametricCurve);
-			
-			CurvePlaceSpecification startPoint = new CurvePlaceSpecification(new Vector2Double(100,100));
-			CurvePlaceSpecification endPoint = new CurvePlaceSpecification(new Vector2Double(150, 200));
+		{			
+			CurvePlaceSpecification point1 = new CurvePlaceSpecification(new Vector2Double(100, 100));
+			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200));
+			CurvePlaceSpecification point3 = new CurvePlaceSpecification(new Vector2Double(300, 50));
 			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(2);
 			
-			Optimizer optimizer = new Optimizer(Enumerables.Create(startPoint, endPoint), curveTemplate);
-			ParametricCurve result = optimizer.Optimize().Single();
-			DrawParametricCurve(context, result);
+			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate);
+
+			foreach (ParametricCurve parametricCurve in optimizer.Optimize()) DrawParametricCurve(context, parametricCurve);
 			
 			context.Target.Dispose();
 		}

@@ -91,6 +91,7 @@ namespace Kurve.Curves
 			Range<Matrix> constraintsConstraints = new Range<Matrix>(new Matrix(parametricCurves.Count() * 2 * 2, 1));
 			
 			this.constraints = new CodomainConstrainedFunction(constraintsFunction, constraintsConstraints);
+
 			// TODO: next steps
 			//   think about how object encapsulation can be used to hide some of the index wars
 		}
@@ -100,7 +101,9 @@ namespace Kurve.Curves
 			Problem problem = new Problem(objective, constraints, new Settings());
 			
 			Matrix startPosition = new Matrix(Variables.Count(), 1);
-			IEnumerable<double> result = problem.Solve(startPosition).Rows.Select(Enumerable.Single);
+			Matrix resultPosition = problem.Solve(startPosition);
+
+			IEnumerable<double> result = resultPosition.Rows.Select(Enumerable.Single);
 						
 			int virtualPointsCount = VirtualPoints.Count();
 			int parameterCount = parametricCurves.Select(parametricCurve => parametricCurve.Parameters.Count()).Distinct().Single();
@@ -118,11 +121,16 @@ namespace Kurve.Curves
 				select parametricCurve.InstantiateParameters(parameterTerms)
 			)	
 			.ToArray();
-			
-			Console.WriteLine(objective);
-			Console.WriteLine(constraints.Function);
-			
+
+			Console.WriteLine("start position\n{0}", startPosition);
+			Console.WriteLine("result position\n{0}", resultPosition);
+			Console.WriteLine("objective function\n{0}", objective);
+			Console.WriteLine("constraints function\n{0}", constraints.Function);
+
+			Console.WriteLine("virtual points");
 			foreach (double position in result.Take(virtualPointsCount)) Console.WriteLine(position);
+
+			Console.WriteLine("result curves");
 			foreach (ParametricCurve curve in resultCurves) Console.WriteLine(curve);
 			
 			return resultCurves;
