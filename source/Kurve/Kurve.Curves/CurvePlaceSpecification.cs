@@ -5,13 +5,16 @@ namespace Kurve.Curves
 {
 	public class CurvePlaceSpecification
 	{
-		readonly Vector2Double position;
-
-		public Vector2Double Position { get { return position; } }
-
-		public CurvePlaceSpecification(Vector2Double position)
+		readonly Vector2Double point;
+		readonly Vector2Double velocity;
+		
+		public Vector2Double Point { get { return point; } }
+		public Vector2Double Velocity { get { return velocity; } }
+		
+		public CurvePlaceSpecification(Vector2Double point, Vector2Double velocity)
 		{
-			this.position = position;
+			this.point = point;
+			this.velocity = velocity;
 		}
 	}
 }

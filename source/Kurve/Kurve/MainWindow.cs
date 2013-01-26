@@ -25,10 +25,10 @@ public partial class MainWindow: Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
 		{			
-			CurvePlaceSpecification point1 = new CurvePlaceSpecification(new Vector2Double(100, 100));
-			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200));
-			CurvePlaceSpecification point3 = new CurvePlaceSpecification(new Vector2Double(300, 50));
-			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(2);
+			CurvePlaceSpecification point1 = new CurvePlaceSpecification(new Vector2Double(100, 100), new Vector2Double(0, 100));
+			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200), new Vector2Double(100, 0));
+			CurvePlaceSpecification point3 = new CurvePlaceSpecification(new Vector2Double(300, 50), new Vector2Double(0, -1000));
+			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(3);
 			
 			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate);
 

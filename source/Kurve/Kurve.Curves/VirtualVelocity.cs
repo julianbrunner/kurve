@@ -1,0 +1,61 @@
+using System;
+using Krach.Calculus.Terms;
+using System.Collections.Generic;
+using Krach.Basics;
+using Krach.Extensions;
+using System.Linq;
+
+namespace Kurve.Curves
+{
+	class VirtualVelocity : VirtualObject
+	{
+		readonly Variable x;
+		readonly Variable y;
+		readonly IEnumerable<VirtualObjectAttachment> attachments;
+		readonly Term errorTerm;
+		
+		public override IEnumerable<Variable> Variables { get { return Enumerables.Create(x, y); } }
+		public override IEnumerable<Constraint> Constraints 
+		{
+			get 
+			{
+				return 
+					from attachment in attachments
+					from constraint in attachment.Constraints
+					select constraint;
+			}
+		} 
+		public override Term ErrorTerm { get { return errorTerm; } }
+		
+		public VirtualVelocity(int index, IEnumerable<VirtualObjectAttachmentSpecification> specifications, Vector2Double velocity)
+		{
+			if (index < 0) throw new ArgumentOutOfRangeException("index");
+			if (specifications == null) throw new ArgumentNullException("specification");
+			
+			this.x = new Variable(string.Format("v_{0}_x", index));
+			this.y = new Variable(string.Format("v_{0}_y", index));
+			
+			this.attachments = specifications.Select(CreateAttachment);	
+			this.errorTerm = Term.Sum
+			(
+				Term.Difference(x, Term.Constant(velocity.X)).Square(),
+				Term.Difference(y, Term.Constant(velocity.Y)).Square()
+			);
+		}
+		
+		public VirtualObjectAttachment CreateAttachment(VirtualObjectAttachmentSpecification specification)
+		{
+			ParametricCurve instantiatedCurve = specification.ParametricCurve.Derivative.InstantiatePosition(Term.Constant(specification.Position));
+			
+			return new VirtualObjectAttachment
+			(
+				Enumerables.Create
+				(
+					new Constraint(Term.Difference(x, instantiatedCurve.X), new OrderedRange<double>(0)),
+					new Constraint(Term.Difference(y, instantiatedCurve.Y), new OrderedRange<double>(0))
+				)
+			);
+		}
+	}
+}
+
