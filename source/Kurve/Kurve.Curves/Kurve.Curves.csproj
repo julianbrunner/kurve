@@ -42,7 +42,7 @@
     <Compile Include="VirtualObjectAttachment.cs" />
     <Compile Include="VirtualPoint.cs" />
     <Compile Include="VirtualObjectAttachmentSpecification.cs" />
-    <Compile Include="VirtualVelocity.cs" />
+    <Compile Include="VirtualDirection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

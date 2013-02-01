@@ -43,7 +43,7 @@ namespace Kurve.Curves
 			);
 		}
 		
-		public VirtualObjectAttachment CreateAttachment(VirtualObjectAttachmentSpecification specification)
+		VirtualObjectAttachment CreateAttachment(VirtualObjectAttachmentSpecification specification)
 		{
 			ParametricCurve instantiatedCurve = specification.ParametricCurve.InstantiatePosition(Term.Constant(specification.Position));
 			

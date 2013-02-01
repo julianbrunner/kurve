@@ -11,119 +11,35 @@ namespace Kurve.Curves
 {
 	public class Optimizer
 	{
-		readonly IEnumerable<CurvePlaceSpecification> placeSpecifications;
 		readonly IEnumerable<ParametricCurve> parametricCurves;
+		readonly IEnumerable<VirtualObject> virtualObjects;
 		readonly Function objective;
 		readonly CodomainConstrainedFunction constraints;
 		
-		IEnumerable<VirtualObject> VirtualPoints 
-		{ 
-			get 
-			{ 
-				return Enumerables.Concatenate
-				(
-					Enumerables.Create
-					(
-						new VirtualPoint
-						(
-							0, 
-							Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.First(), 0)),
-							placeSpecifications.First().Point
-						)
-					),
-					from segmentIndex in Enumerable.Range(0, parametricCurves.Count() - 1)
-					select new VirtualPoint
-					(
-						segmentIndex + 1, 
-						Enumerables.Create
-						(
-							new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 0), 1),
-							new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 1), 0)
-						),
-						placeSpecifications.ElementAt(segmentIndex + 1).Point
-					),
-					Enumerables.Create
-					(
-						new VirtualPoint
-						(
-							placeSpecifications.Count() - 1, 
-							Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.Last(), 1)),
-							placeSpecifications.Last().Point
-						)
-					)			
-				);
-			}
-		}
-		IEnumerable<VirtualObject> VirtualVelocities 
-		{ 
-			get 
-			{ 
-				return Enumerables.Concatenate
-				(
-					Enumerables.Create
-					(
-						new VirtualVelocity
-						(
-							0, 
-							Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.First(), 0)),
-							placeSpecifications.First().Velocity
-						)
-					),
-					from segmentIndex in Enumerable.Range(0, parametricCurves.Count() - 1)
-					select new VirtualVelocity
-					(
-						segmentIndex + 1, 
-						Enumerables.Create
-						(
-							new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 0), 1),
-							new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 1), 0)
-						),
-						placeSpecifications.ElementAt(segmentIndex + 1).Velocity
-					),
-					Enumerables.Create
-					(
-						new VirtualVelocity
-						(
-							placeSpecifications.Count() - 1, 
-							Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.Last(), 1)),
-							placeSpecifications.Last().Velocity
-						)
-					)			
-				);
-			}
-		}
-		IEnumerable<VirtualObject> VirtualObjects { get { return Enumerables.Concatenate(Enumerables.Create(VirtualPoints, VirtualVelocities)); } }
-		IEnumerable<Variable> ParametricCurveParameters 
-		{ 
-			get
-			{
-				return
-					from parametricCurve in parametricCurves
-					from parameter in parametricCurve.Parameters
-					select parameter;
-			}
-		}
+		// TODO
+		// Cleanup Optimize method and output
+		// Make stuff more efficient
 		IEnumerable<Variable> Variables 
 		{ 
 			get 
 			{ 
 				return Enumerables.Concatenate
 				(
-					from virtualObject in VirtualObjects
+					from virtualObject in virtualObjects
 					from variable in virtualObject.Variables
 					select variable,
-					ParametricCurveParameters
-				)
-				.ToArray(); 
+					from parametricCurve in parametricCurves
+					from parameter in parametricCurve.Parameters
+					select parameter
+				);
 			} 
-		}	
+		}
 		
 		public Optimizer(IEnumerable<CurvePlaceSpecification> placeSpecifications, ParametricCurve parametricCurveTemplate)
 		{
 			if (placeSpecifications == null) throw new ArgumentNullException("placeSpecifications");
 			if (parametricCurveTemplate == null) throw new ArgumentNullException("uninstantiatedParametricCurve");
 			
-			this.placeSpecifications = placeSpecifications;
 			this.parametricCurves = 
 			(
 				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
@@ -133,9 +49,25 @@ namespace Kurve.Curves
 				select parametricCurveTemplate.RenameParameters(segmentParameters)
 			)
 			.ToArray();
+			this.virtualObjects = Enumerables.Concatenate
+			(
+				CreateVirtualObjects
+				(
+					placeSpecifications.Select(placeSpecification => placeSpecification.Point), 
+					parametricCurves, 
+					(index, specification, direction) => new VirtualPoint(index, specification, direction)
+				), 
+				CreateVirtualObjects
+				(
+					placeSpecifications.Select(placeSpecification => placeSpecification.Direction), 
+					parametricCurves, 
+					(index, specification, direction) => new VirtualDirection(index, specification, direction)
+				)
+			)
+			.ToArray(); 
 			
-			this.objective = CreateObjective(Variables, VirtualObjects);
-			this.constraints = CreateConstraints(Variables, VirtualObjects);
+			this.objective = CreateObjective(virtualObjects, Variables.ToArray());
+			this.constraints = CreateConstraints(virtualObjects, Variables.ToArray());
 		}
 		
 		public IEnumerable<ParametricCurve> Optimize()
@@ -149,7 +81,7 @@ namespace Kurve.Curves
 						
 			int virtualObjectVariableCount = 
 			(
-				from virtualObject in VirtualObjects
+				from virtualObject in virtualObjects
 				from variable in virtualObject.Variables
 				select variable
 			)
@@ -185,7 +117,42 @@ namespace Kurve.Curves
 			return resultCurves;
 		}
 		
-		static Function CreateObjective(IEnumerable<Variable> variables, IEnumerable<VirtualObject> virtualObjects) 
+		static IEnumerable<VirtualObject> CreateVirtualObjects<T>(IEnumerable<T> virtualObjectSpecifications, IEnumerable<ParametricCurve> parametricCurves, Func<int, IEnumerable<VirtualObjectAttachmentSpecification>, T, VirtualObject> createVirtualObject) 
+		{ 
+			return Enumerables.Concatenate
+			(
+				Enumerables.Create
+				(
+					createVirtualObject
+					(
+						0, 
+						Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.First(), 0)),
+						virtualObjectSpecifications.First()
+					)
+				),
+				from segmentIndex in Enumerable.Range(0, parametricCurves.Count() - 1)
+				select createVirtualObject
+				(
+					segmentIndex + 1, 
+					Enumerables.Create
+					(
+						new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 0), 1),
+						new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 1), 0)
+					),
+					virtualObjectSpecifications.ElementAt(segmentIndex + 1)
+				),
+				Enumerables.Create
+				(
+					createVirtualObject
+					(
+						virtualObjectSpecifications.Count() - 1, 
+						Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.Last(), 1)),
+						virtualObjectSpecifications.Last()
+					)
+				)			
+			);
+		}
+		static Function CreateObjective(IEnumerable<VirtualObject> virtualObjects, IEnumerable<Variable> variables) 
 		{
 			return new SymbolicFunction
 			(
@@ -193,7 +160,7 @@ namespace Kurve.Curves
 				Enumerables.Create(Term.Sum(virtualObjects.Select(virtualObject => virtualObject.ErrorTerm)))
 			);
 		}	
-		static CodomainConstrainedFunction CreateConstraints(IEnumerable<Variable> variables, IEnumerable<VirtualObject> virtualObjects) 
+		static CodomainConstrainedFunction CreateConstraints(IEnumerable<VirtualObject> virtualObjects, IEnumerable<Variable> variables) 
 		{
 			IEnumerable<Constraint> constraints = 
 			(
