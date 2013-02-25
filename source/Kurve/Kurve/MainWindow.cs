@@ -26,9 +26,9 @@ public partial class MainWindow: Gtk.Window
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
 		{			
 			CurvePlaceSpecification point1 = new CurvePlaceSpecification(new Vector2Double(100, 100), new Vector2Double(0, 100));
-			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200), new Vector2Double(100, 0));
+			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200), new Vector2Double(500, 0));
 			CurvePlaceSpecification point3 = new CurvePlaceSpecification(new Vector2Double(300, 50), new Vector2Double(0, -1000));
-			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(3);
+			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(4);
 			
 			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate);
 
@@ -43,7 +43,7 @@ public partial class MainWindow: Gtk.Window
 		Vector2Double startPoint = curve.EvaluatePoint(0);
 		context.MoveTo(startPoint.X, startPoint.Y);
 
-		for (double position = 0; position <= 1; position += 0.01)
+		for (double position = 0; position <= 1; position += 0.001)
 		{
 			Vector2Double point = curve.EvaluatePoint(position);
 			context.LineTo(point.X, point.Y);
