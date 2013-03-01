@@ -19,6 +19,11 @@ namespace Kurve.Curves
 			this.term = term;
 			this.range = range;
 		}
+		
+		public static Constraint CreateEqualityConstraint(Term term1, Term term2)
+		{
+			return new Constraint(Term.Difference(term1, term2), new OrderedRange<double>(0));
+		}
 	}
 }
 

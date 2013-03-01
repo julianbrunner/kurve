@@ -11,10 +11,9 @@ namespace Kurve.Curves
 {
 	public class Optimizer
 	{
-		readonly IEnumerable<ParametricCurve> parametricCurves;
+		readonly IEnumerable<ParametricCurve> segments;
 		readonly IEnumerable<VirtualObject> virtualObjects;
-		readonly Function objective;
-		readonly CodomainConstrainedFunction constraints;
+		readonly Problem problem;
 		
 		// TODO
 		// Cleanup Optimize method and output
@@ -25,58 +24,76 @@ namespace Kurve.Curves
 			{ 
 				return Enumerables.Concatenate
 				(
+					from segment in segments
+					from parameter in segment.Parameters
+					select parameter,
 					from virtualObject in virtualObjects
 					from variable in virtualObject.Variables
-					select variable,
-					from parametricCurve in parametricCurves
-					from parameter in parametricCurve.Parameters
-					select parameter
+					select variable
 				);
 			} 
 		}
 		
-		public Optimizer(IEnumerable<CurvePlaceSpecification> placeSpecifications, ParametricCurve parametricCurveTemplate)
+		public Optimizer(IEnumerable<CurvePlaceSpecification> curvePlaceSpecifications, ParametricCurve segmentTemplate, int segmentCount)
 		{
-			if (placeSpecifications == null) throw new ArgumentNullException("placeSpecifications");
-			if (parametricCurveTemplate == null) throw new ArgumentNullException("uninstantiatedParametricCurve");
+			if (curvePlaceSpecifications == null) throw new ArgumentNullException("curveSpecifications");
+			if (segmentTemplate == null) throw new ArgumentNullException("segmentTemplate");
+			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
 			
-			this.parametricCurves = 
+			this.segments = 
 			(
-				from segmentIndex in Enumerable.Range(0, placeSpecifications.Count() - 1)
+				from segmentIndex in Enumerable.Range(0, segmentCount)
 				let segmentParameters = 
-					from parameterIndex in Enumerable.Range(0, parametricCurveTemplate.Parameters.Count())
+					from parameterIndex in Enumerable.Range(0, segmentTemplate.Parameters.Count())
 					select new Variable(string.Format("q_{0}_{1}", segmentIndex, parameterIndex))
-				select parametricCurveTemplate.RenameParameters(segmentParameters)
+				select segmentTemplate.RenameParameters(segmentParameters)
 			)
 			.ToArray();
 			this.virtualObjects = Enumerables.Concatenate
 			(
 				CreateVirtualObjects
 				(
-					placeSpecifications.Select(placeSpecification => placeSpecification.Point), 
-					parametricCurves, 
-					(index, specification, direction) => new VirtualPoint(index, specification, direction)
+					segments, 
+					(index, attachmentPoints) => new VirtualPoint(index, attachmentPoints)
 				), 
 				CreateVirtualObjects
 				(
-					placeSpecifications.Select(placeSpecification => placeSpecification.Direction), 
-					parametricCurves, 
-					(index, specification, direction) => new VirtualDirection(index, specification, direction)
+					segments, 
+					(index, attachmentPoints) => new VirtualVelocity(index, attachmentPoints)
 				)
 			)
 			.ToArray(); 
 			
-			this.objective = CreateObjective(virtualObjects, Variables.ToArray());
-			this.constraints = CreateConstraints(virtualObjects, Variables.ToArray());
+			IEnumerable<CurveSpecification> curveSpecifications = CreateCurveSpecifications(curvePlaceSpecifications);
+			
+			Function objective = CreateObjective(curveSpecifications, segments, Variables.ToArray());
+			
+			Console.WriteLine("objective function\n{0}", objective);
+
+			if (virtualObjects.Any()) 
+			{
+				CodomainConstrainedFunction constraints = CreateConstraints(virtualObjects, Variables.ToArray());
+				
+				Console.WriteLine("constraints function\n{0}", constraints.Function);
+
+				this.problem = new Problem(objective, constraints, new Settings());
+			}
+			else 
+			{
+				this.problem = new Problem(objective, new Settings());
+			}
 		}
-		
+
 		public IEnumerable<ParametricCurve> Optimize()
 		{
-			Problem problem = new Problem(objective, constraints, new Settings());
-			
 			Matrix startPosition = new Matrix(Variables.Count(), 1);
-			Matrix resultPosition = problem.Solve(startPosition);
+			
+			Console.WriteLine("start position\n{0}", startPosition);
 
+			Matrix resultPosition = problem.Solve(startPosition);
+			
+			Console.WriteLine("result position\n{0}", resultPosition);
+			
 			IEnumerable<double> result = resultPosition.Rows.Select(Enumerable.Single);
 						
 			int virtualObjectVariableCount = 
@@ -87,12 +104,12 @@ namespace Kurve.Curves
 			)
 			.Count();
 			
-			int parameterCount = parametricCurves.Select(parametricCurve => parametricCurve.Parameters.Count()).Distinct().Single();
+			int parameterCount = segments.Select(parametricCurve => parametricCurve.Parameters.Count()).Distinct().Single();
 			
 			IEnumerable<ParametricCurve> resultCurves = 
 			(
-				from parametricCurveIndex in Enumerable.Range(0, parametricCurves.Count())
-				let parametricCurve = parametricCurves.ElementAt(parametricCurveIndex)
+				from parametricCurveIndex in Enumerable.Range(0, segments.Count())
+				let parametricCurve = segments.ElementAt(parametricCurveIndex)
 				let parameterTerms = result.Skip(virtualObjectVariableCount).GetRange
 				(
 					(parametricCurveIndex + 0) * parameterCount, 
@@ -102,12 +119,7 @@ namespace Kurve.Curves
 				select parametricCurve.InstantiateParameters(parameterTerms)
 			)
 			.ToArray();
-
-			Console.WriteLine("start position\n{0}", startPosition);
-			Console.WriteLine("result position\n{0}", resultPosition);
-			Console.WriteLine("objective function\n{0}", objective);
-			Console.WriteLine("constraints function\n{0}", constraints.Function);
-
+			
 			Console.WriteLine("virtual objects");
 			foreach (double position in result.Take(virtualObjectVariableCount)) Console.WriteLine(position);
 
@@ -117,52 +129,58 @@ namespace Kurve.Curves
 			return resultCurves;
 		}
 		
-		static IEnumerable<VirtualObject> CreateVirtualObjects<T>(IEnumerable<T> virtualObjectSpecifications, IEnumerable<ParametricCurve> parametricCurves, Func<int, IEnumerable<VirtualObjectAttachmentSpecification>, T, VirtualObject> createVirtualObject) 
-		{ 
-			return Enumerables.Concatenate
+		static IEnumerable<CurveSpecification> CreateCurveSpecifications(IEnumerable<CurvePlaceSpecification> curvePlaceSpecifications) 
+		{
+			return Enumerables.Concatenate<CurveSpecification>
 			(
-				Enumerables.Create
-				(
-					createVirtualObject
-					(
-						0, 
-						Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.First(), 0)),
-						virtualObjectSpecifications.First()
-					)
-				),
-				from segmentIndex in Enumerable.Range(0, parametricCurves.Count() - 1)
-				select createVirtualObject
-				(
-					segmentIndex + 1, 
-					Enumerables.Create
-					(
-						new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 0), 1),
-						new VirtualObjectAttachmentSpecification(parametricCurves.ElementAt(segmentIndex + 1), 0)
-					),
-					virtualObjectSpecifications.ElementAt(segmentIndex + 1)
-				),
-				Enumerables.Create
-				(
-					createVirtualObject
-					(
-						virtualObjectSpecifications.Count() - 1, 
-						Enumerables.Create(new VirtualObjectAttachmentSpecification(parametricCurves.Last(), 1)),
-						virtualObjectSpecifications.Last()
-					)
-				)			
+				from curvePlaceSpecification in curvePlaceSpecifications
+				where curvePlaceSpecification.Point != null
+				select new CurvePointSpecification(curvePlaceSpecification.Position, curvePlaceSpecification.Point.Item),
+				from curvePlaceSpecification in curvePlaceSpecifications
+				where curvePlaceSpecification.Velocity != null
+				select new CurveVelocitySpecification(curvePlaceSpecification.Position, curvePlaceSpecification.Velocity.Item)
 			);
 		}
-		static Function CreateObjective(IEnumerable<VirtualObject> virtualObjects, IEnumerable<Variable> variables) 
+		static IEnumerable<VirtualObject> CreateVirtualObjects(IEnumerable<ParametricCurve> segmentCurves, Func<int, IEnumerable<CurvePoint>, VirtualObject> createVirtualObject) 
+		{ 
+			return 
+				from segmentIndex in Enumerable.Range(0, segmentCurves.Count() - 1)
+				select createVirtualObject
+				(
+					segmentIndex, 
+					Enumerables.Create
+					(
+						new CurvePoint(segmentCurves.ElementAt(segmentIndex + 0), 1),
+						new CurvePoint(segmentCurves.ElementAt(segmentIndex + 1), 0)
+					)
+				);
+		}	
+		static SymbolicFunction CreateObjective(IEnumerable<CurveSpecification> curveSpecifications, IEnumerable<ParametricCurve> segments, IEnumerable<Variable> variables)
 		{
 			return new SymbolicFunction
 			(
 				variables,
-				Enumerables.Create(Term.Sum(virtualObjects.Select(virtualObject => virtualObject.ErrorTerm)))
+				Enumerables.Create
+				(
+					Term.Sum
+					(
+						from curveSpecification in curveSpecifications
+						let segmentCount = segments.Count()
+						let segmentLength = 1.0 / segmentCount
+						let segmentIndex = (int)(curveSpecification.Position * segmentCount)
+						let segmentPosition = (curveSpecification.Position - segmentLength * segmentIndex) / segmentLength
+						let segmentPoint = 
+							curveSpecification.Position == 1 ? 
+							new CurvePoint(segments.Last(), 1) : 
+				            new CurvePoint(segments.ElementAt(segmentIndex), segmentPosition)
+						select curveSpecification.GetErrorTerm(segmentPoint)
+					)
+				)
 			);
-		}	
+		}
 		static CodomainConstrainedFunction CreateConstraints(IEnumerable<VirtualObject> virtualObjects, IEnumerable<Variable> variables) 
 		{
-			IEnumerable<Constraint> constraints = 
+			IEnumerable<Constraint> virtualObjectConstraints = 
 			(
 				from virtualObject in virtualObjects
 				from constraint in virtualObject.Constraints
@@ -170,15 +188,15 @@ namespace Kurve.Curves
 			)
 			.ToArray();
 			
-			return new CodomainConstrainedFunction
-			(
-				new SymbolicFunction(variables, constraints.Select(constraint => constraint.Term)),
+			Function function = new SymbolicFunction(variables, virtualObjectConstraints.Select(constraint => constraint.Term));
+			Range<Matrix> constraints = 
 				new Range<Matrix>
 				(
-					Matrix.FromRowVectors(constraints.Select(constraint => Matrix.CreateSingleton(constraint.Range.Start))),
-					Matrix.FromRowVectors(constraints.Select(constraint => Matrix.CreateSingleton(constraint.Range.End)))
-				)
-			);			
+					Matrix.FromRowVectors(virtualObjectConstraints.Select(constraint => Matrix.CreateSingleton(constraint.Range.Start))),
+					Matrix.FromRowVectors(virtualObjectConstraints.Select(constraint => Matrix.CreateSingleton(constraint.Range.End)))
+				);
+			
+			return new CodomainConstrainedFunction(function, constraints);			
 		}
 	}
 }

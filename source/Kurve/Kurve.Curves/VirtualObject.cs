@@ -8,7 +8,5 @@ namespace Kurve.Curves
 	{
 		public abstract IEnumerable<Variable> Variables { get; }
 		public abstract IEnumerable<Constraint> Constraints { get; }
-		public abstract Term ErrorTerm { get; }
 	}
 }
-

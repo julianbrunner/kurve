@@ -36,13 +36,15 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ParametricCurve.cs" />
     <Compile Include="Optimizer.cs" />
-    <Compile Include="CurvePlaceSpecification.cs" />
     <Compile Include="Constraint.cs" />
     <Compile Include="VirtualObject.cs" />
-    <Compile Include="VirtualObjectAttachment.cs" />
     <Compile Include="VirtualPoint.cs" />
-    <Compile Include="VirtualObjectAttachmentSpecification.cs" />
-    <Compile Include="VirtualDirection.cs" />
+    <Compile Include="CurvePoint.cs" />
+    <Compile Include="VirtualVelocity.cs" />
+    <Compile Include="CurveSpecification.cs" />
+    <Compile Include="CurvePointSpecification.cs" />
+    <Compile Include="CurvePlaceSpecification.cs" />
+    <Compile Include="CurveVelocitySpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

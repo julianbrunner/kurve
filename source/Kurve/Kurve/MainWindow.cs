@@ -25,13 +25,20 @@ public partial class MainWindow: Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
 		{			
-			CurvePlaceSpecification point1 = new CurvePlaceSpecification(new Vector2Double(100, 100), new Vector2Double(0, 100));
-			CurvePlaceSpecification point2 = new CurvePlaceSpecification(new Vector2Double(150, 200), new Vector2Double(500, 0));
-			CurvePlaceSpecification point3 = new CurvePlaceSpecification(new Vector2Double(300, 50), new Vector2Double(0, -1000));
-			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(4);
+//			CurvePlaceSpecification point1 = CurvePlaceSpecification.CreatePointVelocitySpecification(0.0, new Vector2Double(100, 100), new Vector2Double(0, 100));
+//			CurvePlaceSpecification point2 = CurvePlaceSpecification.CreatePointVelocitySpecification(0.5, new Vector2Double(150, 200), new Vector2Double(500, 0));
+//			CurvePlaceSpecification point3 = CurvePlaceSpecification.CreatePointVelocitySpecification(1.0, new Vector2Double(300, 50), new Vector2Double(0, -1000));
+//			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(3);
+//			
+//			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate, 2);
+//			
+			CurvePlaceSpecification point1 = CurvePlaceSpecification.CreatePointSpecification(0.0, new Vector2Double(100, 100));
+			CurvePlaceSpecification point2 = CurvePlaceSpecification.CreatePointSpecification(0.3, new Vector2Double(150, 200));
+			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(3);
 			
-			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate);
+			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2), curveTemplate, 1);
 
+			
 			foreach (ParametricCurve parametricCurve in optimizer.Optimize()) DrawParametricCurve(context, parametricCurve);
 			
 			context.Target.Dispose();
