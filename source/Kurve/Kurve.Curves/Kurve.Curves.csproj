@@ -36,7 +36,6 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ParametricCurve.cs" />
     <Compile Include="Optimizer.cs" />
-    <Compile Include="Constraint.cs" />
     <Compile Include="VirtualObject.cs" />
     <Compile Include="VirtualPoint.cs" />
     <Compile Include="CurvePoint.cs" />

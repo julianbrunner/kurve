@@ -37,9 +37,8 @@
     <Compile Include="Wrapper.cs" />
     <Compile Include="Problem.cs" />
     <Compile Include="ApplicationReturnStatus.cs" />
-    <Compile Include="CodomainConstrainedFunction.cs" />
-    <Compile Include="DomainConstrainedFunction.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Constraint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
