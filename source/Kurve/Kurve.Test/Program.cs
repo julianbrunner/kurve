@@ -4,25 +4,20 @@ using Krach.Basics;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
-using Krach.Terms;
-using Krach.Terms.LambdaTerms;
-using Krach.Terms.Rewriting;
+using Krach.Calculus.Terms;
+using Krach.Calculus;
+using Krach.Calculus.Terms.Combination;
 
 namespace Kurve.Test
 {
 	static class Program
 	{
 		static void Main(string[] parameters)
-		{
-			//Console.WriteLine(Optimize(new QuadradicFunction(), Matrix.FromRowVectors(Enumerables.Create(1.0, 1.0).Select(Matrix.CreateSingleton))));
-			//Console.WriteLine(Optimize(new Rosenbrock(), Matrix.FromRowVectors(Enumerables.Create(-1.2, 1.0).Select(Matrix.CreateSingleton))));
-			//Console.WriteLine(Optimize(new RosenbrockSymbolic(), Matrix.FromRowVectors(Enumerables.Create(-1.2, 1.0).Select(Matrix.CreateSingleton))));
-			//SymbolicFunction function = new QuadraticSymbolicFunction();
+		{			
+			Variable x = new Variable(1, "x");
+			Variable y = new Variable(1, "y");
 			
-			Variable x = new Variable("x");
-			Variable y = new Variable("y");
-			
-			Function function = Term.Sum
+			FunctionTerm function = Term.Sum
 			(
 				Enumerables.Create
 				(
@@ -33,43 +28,25 @@ namespace Kurve.Test
 			)
 			.Abstract(x, y);
 			
-			Function rosenbrock = Term.Sum
+			FunctionTerm rosenbrock = Term.Sum
 			(
-				Term.Difference(Term.Constant(1), x).Square(),
-				Term.Product(Term.Constant(100), Term.Difference(y, x.Square()).Square())
+				Term.Exponentiate(Term.Difference(Term.Constant(1), x), Term.Constant(2)),
+				Term.Product(Term.Constant(100), Term.Exponentiate(Term.Difference(y, Term.Exponentiate(x, Term.Constant(2))), Term.Constant(2)))
 			)
 			.Abstract(x, y);
 			
 			Optimize(function, Enumerables.Create(1.0, 1.0));
 			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 		}
-		static void Optimize(Function function, IEnumerable<double> startPosition)
+		static void Optimize(FunctionTerm function, IEnumerable<double> startPosition)
 		{
-			Variable x = new Variable("x");
+			Problem problem = new Problem(function.Simplify(2), new Constraint(function.DomainDimension), new Settings());
 			
-			Rewriter simplifier = new Rewriter
-			(
-				Enumerables.Create<Rule>
-				(
-					new BetaReduction(),
-					new EtaContraction(),
-					new FirstOrderRule(Term.Sum(Term.Constant(0), x), x),
-					new FirstOrderRule(Term.Sum(x, Term.Constant(0)), x),
-					new FirstOrderRule(Term.Product(Term.Constant(0), x), Term.Constant(0)),
-					new FirstOrderRule(Term.Product(x, Term.Constant(0)), Term.Constant(0)),
-					new FirstOrderRule(Term.Product(Term.Constant(1), x), x),
-					new FirstOrderRule(Term.Product(x, Term.Constant(1)), x),
-					new FirstOrderRule(x.Exponentiate(0), Term.Constant(1)),
-					new FirstOrderRule(x.Exponentiate(1), x)
-				)
-			);
-			
-			Problem problem = new Problem(function, Enumerable.Empty<Constraint>(), new Settings(), simplifier);
-			IEnumerable<double> result = problem.Solve(startPosition);
+			IEnumerable<double> resultPosition = problem.Solve(startPosition);
 
-			Console.WriteLine(function.GetText());
-			Console.WriteLine("Start position: {0}", startPosition.ToStrings().Separate(", ").AggregateString());
-			Console.WriteLine("Result position: {0}", result.ToStrings().Separate(", ").AggregateString());
+			Console.WriteLine("function: {0}", function.GetText());
+			Console.WriteLine("start position: {0}", startPosition.ToStrings().Separate(", ").AggregateString());
+			Console.WriteLine("result position: {0}", resultPosition.ToStrings().Separate(", ").AggregateString());
 		}
 	}
 }

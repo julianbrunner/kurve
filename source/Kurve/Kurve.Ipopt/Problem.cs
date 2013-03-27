@@ -5,8 +5,7 @@ using Krach.Basics;
 using Krach.Extensions;
 using System.Runtime.InteropServices;
 using Krach.Design;
-using Krach.Terms;
-using Krach.Terms.Rewriting;
+using Krach.Calculus;
 
 namespace Kurve.Ipopt
 {
@@ -14,93 +13,36 @@ namespace Kurve.Ipopt
 	{
 		static Dictionary<IntPtr, Problem> instances = new Dictionary<IntPtr, Problem>();
 		
-		readonly int parameterCount;
-		readonly int constraintCount;
-		readonly Function simplifiedObjective;
-		readonly IEnumerable<Function> simplifiedObjectiveJacobian;
-		readonly IEnumerable<IEnumerable<Function>> simplifiedObjectiveHessian;
-		readonly IEnumerable<Function> simplifiedConstraints;
-		readonly IEnumerable<IEnumerable<Function>> simplifiedConstraintJacobians;
-		readonly IEnumerable<IEnumerable<IEnumerable<Function>>> simplifiedConstraintHessians;
+		readonly IFunction objectiveFunction;
+		readonly IFunction constraintFunction;
 		readonly IntPtr problemHandle;
 		
 		bool disposed = false;
 		
-		public Problem(Function objective, IEnumerable<Constraint> constraints, Settings settings, Rewriter simplifier)
+		int DomainDimension { get { return Items.Equal(objectiveFunction.DomainDimension, constraintFunction.DomainDimension); } }
+		int ObjectiveDimension { get { return objectiveFunction.CodomainDimension; } }
+		int ConstraintDimension { get { return constraintFunction.CodomainDimension; } }
+		
+		public Problem(IFunction objectiveFunction, Constraint constraint, Settings settings)
 		{
-			if (objective == null) throw new ArgumentNullException("objective");
-			if (constraints == null) throw new ArgumentNullException("constraints");
+			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
+			if (constraint == null) throw new ArgumentNullException("constraint");
 			if (settings == null) throw new ArgumentNullException("settings");
-			if (simplifier == null) throw new ArgumentNullException("simplifier");
 			
-			IEnumerable<int> parameterCounts = 
-				Enumerables.Concatenate(Enumerables.Create(objective), constraints.Select(constraint => constraint.Function))
-			    .Select(function => function.ParameterCount).Distinct();
+			if (objectiveFunction.CodomainDimension != 1) throw new ArgumentException("The given objective function has a codomain dimension greater than 1.");
+			if (objectiveFunction.DomainDimension != constraint.Function.DomainDimension) throw new ArgumentException("The domain dimensions of the objective and the constraint functions do not match.");
 			
-			if (parameterCounts.Count() != 1) throw new ArgumentException("Parameter count of objective and constraints do not match.");
+			this.objectiveFunction = objectiveFunction;
+			this.constraintFunction = constraint.Function;
 			
-			this.parameterCount = parameterCounts.Single();
-			this.constraintCount = constraints.Count();
-			this.simplifiedObjective = simplifier.Rewrite(objective);
-			this.simplifiedObjectiveJacobian = 
-			(
-				from partialDerivative in simplifier.Rewrite(objective).GetJacobian()
-				select simplifier.Rewrite(partialDerivative)
-			)
-			.ToArray();
-			this.simplifiedObjectiveHessian = 
-			(
-				from partialDerivative1 in simplifier.Rewrite(objective).GetJacobian()
-				select
-				(
-					from partialDerivative2 in simplifier.Rewrite(partialDerivative1).GetJacobian()
-					select simplifier.Rewrite(partialDerivative2)
-				)
-				.ToArray()
-			)
-			.ToArray();
-			this.simplifiedConstraints = 
-			(
-				from constraint in constraints
-				select simplifier.Rewrite(constraint.Function)
-			)
-			.ToArray();
-			this.simplifiedConstraintJacobians = 
-			(
-				from constraint in constraints
-				select
-				(
-					from partialDerivative in simplifier.Rewrite(constraint.Function).GetJacobian()
-					select simplifier.Rewrite(partialDerivative)
-				)
-				.ToArray()
-			)
-			.ToArray();
-			this.simplifiedConstraintHessians = 
-			(
-				from constraint in constraints
-				select
-				(
-					from partialDerivative1 in simplifier.Rewrite(constraint.Function).GetJacobian()
-					select
-					(
-						from partialDerivative2 in simplifier.Rewrite(partialDerivative1).GetJacobian()
-						select simplifier.Rewrite(partialDerivative2)
-					)
-					.ToArray()
-				)
-				.ToArray()
-			)
-			.ToArray();
-			
-			IntPtr x_L = Enumerable.Repeat(-1e20, parameterCount).Copy();
-			IntPtr x_U = Enumerable.Repeat(+1e20, parameterCount).Copy();
-			IntPtr g_L = constraints.Select(constraint => constraint.Range.Start).Copy();
-			IntPtr g_U = constraints.Select(constraint => constraint.Range.End).Copy();
-			int nele_jac = constraintCount * parameterCount;
-			int nele_hess = parameterCount * parameterCount;
+			IntPtr x_L = Enumerable.Repeat(-1e20, DomainDimension).Copy();
+			IntPtr x_U = Enumerable.Repeat(+1e20, DomainDimension).Copy();
+			IntPtr g_L = constraint.Ranges.Select(range => range.Start).Copy();
+			IntPtr g_U = constraint.Ranges.Select(range => range.End).Copy();
+			int nele_jac = ConstraintDimension * DomainDimension;
+			int nele_hess = DomainDimension * DomainDimension;
 
-			this.problemHandle = Wrapper.CreateIpoptProblem(parameterCount, x_L, x_U, constraintCount, g_L, g_U, nele_jac, nele_hess, 0, eval_f, eval_g, eval_grad_f, eval_jac_g, eval_h);
+			this.problemHandle = Wrapper.CreateIpoptProblem(DomainDimension, x_L, x_U, ConstraintDimension, g_L, g_U, nele_jac, nele_hess, 0, eval_f, eval_g, eval_grad_f, eval_jac_g, eval_h);
 
 			settings.Apply(problemHandle);
 
@@ -131,7 +73,7 @@ namespace Kurve.Ipopt
 
 		public IEnumerable<double> Solve(IEnumerable<double> startPosition)
 		{
-			if (startPosition.Count() != parameterCount) throw new ArgumentException("Parameter 'startPosition' has the wrong count.");
+			if (startPosition.Count() != DomainDimension) throw new ArgumentException("Parameter 'startPosition' has the wrong item count.");
 
 			IntPtr x = startPosition.Copy();
 
@@ -140,7 +82,8 @@ namespace Kurve.Ipopt
 			if (returnStatus != ApplicationReturnStatus.Solve_Succeeded && returnStatus != ApplicationReturnStatus.Solved_To_Acceptable_Level)
 				throw new InvalidOperationException(string.Format("Error while solving problem: {0}.", returnStatus.ToString()));
 
-			IEnumerable<double> result = x.Read<double>(parameterCount);
+			IEnumerable<double> result = x.Read<double>(DomainDimension);
+			
 			Marshal.FreeCoTaskMem(x);
 
 			return result;
@@ -150,11 +93,11 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+			IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 
-			double value = problem.simplifiedObjective.Evaluate(position);
+			double result = problem.objectiveFunction.Evaluate(position).Single();
 
-			Marshal.StructureToPtr(value, obj_value, false);
+			Marshal.StructureToPtr(result, obj_value, false);
 
 			return true;
 		}
@@ -162,11 +105,13 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+			IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 
-			IEnumerable<double> jacobian = problem.simplifiedObjectiveJacobian.Select(objectPartialDerivative => objectPartialDerivative.Evaluate(position)).ToArray();
+			IEnumerable<double> result =
+				from derivative1 in problem.objectiveFunction.GetDerivatives()
+				select derivative1.Evaluate(position).Single();
 
-			grad_f.Write(jacobian);
+			grad_f.Write(result);
 
 			return true;
 		}
@@ -174,13 +119,13 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			if (problem.constraintCount == 0) return true;
+			if (problem.ConstraintDimension == 0) return true;
 
-			IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+			IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 
-			IEnumerable<double> values = problem.simplifiedConstraints.Select(constraint => constraint.Evaluate(position));;
+			IEnumerable<double> result = problem.constraintFunction.Evaluate(position);
 
-			g.Write(values);
+			g.Write(result);
 
 			return true;
 		}
@@ -188,30 +133,30 @@ namespace Kurve.Ipopt
 		{
 			Problem problem = instances[user_data];
 
-			if (problem.constraintCount == 0) return true;
+			if (problem.ConstraintDimension == 0) return true;
 			
 			// values being null indicates that the structure of the jacobian should be returned.
 			if (values == IntPtr.Zero)
 			{
 				var entries =
-					from rowIndex in Enumerable.Range(0, problem.constraintCount)
-					from columnIndex in Enumerable.Range(0, problem.parameterCount)
+					from columnIndex in Enumerable.Range(0, problem.DomainDimension)
+					from rowIndex in Enumerable.Range(0, problem.ConstraintDimension)
 					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
 
 				iRow.Write(entries.Select(entry => entry.RowIndex));
 				jCol.Write(entries.Select(entry => entry.ColumnIndex));
 			}
-			// Otherwise, the jacobian is evaluated at the position.
+			// otherwise, the jacobian is evaluated at the position.
 			else
 			{
-				IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+				IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 	
-				var entries =
-					from constraintJacobian in problem.simplifiedConstraintJacobians
-					from constraintPartialDerivative in constraintJacobian
-					select constraintPartialDerivative.Evaluate(position);
+				IEnumerable<double> result =
+					from derivative1 in problem.constraintFunction.GetDerivatives()
+					from value in derivative1.Evaluate(position)
+					select value;
 
-				values.Write(entries);
+				values.Write(result);
 			}
 
 			return true;
@@ -224,8 +169,8 @@ namespace Kurve.Ipopt
 			if (values == IntPtr.Zero)
 			{
 				var entries =
-					from rowIndex in Enumerable.Range(0, problem.parameterCount)
-					from columnIndex in Enumerable.Range(0, problem.parameterCount)
+					from rowIndex in Enumerable.Range(0, problem.DomainDimension)
+					from columnIndex in Enumerable.Range(0, problem.DomainDimension)
 					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
 
 				iRow.Write(entries.Select(entry => entry.RowIndex));
@@ -233,57 +178,53 @@ namespace Kurve.Ipopt
 			}
 			else
 			{
-				Matrix objectiveHessian = new Matrix(problem.parameterCount, problem.parameterCount);
-				IEnumerable<Matrix> constraintHessians = Enumerable.Empty<Matrix>();
+				Matrix objectiveHessian = new Matrix(problem.DomainDimension, problem.DomainDimension);
+				Matrix constraintHessians = new Matrix(problem.DomainDimension, problem.DomainDimension);
 				
 				double objectiveFactor = obj_factor;
 				if (objectiveFactor != 0)
 				{
-					IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+					IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 	
-					objectiveHessian = objectiveFactor * Matrix.FromRowVectors
+					objectiveHessian = objectiveFactor * Matrix.FromColumnVectors
 					(
-						from objectiveJacobian in problem.simplifiedObjectiveHessian
-						select Matrix.FromColumnVectors
+						from derivative1 in problem.objectiveFunction.GetDerivatives()
+						select Matrix.FromRowVectors
 						(
-							from objectivePartialDerivative in objectiveJacobian
-							select Matrix.CreateSingleton(objectivePartialDerivative.Evaluate(position))
+							from derivative2 in derivative1.GetDerivatives()
+							select Matrix.CreateSingleton(derivative2.Evaluate(position).Single())
 					 	)   
 					);
 				}
-				if (problem.constraintCount != 0)
+				if (problem.ConstraintDimension != 0)
 				{
-					IEnumerable<double> constraintFactors = lambda.Read<double>(problem.constraintCount);
+					IEnumerable<double> constraintFactors = lambda.Read<double>(problem.ConstraintDimension);
 					if (constraintFactors.Any(factor => factor != 0))
 					{
-						IEnumerable<double> position = x.Read<double>(problem.parameterCount);
+						IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 	
-						constraintHessians = 
-							from constraintHessian in problem.simplifiedConstraintHessians
+						constraintHessians = Matrix.FromColumnVectors
+						(
+							from derivative1 in problem.constraintFunction.GetDerivatives()
 							select Matrix.FromRowVectors
 							(
-								from constraintJacobian in constraintHessian
-								select Matrix.FromColumnVectors
-								(
-									from constraintPartialDerivative in constraintJacobian
-									select Matrix.CreateSingleton(constraintPartialDerivative.Evaluate(position))
-							 	)   
-							);
-						
-						constraintHessians = Enumerable.Zip(constraintFactors, constraintHessians, (factor, matrix) => factor * matrix);
+								from derivative2 in derivative1.GetDerivatives()
+								let derivative2Values = derivative2.Evaluate(position)
+								let combination = Enumerable.Zip(constraintFactors, derivative2Values, (factor, value) => factor * value).Sum()
+								select Matrix.CreateSingleton(combination)
+						 	)   
+						);
 					}
 				}
 
-				Matrix result = 
-					objectiveHessian + 
-					constraintHessians.Aggregate(new Matrix(problem.parameterCount, problem.parameterCount), (current, matrix) => current + matrix);
+				Matrix hessian = objectiveHessian + constraintHessians;
 
-				var entries =
-					from rowIndex in Enumerable.Range(0, result.RowCount)
-					from columnIndex in Enumerable.Range(0, result.ColumnCount)
-					select new { Value = result[rowIndex, columnIndex] };
+				IEnumerable<double> result =
+					from rowIndex in Enumerable.Range(0, hessian.RowCount)
+					from columnIndex in Enumerable.Range(0, hessian.ColumnCount)
+					select hessian[rowIndex, columnIndex];
 
-				values.Write(entries.Select(entry => entry.Value));
+				values.Write(result);
 			}
 
  			return true;

@@ -18,7 +18,7 @@ namespace Kurve.Ipopt
 		{
 			PrintLevel = 5;
 			Tolerance = 1e-8;
-			MaximumIterationCount = 3000;
+			MaximumIterationCount = 10000;
 		}
 
 		internal void Apply(IntPtr problemHandle)
