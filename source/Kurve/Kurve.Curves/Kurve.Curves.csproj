@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Kurve.Curves</RootNamespace>
     <AssemblyName>Kurve.Curves</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,16 +34,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="ParametricCurve.cs" />
     <Compile Include="Optimizer.cs" />
-    <Compile Include="VirtualObject.cs" />
-    <Compile Include="VirtualPoint.cs" />
-    <Compile Include="CurvePoint.cs" />
-    <Compile Include="VirtualVelocity.cs" />
-    <Compile Include="CurveSpecification.cs" />
-    <Compile Include="CurvePointSpecification.cs" />
-    <Compile Include="CurvePlaceSpecification.cs" />
-    <Compile Include="CurveVelocitySpecification.cs" />
+    <Compile Include="Curve.cs" />
+    <Compile Include="Specification\CurveSpecification.cs" />
+    <Compile Include="Specification\PointCurveSpecification.cs" />
+    <Compile Include="Segmentation\Segment.cs" />
+    <Compile Include="Segmentation\CurveConstraint.cs" />
+    <Compile Include="Assignment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -56,5 +52,9 @@
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Specification\" />
+    <Folder Include="Segmentation\" />
   </ItemGroup>
 </Project>

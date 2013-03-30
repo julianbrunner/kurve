@@ -3,8 +3,9 @@ using Krach.Basics;
 using Krach.Calculus;
 using System.Collections.Generic;
 using Krach.Calculus.Terms;
-using Krach.Calculus.Terms.Combination;
 using Krach.Extensions;
+using System.Linq;
+using Krach.Calculus.Terms.Composite;
 
 namespace Kurve.Ipopt
 {
@@ -24,10 +25,14 @@ namespace Kurve.Ipopt
 			this.function = function;
 			this.ranges = ranges;
 		}
-		public Constraint(int dimension)
+
+		public static Constraint CreateEmpty(int dimension)
 		{
-			this.function = Term.Vector().Abstract(new Variable(dimension, "x"));
-			this.ranges = Enumerables.Create<OrderedRange<double>>();
+			return new Constraint
+			(
+				Term.Vector().Abstract(new Variable(dimension, "x")),
+				Enumerables.Create<OrderedRange<double>>()
+			);
 		}
 	}
 }

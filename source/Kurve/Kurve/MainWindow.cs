@@ -8,6 +8,7 @@ using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
 using Krach.Calculus.Terms;
+using Kurve.Curves.Specification;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -32,20 +33,20 @@ public partial class MainWindow: Gtk.Window
 //			
 //			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), curveTemplate, 2);
 //			
-			CurvePlaceSpecification point1 = CurvePlaceSpecification.CreatePointSpecification(0.0, new Vector2Double(100, 100));
-			CurvePlaceSpecification point2 = CurvePlaceSpecification.CreatePointSpecification(0.3, new Vector2Double(150, 200));
-			ParametricCurve curveTemplate = ParametricCurve.CreatePolynomialParametricCurveTemplate(3);
+			PointCurveSpecification point1 = new PointCurveSpecification(0.2, new Vector2Double(100, 100));
+			PointCurveSpecification point2 = new PointCurveSpecification(0.3, new Vector2Double(150, 200));
+			PointCurveSpecification point3 = new PointCurveSpecification(0.9, new Vector2Double(300,  50));
+			Kurve.Curves.Curve segmentCurve = Kurve.Curves.Curve.CreatePolynomialCurve(3);
 			
-			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2), curveTemplate, 1);
-
+			Optimizer optimizer = new Optimizer(Enumerables.Create(point1), segmentCurve, 1);
 			
-			foreach (ParametricCurve parametricCurve in optimizer.Optimize()) DrawParametricCurve(context, parametricCurve);
+			foreach (Kurve.Curves.Curve curve in optimizer.Optimize()) DrawParametricCurve(context, curve);
 			
 			context.Target.Dispose();
 		}
 	}
 
-	static void DrawParametricCurve(Context context, ParametricCurve curve)
+	static void DrawParametricCurve(Context context, Kurve.Curves.Curve curve)
 	{
 		Vector2Double startPoint = curve.EvaluatePoint(0);
 		context.MoveTo(startPoint.X, startPoint.Y);
