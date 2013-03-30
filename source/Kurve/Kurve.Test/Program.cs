@@ -36,10 +36,9 @@ namespace Kurve.Test
 			//rosenbrock.Normalize(2);
 
 			//Optimize(function, Enumerables.Create(1.0, 1.0));
-			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
+			//Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 
-			//function.Simplify(2, false);
-			//rosenbrock.Simplify(2, false);
+			Term.Sum(x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x).Abstract(x).Normalize(1);
 		}
 		static void Optimize(FunctionTerm function, IEnumerable<double> startPosition)
 		{

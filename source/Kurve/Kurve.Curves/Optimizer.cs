@@ -52,17 +52,15 @@ namespace Kurve.Curves
 			)
 			.ToArray();
 
-			FunctionTerm objectiveFunction = Term.Sum
+			IFunction objectiveFunction = Term.Sum
 			(
 				from curveSpecification in curveSpecifications
 				let segmentIndex = (int)(curveSpecification.Position * segmentCount)
 				let segment = segmentIndex == segmentCount ? segments.Last() : segments.ElementAt(segmentIndex)
 				select curveSpecification.GetErrorTerm(segment.GetGlobalCurve())
 			)
-			.Abstract(variables);
-			//.Normalize(2);
-
-			objectiveFunction.Rewrite(Rewriting.Simplification).Rewrite(Rewriting.Normalization).GetDerivatives().First().Rewrite(Rewriting.Simplification).Rewrite(Rewriting.Normalization);
+			.Abstract(variables)
+			.Normalize(2);
 
 			IFunction constraintFunction = Term.Vector
 			(

@@ -38,7 +38,7 @@ public partial class MainWindow: Gtk.Window
 			PointCurveSpecification point3 = new PointCurveSpecification(0.9, new Vector2Double(300,  50));
 			Kurve.Curves.Curve segmentCurve = Kurve.Curves.Curve.CreatePolynomialCurve(3);
 			
-			Optimizer optimizer = new Optimizer(Enumerables.Create(point1), segmentCurve, 1);
+			Optimizer optimizer = new Optimizer(Enumerables.Create(point1, point2, point3), segmentCurve, 1);
 			
 			foreach (Kurve.Curves.Curve curve in optimizer.Optimize()) DrawParametricCurve(context, curve);
 			
