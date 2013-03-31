@@ -4,8 +4,8 @@ using Krach.Basics;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
-using Krach.Calculus.Terms;
 using Krach.Calculus;
+using Krach.Calculus.Terms;
 using Krach.Calculus.Terms.Composite;
 
 namespace Kurve.Test
@@ -13,7 +13,7 @@ namespace Kurve.Test
 	static class Program
 	{
 		static void Main(string[] parameters)
-		{			
+        {
 			Variable x = new Variable(1, "x");
 			Variable y = new Variable(1, "y");
 			
@@ -27,18 +27,13 @@ namespace Kurve.Test
 			
 			FunctionTerm rosenbrock = Term.Sum
 			(
-				Term.Exponentiation(Term.Difference(Term.Constant(1), x), Term.Constant(2)),
-				Term.Product(Term.Constant(100), Term.Exponentiation(Term.Difference(y, Term.Exponentiation(x, Term.Constant(2))), Term.Constant(2)))
+				Term.Square(Term.Difference(Term.Constant(1), x)),
+				Term.Product(Term.Constant(100), Term.Square(Term.Difference(y, Term.Square(x))))
 			)
 			.Abstract(x, y);
 
-			//function.Normalize(2);
-			//rosenbrock.Normalize(2);
-
-			//Optimize(function, Enumerables.Create(1.0, 1.0));
-			//Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
-
-			Term.Sum(x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x).Abstract(x).Normalize(1);
+            Optimize(function, Enumerables.Create(1.0, 1.0));
+            Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 		}
 		static void Optimize(FunctionTerm function, IEnumerable<double> startPosition)
 		{

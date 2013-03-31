@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve.Ipopt", "Kurve.Ipopt\Kurve.Ipopt.csproj", "{21E52697-8DB2-4228-824D-BCDDBAA92691}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Krach", "..\..\libraries\krach\Source\Krach\Krach.csproj", "{132A3E13-29BF-4322-B17F-E5E5D86C22EF}"
@@ -17,26 +17,29 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{21E52697-8DB2-4228-824D-BCDDBAA92691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21E52697-8DB2-4228-824D-BCDDBAA92691}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21E52697-8DB2-4228-824D-BCDDBAA92691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21E52697-8DB2-4228-824D-BCDDBAA92691}.Release|Any CPU.Build.0 = Release|Any CPU
-		{352049A9-B046-4C53-AE87-974F166A8109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{352049A9-B046-4C53-AE87-974F166A8109}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{132A3E13-29BF-4322-B17F-E5E5D86C22EF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{352049A9-B046-4C53-AE87-974F166A8109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{352049A9-B046-4C53-AE87-974F166A8109}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AC660D7-ED47-4DDB-A10F-DD480AC99286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AC660D7-ED47-4DDB-A10F-DD480AC99286}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AC660D7-ED47-4DDB-A10F-DD480AC99286}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AC660D7-ED47-4DDB-A10F-DD480AC99286}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Kurve\Kurve.csproj

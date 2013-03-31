@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -49,6 +49,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
+      <Project>{7ac660d7-ed47-4ddb-a10f-dd480ac99286}</Project>
+      <Name>Kurve.Curves</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kurve.Ipopt\Kurve.Ipopt.csproj">
       <Project>{21E52697-8DB2-4228-824D-BCDDBAA92691}</Project>
       <Name>Kurve.Ipopt</Name>
