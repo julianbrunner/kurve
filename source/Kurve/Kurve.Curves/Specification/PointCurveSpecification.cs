@@ -11,6 +11,7 @@ namespace Kurve.Curves.Specification
 		readonly Vector2Double point;
 
 		public override double Position { get { return position; } }
+		public Vector2Double Point { get { return point; } }
 		
 		public PointCurveSpecification(double position, Vector2Double point)
 		{

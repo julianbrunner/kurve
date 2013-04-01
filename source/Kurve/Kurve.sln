@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve.Ipopt", "Kurve.Ipopt\Kurve.Ipopt.csproj", "{21E52697-8DB2-4228-824D-BCDDBAA92691}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Krach", "..\..\libraries\krach\Source\Krach\Krach.csproj", "{132A3E13-29BF-4322-B17F-E5E5D86C22EF}"

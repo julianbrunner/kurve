@@ -19,8 +19,8 @@ public partial class MainWindow
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
-		this.DefaultWidth = 400;
-		this.DefaultHeight = 300;
+		this.DefaultWidth = 976;
+		this.DefaultHeight = 718;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 		this.drawingarea1.ExposeEvent += new global::Gtk.ExposeEventHandler (this.OnDrawingarea1ExposeEvent);

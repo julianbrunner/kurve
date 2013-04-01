@@ -16,15 +16,15 @@ namespace Kurve.Test
         {
 			Variable x = new Variable(1, "x");
 			Variable y = new Variable(1, "y");
-			
+
 			FunctionTerm function = Term.Sum
 			(
 				Term.Product(Term.Constant(+5), x, x),
 				Term.Product(Term.Constant(-1), x, y),
-   				Term.Product(Term.Constant(+1), y, y)
+				Term.Product(Term.Constant(+1), y, y)
 			)
 			.Abstract(x, y);
-			
+
 			FunctionTerm rosenbrock = Term.Sum
 			(
 				Term.Square(Term.Difference(Term.Constant(1), x)),
@@ -32,8 +32,8 @@ namespace Kurve.Test
 			)
 			.Abstract(x, y);
 
-            Optimize(function, Enumerables.Create(1.0, 1.0));
-            Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
+			Optimize(function, Enumerables.Create(1.0, 1.0));
+			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 		}
 		static void Optimize(FunctionTerm function, IEnumerable<double> startPosition)
 		{

@@ -105,7 +105,7 @@ namespace Kurve.Curves
 			(
 				from segment in segments
 				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select new Curve(segmentCurve.Instantiate(Term.Constant(value)).Function.Rewrite(Rewriting.Simplification))
+				select new Curve(Rewriting.CompleteSimplification.Rewrite(segmentCurve.Instantiate(Term.Constant(value)).Function))
 			)
 			.ToArray();
 
