@@ -6,6 +6,7 @@ using Krach.Extensions;
 using System.Runtime.InteropServices;
 using Krach.Design;
 using Krach.Calculus;
+using Krach.Calculus.Abstract;
 
 namespace Kurve.Ipopt
 {
@@ -23,17 +24,17 @@ namespace Kurve.Ipopt
 		int ObjectiveDimension { get { return objectiveFunction.CodomainDimension; } }
 		int ConstraintDimension { get { return constraintFunction.CodomainDimension; } }
 		
-		public Problem(IFunction objectiveFunction, Constraint constraint, Settings settings)
+		public Problem(IFunction objectiveFunction, IConstraint<IFunction> constraint, Settings settings)
 		{
 			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
 			if (constraint == null) throw new ArgumentNullException("constraint");
 			if (settings == null) throw new ArgumentNullException("settings");
 			
 			if (objectiveFunction.CodomainDimension != 1) throw new ArgumentException("The given objective function has a codomain dimension greater than 1.");
-			if (objectiveFunction.DomainDimension != constraint.Function.DomainDimension) throw new ArgumentException("The domain dimensions of the objective and the constraint functions do not match.");
+			if (objectiveFunction.DomainDimension != constraint.Item.DomainDimension) throw new ArgumentException("The domain dimensions of the objective and the constraint functions do not match.");
 			
 			this.objectiveFunction = objectiveFunction;
-			this.constraintFunction = constraint.Function;
+			this.constraintFunction = constraint.Item;
 			
 			IntPtr x_L = Enumerable.Repeat(-1e20, DomainDimension).Copy();
 			IntPtr x_U = Enumerable.Repeat(+1e20, DomainDimension).Copy();

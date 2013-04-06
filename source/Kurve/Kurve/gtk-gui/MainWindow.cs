@@ -12,6 +12,9 @@ public partial class MainWindow
 		this.Name = "MainWindow";
 		this.Title = global::Mono.Unix.Catalog.GetString ("MainWindow");
 		this.WindowPosition = ((global::Gtk.WindowPosition)(4));
+		this.AllowShrink = true;
+		this.DefaultWidth = 512;
+		this.DefaultHeight = 512;
 		// Container child MainWindow.Gtk.Container+ContainerChild
 		this.drawingarea1 = new global::Gtk.DrawingArea ();
 		this.drawingarea1.Name = "drawingarea1";
@@ -19,8 +22,6 @@ public partial class MainWindow
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
-		this.DefaultWidth = 976;
-		this.DefaultHeight = 718;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 		this.drawingarea1.ExposeEvent += new global::Gtk.ExposeEventHandler (this.OnDrawingarea1ExposeEvent);

@@ -4,8 +4,6 @@ using Kurve.Ipopt;
 using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Kurve.Curves.Segmentation;
-using Kurve.Curves.Specification;
 using Krach.Calculus.Terms;
 using Krach.Calculus.Terms.Composite;
 
@@ -31,6 +29,28 @@ namespace Kurve.Curves
 		public override string ToString()
 		{
 			return string.Format("{0} = {1}", variable, value.ToStrings().Separate(" ").AggregateString());
+		}
+
+		public static IEnumerable<double> AssignmentsToValues(IEnumerable<Variable> variables, IEnumerable<Assignment> assignments)
+		{
+			return
+			(
+				from assignment in assignments
+				from value in assignment.Value
+				select value
+			)
+			.ToArray();
+		}
+		public static IEnumerable<Assignment> ValuesToAssignments(IEnumerable<Variable> variables, IEnumerable<double> values)
+		{
+			return Enumerables.Zip
+			(
+				variables,
+				variables.Select(variable => variable.Dimension).GetPartialSums(),
+				variables.Select(variable => variable.Dimension),
+				(variable, start, length) => new Assignment(variable, values.Skip(start).Take(length).ToArray())
+			)
+			.ToArray();
 		}
 	}
 }

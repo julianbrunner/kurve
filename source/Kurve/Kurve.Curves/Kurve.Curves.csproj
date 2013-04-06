@@ -35,12 +35,13 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Optimizer.cs" />
-    <Compile Include="Curve.cs" />
-    <Compile Include="Specification\CurveSpecification.cs" />
-    <Compile Include="Specification\PointCurveSpecification.cs" />
-    <Compile Include="Segmentation\Segment.cs" />
-    <Compile Include="Segmentation\CurveConstraint.cs" />
-    <Compile Include="Assignment.cs" />
+    <Compile Include="Basic\Curve.cs" />
+    <Compile Include="Basic\CurveTemplate.cs" />
+    <Compile Include="Basic\Assignment.cs" />
+    <Compile Include="Segment.cs" />
+    <Compile Include="CurveSpecification.cs" />
+    <Compile Include="PointCurveSpecification.cs" />
+    <Compile Include="VelocityCurveSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,7 +55,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Specification\" />
-    <Folder Include="Segmentation\" />
+    <Folder Include="Basic\" />
   </ItemGroup>
 </Project>

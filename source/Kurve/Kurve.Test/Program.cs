@@ -7,6 +7,9 @@ using Krach.Extensions;
 using Krach.Calculus;
 using Krach.Calculus.Terms;
 using Krach.Calculus.Terms.Composite;
+using Krach.Calculus.Terms.Constraints;
+using Kurve.Curves;
+using Krach.Calculus.Abstract;
 
 namespace Kurve.Test
 {
@@ -35,13 +38,16 @@ namespace Kurve.Test
 			Optimize(function, Enumerables.Create(1.0, 1.0));
 			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 		}
-		static void Optimize(FunctionTerm function, IEnumerable<double> startPosition)
+		static void Optimize(FunctionTerm objectiveFunction, IEnumerable<double> startPosition)
 		{
-			Problem problem = new Problem(function.Normalize(2), Constraint.CreateEmpty(function.DomainDimension), new Settings());
+			Variable position = new Variable(objectiveFunction.DomainDimension, "x");
+			IConstraint<FunctionTerm> constraint = Constraint.CreateEmpty().Abstract(position);
+
+			Problem problem = new Problem(objectiveFunction.Normalize(2), constraint.Normalize(2), new Settings());
 			
 			IEnumerable<double> resultPosition = problem.Solve(startPosition);
 
-			Console.WriteLine("function: {0}", function);
+			Console.WriteLine("function: {0}", objectiveFunction);
 			Console.WriteLine("start position: {0}", startPosition.ToStrings().Separate(", ").AggregateString());
 			Console.WriteLine("result position: {0}", resultPosition.ToStrings().Separate(", ").AggregateString());
 		}

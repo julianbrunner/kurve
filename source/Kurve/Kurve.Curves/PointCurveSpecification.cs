@@ -3,7 +3,7 @@ using Krach.Basics;
 using Krach.Calculus.Terms;
 using Krach.Calculus;
 
-namespace Kurve.Curves.Specification
+namespace Kurve.Curves
 {
 	public class PointCurveSpecification : CurveSpecification
 	{
@@ -23,7 +23,7 @@ namespace Kurve.Curves.Specification
 
 		public override ValueTerm GetErrorTerm(Curve curve)
 		{
-			return Term.NormSquared(Term.Difference(curve.Function.Apply(Term.Constant(position)), Term.Constant(point.X, point.Y)));
+			return Term.Square(Term.Norm(Term.Difference(curve.InstantiatePosition(Term.Constant(position)), Term.Constant(point.X, point.Y))));
 		}
 	}
 }

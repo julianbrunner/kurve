@@ -1,7 +1,7 @@
 using System;
 using Krach.Calculus.Terms;
 
-namespace Kurve.Curves.Specification
+namespace Kurve.Curves
 {
 	public abstract class CurveSpecification
 	{

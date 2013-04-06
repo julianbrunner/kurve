@@ -9,7 +9,6 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Kurve.Test</RootNamespace>
     <AssemblyName>Kurve.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,10 +48,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
-      <Project>{7ac660d7-ed47-4ddb-a10f-dd480ac99286}</Project>
-      <Name>Kurve.Curves</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Kurve.Ipopt\Kurve.Ipopt.csproj">
       <Project>{21E52697-8DB2-4228-824D-BCDDBAA92691}</Project>
       <Name>Kurve.Ipopt</Name>
@@ -60,6 +55,10 @@
     <ProjectReference Include="..\..\..\libraries\krach\Source\Krach\Krach.csproj">
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
+      <Project>{7AC660D7-ED47-4DDB-A10F-DD480AC99286}</Project>
+      <Name>Kurve.Curves</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

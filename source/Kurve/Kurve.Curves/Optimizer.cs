@@ -4,96 +4,86 @@ using Kurve.Ipopt;
 using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Kurve.Curves.Segmentation;
-using Kurve.Curves.Specification;
 using Krach.Calculus.Terms;
 using Krach.Calculus;
 using Krach.Calculus.Terms.Composite;
+using Krach.Calculus.Abstract;
+using Krach.Calculus.Terms.Constraints;
+using Krach.Calculus.Terms.Notation;
+using Krach.Calculus.Terms.Basic.Definitions;
+using Krach.Calculus.Terms.Notation.Custom;
+using Krach.Calculus.Rules.Definitions;
 
 namespace Kurve.Curves
 {
 	public class Optimizer
 	{
-		readonly Curve segmentCurve;
 		readonly IEnumerable<Segment> segments;
-		readonly IEnumerable<CurveConstraint> constraints;
-		readonly IEnumerable<Variable> variables;
 		readonly Problem problem;
+
+		public IEnumerable<Variable> Variables { get { return from segment in segments select segment.Parameter; } }
 		
-		public Optimizer(IEnumerable<CurveSpecification> curveSpecifications, Curve segmentCurve, int segmentCount)
+		public Optimizer(IEnumerable<CurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount)
 		{
 			if (curveSpecifications == null) throw new ArgumentNullException("curveSpecifications");
-			if (segmentCurve == null) throw new ArgumentNullException("segmentCurve");
+			if (segmentCurveTemplate == null) throw new ArgumentNullException("segmentCurve");
 			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
 
-			this.segmentCurve = segmentCurve;
 			this.segments =
 			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				let segmentParameter = new Variable(segmentCurve.ParameterDimension, string.Format("sp_{0}", segmentIndex))
-				let segmentPositionTransformation = GetPositionTransformation(segmentIndex, segmentCount)
-				select new Segment(segmentCurve, segmentParameter, segmentPositionTransformation)
-			)
-			.ToArray();
-			this.constraints =
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-				select CurveConstraint.FromPointConnection
-				(
-					segments.ElementAt(segmentIndex + 0),
-					segments.ElementAt(segmentIndex + 1)
-				)
-			)
-			.ToArray();
-			this.variables =
-			(
-				from segment in segments
-				select segment.Parameter
+				from segmentIndex in Enumerable.Range(0, segmentCount)	
+				select new Segment(segmentCurveTemplate, GetPositionTransformation(segmentIndex, segmentCount), segmentIndex)
 			)
 			.ToArray();
 
-			IFunction objectiveFunction = Term.Sum
+			ValueTerm objectiveValue = Term.Sum
 			(
 				from curveSpecification in curveSpecifications
 				let segmentIndex = (int)(curveSpecification.Position * segmentCount)
 				let segment = segmentIndex == segmentCount ? segments.Last() : segments.ElementAt(segmentIndex)
 				select curveSpecification.GetErrorTerm(segment.GetGlobalCurve())
-			)
-			.Abstract(variables)
-			.Normalize(2);
-
-			IFunction constraintFunction = Term.Vector
-			(
-				from curveConstraint in constraints
-				select curveConstraint.Value
-			)
-			.Abstract(variables)
-			.Normalize(2);
-
-			Constraint constraint = new Constraint
-			(
-				constraintFunction,
-				(
-					from curveConstraint in constraints
-					from range in curveConstraint.Ranges
-					select range
-				)
-				.ToArray()
 			);
 
-			this.problem = new Problem(objectiveFunction, constraint, new Settings());
+			objectiveValue = Rewriting.CompleteSimplification.Rewrite(objectiveValue);
+
+			Console.WriteLine("objective value");
+			Console.WriteLine(objectiveValue);
+			Console.WriteLine();
+
+			IEnumerable<IConstraint<ValueTerm>> constraintValues =
+			(
+				Enumerables.Concatenate
+				(
+					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
+					select CreatePointConnection(segments.ElementAt(segmentIndex + 0), segments.ElementAt(segmentIndex + 1)),
+					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
+					select CreateVelocityConnection(segments.ElementAt(segmentIndex + 0), segments.ElementAt(segmentIndex + 1))
+				)
+			)
+			.ToArray();
+
+			constraintValues = constraintValues.Select(constraintValue => Rewriting.CompleteSimplification.Rewrite(constraintValue)).ToArray();
+			
+			Console.WriteLine("constraint values");
+			foreach (IConstraint<ValueTerm> constraintValue in constraintValues) Console.WriteLine(constraintValue);
+			Console.WriteLine();
+
+			FunctionTerm objectiveFunction = objectiveValue.Abstract(Variables);
+			IConstraint<FunctionTerm> constraint = (constraintValues.Any() ? Constraint.Merge(constraintValues) : Constraint.CreateEmpty()).Abstract(Variables);
+
+			this.problem = new Problem(objectiveFunction.Normalize(2), constraint.Normalize(2), new Settings());
 		}
 
 		public IEnumerable<Curve> Optimize()
 		{
 			IEnumerable<Assignment> startAssignments =
 			(
-				from variable in variables
+				from variable in Variables
 				select new Assignment(variable, Enumerable.Repeat(0.0, variable.Dimension))
 			)
 			.ToArray();
 
-			IEnumerable<Assignment> resultAssignments = ValuesToAssignments(variables, problem.Solve(AssignmentsToValues(variables, startAssignments)));
+			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(Variables, problem.Solve(Assignment.AssignmentsToValues(Variables, startAssignments)));
 
 			Console.WriteLine("start assignments");
 			foreach (Assignment assignment in startAssignments) Console.WriteLine(assignment);
@@ -105,7 +95,7 @@ namespace Kurve.Curves
 			(
 				from segment in segments
 				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select new Curve(Rewriting.CompleteSimplification.Rewrite(segmentCurve.Instantiate(Term.Constant(value)).Function))
+				select segment.Instantiate(value)
 			)
 			.ToArray();
 
@@ -114,33 +104,34 @@ namespace Kurve.Curves
 			
 			return resultCurves;
 		}
+		
+		static IConstraint<ValueTerm> CreatePointConnection(Segment end, Segment start)
+		{
+			return Constraint.CreateEquality
+			(
+				end.GetLocalCurve().InstantiatePosition(Term.Constant(1)),
+				start.GetLocalCurve().InstantiatePosition(Term.Constant(0))
+			);
+		}
+		static IConstraint<ValueTerm> CreateVelocityConnection(Segment end, Segment start)
+		{
+			return Constraint.CreateEquality
+			(
+				end.GetLocalCurve().Derivative.InstantiatePosition(Term.Constant(1)),
+				start.GetLocalCurve().Derivative.InstantiatePosition(Term.Constant(0))
+			);
+		}
 
 		static FunctionTerm GetPositionTransformation(int segmentIndex, int segmentCount)
 		{
 			Variable position = new Variable(1, "t");
 
-			return Term.Difference(Term.Product(Term.Constant(segmentCount), position), Term.Constant(segmentIndex)).Abstract(position);
-		}
-		static IEnumerable<double> AssignmentsToValues(IEnumerable<Variable> variables, IEnumerable<Assignment> assignments)
-		{
-			return
+			return new FunctionDefinition
 			(
-				from assignment in assignments
-				from value in assignment.Value
-				select value
-			)
-			.ToArray();
-		}
-		static IEnumerable<Assignment> ValuesToAssignments(IEnumerable<Variable> variables, IEnumerable<double> values)
-		{
-			return Enumerables.Zip
-			(
-				variables,
-				variables.Select(variable => variable.Dimension).GetPartialSums(),
-				variables.Select(variable => variable.Dimension),
-				(variable, start, length) => new Assignment(variable, values.Skip(start).Take(length).ToArray())
-			)
-			.ToArray();
+				string.Format("position_transformation_{0}_{1}", segmentIndex, segmentCount),
+				Term.Difference(Term.Product(Term.Constant(segmentCount), position), Term.Constant(segmentIndex)).Abstract(position),
+				new BasicSyntax(string.Format("τ_{0}", segmentIndex))
+			);
 		}
 	}
 }
