@@ -23,7 +23,7 @@ namespace Kurve.Curves
 
 		public IEnumerable<Variable> Variables { get { return from segment in segments select segment.Parameter; } }
 		
-		public Optimizer(IEnumerable<CurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount)
+		public Optimizer(IEnumerable<PositionedCurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount)
 		{
 			if (curveSpecifications == null) throw new ArgumentNullException("curveSpecifications");
 			if (segmentCurveTemplate == null) throw new ArgumentNullException("segmentCurve");

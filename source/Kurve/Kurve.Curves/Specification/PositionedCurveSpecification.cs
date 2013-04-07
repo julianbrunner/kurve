@@ -3,10 +3,8 @@ using Krach.Calculus.Terms;
 
 namespace Kurve.Curves
 {
-	public abstract class CurveSpecification
+	public abstract class PositionedCurveSpecification : CurveSpecification
 	{
 		public abstract double Position { get; }
-
-		public abstract ValueTerm GetErrorTerm(Curve curve);
 	}
 }

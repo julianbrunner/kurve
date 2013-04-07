@@ -5,7 +5,7 @@ using Krach.Calculus;
 
 namespace Kurve.Curves
 {
-	public class VelocityCurveSpecification : CurveSpecification
+	public class VelocityCurveSpecification : PositionedCurveSpecification
 	{
 		readonly double position;
 		readonly Vector2Double velocity;

@@ -26,15 +26,40 @@ public partial class MainWindow: Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
 		{
-			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-0.5,  0.0)),
+//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, +1.0)),
+//				new PointCurveSpecification(0.5, new Vector2Double(-0.25, +0.5)),
+//				new VelocityCurveSpecification(0.5, new Vector2Double(+5.0,  0.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.25)),
+//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, -10.0))
+//			);
+//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
+//			int segmentCount = 2;
+
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(0, 0)),
+//				new VelocityCurveSpecification(0.2, new Vector2Double(0.5, 0.5)),
+//				new VelocityCurveSpecification(0.5, new Vector2Double(0.5, 0.0)),
+//				new VelocityCurveSpecification(0.9, new Vector2Double(0.5, 0.5)),
+//				new PointCurveSpecification(1.0, new Vector2Double(0.5, 0.5))
+//			);
+//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
+//			int segmentCount = 1;
+
+			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
 			(
-				new PointCurveSpecification(0.0, new Vector2Double(0.0, 0.0)),
-				new VelocityCurveSpecification(0.2, new Vector2Double(+0.5, +0.5)),
-				new VelocityCurveSpecification(0.5, new Vector2Double(+0.5,  0.0)),
-				new VelocityCurveSpecification(0.9, new Vector2Double(+0.5, +0.5))
+				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
+				new PointCurveSpecification(0.2, new Vector2Double(+0.5, +0.5)),
+				new PointCurveSpecification(0.4, new Vector2Double(+0.5, -0.5)),
+				new PointCurveSpecification(0.6, new Vector2Double(-0.5, +0.5)),
+				new PointCurveSpecification(0.8, new Vector2Double( 0.0,  0.0)),
+				new PointCurveSpecification(1.0, new Vector2Double( 0.0, -0.5))
 			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
-			int segmentCount = 1;
+			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(3);
+			int segmentCount = 4;
 			
 			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount);
 
@@ -44,7 +69,7 @@ public partial class MainWindow: Gtk.Window
 			context.LineCap = LineCap.Round;
 
 			foreach (Kurve.Curves.Curve curve in curves)
-				DrawParametricCurve(context, curve, new Cairo.Color(0, 0, 1));
+				DrawParametricCurve(context, curve, Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
 
 			DrawCurveSpecifications(context, curveSpecifications);
 
@@ -56,17 +81,21 @@ public partial class MainWindow: Gtk.Window
 	{
 		return 256 * point + new Vector2Double(256, 256);
 	}
-	static void DrawPoint(Context context, Vector2Double point, Cairo.Color color)
+	static Cairo.Color ToCairoColor(Krach.Graphics.Color color)
+	{
+		return new Cairo.Color(color.Red, color.Green, color.Blue, color.Alpha);
+	}
+	static void DrawPoint(Context context, Vector2Double point, Krach.Graphics.Color color)
 	{
 		point = TransformPoint(point);
 
 		context.MoveTo(point.X, point.Y);
 		context.LineTo(point.X, point.Y);
 
-		context.Color = color;
+		context.Color = ToCairoColor(color);
 		context.Stroke();
 	}
-	static void DrawLine(Context context, Vector2Double startPoint, Vector2Double endPoint, Cairo.Color color)
+	static void DrawLine(Context context, Vector2Double startPoint, Vector2Double endPoint, Krach.Graphics.Color color)
 	{
 		startPoint = TransformPoint(startPoint);
 		endPoint = TransformPoint(endPoint);
@@ -74,33 +103,30 @@ public partial class MainWindow: Gtk.Window
 		context.MoveTo(startPoint.X, startPoint.Y);
 		context.LineTo(endPoint.X, endPoint.Y);
 
-		context.Color = color;
+		context.Color = ToCairoColor(color);
 		context.Stroke();
 	}
-	static void DrawCurveSpecifications(Context context, IEnumerable<CurveSpecification> curveSpecifications)
+	static void DrawCurveSpecifications(Context context, IEnumerable<PositionedCurveSpecification> curveSpecifications)
 	{
-		foreach (CurveSpecification curveSpecification in curveSpecifications)
+		foreach (PositionedCurveSpecification curveSpecification in curveSpecifications)
 		{
 			if (curveSpecification is PointCurveSpecification)
 			{
 				PointCurveSpecification pointCurveSpecification = (PointCurveSpecification)curveSpecification;
 
-				DrawPoint(context, pointCurveSpecification.Point, new Cairo.Color(1, 0, 0));
+				DrawPoint(context, pointCurveSpecification.Point, Krach.Graphics.Colors.Black);
 			}
 		}
 	}
-	static void DrawParametricCurve(Context context, Kurve.Curves.Curve curve, Cairo.Color color)
+	static void DrawParametricCurve(Context context, Kurve.Curves.Curve curve, Krach.Graphics.Color startColor, Krach.Graphics.Color endColor)
 	{
-		Vector2Double startPoint = TransformPoint(curve.EvaluatePoint(0));
-		context.MoveTo(startPoint.X, startPoint.Y);
+		double stepLength = 0.001;
 
-		for (double position = 0; position <= 1; position += 0.001)
+		for (double position = 0; position < 1; position += stepLength)
 		{
-			Vector2Double point = TransformPoint(curve.EvaluatePoint(position));
-			context.LineTo(point.X, point.Y);
+			Krach.Graphics.Color color = Krach.Graphics.Color.InterpolateHsv(startColor, endColor, Scalars.InterpolateLinear, position);
+
+			DrawLine(context, curve.EvaluatePoint(position), curve.EvaluatePoint(position + stepLength), color);
 		}
-		
-		context.Color = color;
-		context.Stroke();
 	}
 }

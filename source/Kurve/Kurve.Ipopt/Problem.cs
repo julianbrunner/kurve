@@ -41,7 +41,8 @@ namespace Kurve.Ipopt
 			IntPtr g_L = constraint.Ranges.Select(range => range.Start).Copy();
 			IntPtr g_U = constraint.Ranges.Select(range => range.End).Copy();
 			int nele_jac = ConstraintDimension * DomainDimension;
-			int nele_hess = DomainDimension * DomainDimension;
+			// we only specify the lower left triangle since the matrix is symmetric
+			int nele_hess = (DomainDimension * (DomainDimension + 1)) / 2;
 
 			this.problemHandle = Wrapper.CreateIpoptProblem(DomainDimension, x_L, x_U, ConstraintDimension, g_L, g_U, nele_jac, nele_hess, 0, eval_f, eval_g, eval_grad_f, eval_jac_g, eval_h);
 
@@ -140,9 +141,11 @@ namespace Kurve.Ipopt
 			if (values == IntPtr.Zero)
 			{
 				var entries =
+				(
 					from columnIndex in Enumerable.Range(0, problem.DomainDimension)
 					from rowIndex in Enumerable.Range(0, problem.ConstraintDimension)
-					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
+					select new { RowIndex = rowIndex, ColumnIndex = columnIndex }
+				);
 
 				iRow.Write(entries.Select(entry => entry.RowIndex));
 				jCol.Write(entries.Select(entry => entry.ColumnIndex));
@@ -153,9 +156,11 @@ namespace Kurve.Ipopt
 				IEnumerable<double> position = x.Read<double>(problem.DomainDimension);
 	
 				IEnumerable<double> result =
+				(
 					from derivative1 in problem.constraintFunction.GetDerivatives()
 					from value in derivative1.Evaluate(position)
-					select value;
+					select value
+				);
 
 				values.Write(result);
 			}
@@ -170,9 +175,11 @@ namespace Kurve.Ipopt
 			if (values == IntPtr.Zero)
 			{
 				var entries =
+				(
 					from rowIndex in Enumerable.Range(0, problem.DomainDimension)
-					from columnIndex in Enumerable.Range(0, problem.DomainDimension)
-					select new { RowIndex = rowIndex, ColumnIndex = columnIndex };
+					from columnIndex in Enumerable.Range(0, rowIndex + 1)
+					select new { RowIndex = rowIndex, ColumnIndex = columnIndex }
+				);
 
 				iRow.Write(entries.Select(entry => entry.RowIndex));
 				jCol.Write(entries.Select(entry => entry.ColumnIndex));
@@ -193,7 +200,8 @@ namespace Kurve.Ipopt
 						select Matrix.FromRowVectors
 						(
 							from derivative2 in derivative1.GetDerivatives()
-							select Matrix.CreateSingleton(derivative2.Evaluate(position).Single())
+							let derivative2Values = derivative2.Evaluate(position)
+							select Matrix.CreateSingleton(derivative2Values.Single())
 					 	)   
 					);
 				}
@@ -221,9 +229,11 @@ namespace Kurve.Ipopt
 				Matrix hessian = objectiveHessian + constraintHessians;
 
 				IEnumerable<double> result =
-					from rowIndex in Enumerable.Range(0, hessian.RowCount)
-					from columnIndex in Enumerable.Range(0, hessian.ColumnCount)
-					select hessian[rowIndex, columnIndex];
+				(
+					from rowIndex in Enumerable.Range(0, problem.DomainDimension)
+					from columnIndex in Enumerable.Range(0, rowIndex + 1)
+					select hessian[rowIndex, columnIndex]
+				);
 
 				values.Write(result);
 			}

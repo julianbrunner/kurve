@@ -18,7 +18,7 @@ namespace Kurve.Ipopt
 		{
 			PrintLevel = 5;
 			Tolerance = 1e-8;
-			MaximumIterationCount = 100000;
+			MaximumIterationCount = 10000;
 		}
 
 		internal void Apply(IntPtr problemHandle)
@@ -26,6 +26,9 @@ namespace Kurve.Ipopt
 			Wrapper.AddIpoptIntOption(problemHandle, "print_level", PrintLevel);
 			Wrapper.AddIpoptNumOption(problemHandle, "tol", Tolerance);
 			Wrapper.AddIpoptIntOption(problemHandle, "max_iter", MaximumIterationCount);
+			//Wrapper.AddIpoptStrOption(problemHandle, "hessian_approximation", "limited-memory");
+			//Wrapper.AddIpoptStrOption(problemHandle, "mu_strategy", "adaptive");
+			//Wrapper.AddIpoptStrOption(problemHandle, "mehrotra_algorithm", "yes");
 		}
 	}
 }

@@ -39,9 +39,11 @@
     <Compile Include="Basic\CurveTemplate.cs" />
     <Compile Include="Basic\Assignment.cs" />
     <Compile Include="Segment.cs" />
-    <Compile Include="CurveSpecification.cs" />
-    <Compile Include="PointCurveSpecification.cs" />
-    <Compile Include="VelocityCurveSpecification.cs" />
+    <Compile Include="Specification\PointCurveSpecification.cs" />
+    <Compile Include="Specification\PositionedCurveSpecification.cs" />
+    <Compile Include="Specification\VelocityCurveSpecification.cs" />
+    <Compile Include="Specification\CurveSpecification.cs" />
+    <Compile Include="Specification\FairnessSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -56,5 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Basic\" />
+    <Folder Include="Specification\" />
   </ItemGroup>
 </Project>

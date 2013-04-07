@@ -10,6 +10,7 @@ using Krach.Calculus.Terms.Composite;
 using Krach.Calculus.Terms.Constraints;
 using Kurve.Curves;
 using Krach.Calculus.Abstract;
+using Krach.Calculus.Terms.Basic.Atoms;
 
 namespace Kurve.Test
 {
@@ -20,11 +21,45 @@ namespace Kurve.Test
 			Variable x = new Variable(1, "x");
 			Variable y = new Variable(1, "y");
 
-			FunctionTerm function = Term.Sum
+			// converges quickly
+			FunctionTerm function1 = Term.Sum
 			(
-				Term.Product(Term.Constant(+5), x, x),
-				Term.Product(Term.Constant(-1), x, y),
-				Term.Product(Term.Constant(+1), y, y)
+				Term.Product(Term.Constant(100), Term.Square(Term.Difference(x, Term.Constant(100)))),
+				Term.Product(Term.Constant(1), Term.Square(Term.Difference(y, Term.Constant(1))))
+			)
+			.Abstract(x, y);
+
+			// converges slowly, does weird things at the end, should also do exactly the same as function3
+			FunctionTerm function2 = Term.Sum
+			(
+				Term.Product(Term.Constant(4)),
+				Term.Product(Term.Constant(5), x),
+				Term.Product(Term.Constant(1), y),
+				Term.Product(Term.Constant(10), x, x),
+				Term.Product(Term.Constant(-5), x, y),
+				Term.Product(Term.Constant(1), y, y)
+			)
+			.Abstract(x, y);
+
+			// converges slowly
+			FunctionTerm function3 = Term.Sum
+			(
+				Term.Product(Term.Constant(4)),
+				Term.Product(Term.Constant(5), x),
+				Term.Product(Term.Constant(1), y),
+				Term.Product(Term.Constant(10), x, x),
+				Term.Product(Term.Constant(-5), y, x),
+				Term.Product(Term.Constant(1), y, y)
+			)
+			.Abstract(x, y);
+
+			// diverges
+			FunctionTerm function4 = Term.Sum
+			(
+				Term.Product(Term.Constant(326700)),
+				Term.Product(Term.Constant(100), Term.Square(Term.Difference(x, Term.Constant(100)))),
+				Term.Product(Term.Constant(1), Term.Square(Term.Difference(y, Term.Constant(1)))),
+				Term.Product(Term.Constant(10), Term.Product(Term.Difference(x, Term.Constant(1)), Term.Difference(y, Term.Constant(1))))
 			)
 			.Abstract(x, y);
 
@@ -35,8 +70,11 @@ namespace Kurve.Test
 			)
 			.Abstract(x, y);
 
-			Optimize(function, Enumerables.Create(1.0, 1.0));
-			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
+			//Optimize(function4, Enumerables.Create(0.0, 0.0));
+			//Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
+
+			Console.WriteLine(Term.Sum(Term.Constant(1), Term.Constant(2)));
+			Console.WriteLine(Term.Sum(Term.Constant(1), Term.Constant(2)).GetDerivatives(x).Single());
 		}
 		static void Optimize(FunctionTerm objectiveFunction, IEnumerable<double> startPosition)
 		{
