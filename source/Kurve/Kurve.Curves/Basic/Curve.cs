@@ -44,6 +44,14 @@ namespace Kurve.Curves
 		{
 			return function.Apply(position);
 		}
+
+		// TODO: remove debug code
+		public Curve Scale(double factor)
+		{
+			Variable position = new Variable(1, "t");
+
+			return new Curve(Term.Scaling(Term.Constant(factor), function.Apply(position)).Abstract(position));
+		}
 	}
 }
 

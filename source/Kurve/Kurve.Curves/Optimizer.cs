@@ -18,10 +18,21 @@ namespace Kurve.Curves
 {
 	public class Optimizer
 	{
+		readonly Variable velocityLength;
 		readonly IEnumerable<Segment> segments;
 		readonly Problem problem;
 
-		public IEnumerable<Variable> Variables { get { return from segment in segments select segment.Parameter; } }
+		public IEnumerable<Variable> Variables
+		{
+			get
+			{
+				return Enumerables.Concatenate
+				(
+					Enumerables.Create(velocityLength),
+					from segment in segments select segment.Parameter
+				);
+			}
+		}
 		
 		public Optimizer(IEnumerable<PositionedCurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount)
 		{
@@ -29,6 +40,7 @@ namespace Kurve.Curves
 			if (segmentCurveTemplate == null) throw new ArgumentNullException("segmentCurve");
 			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
 
+			this.velocityLength = new Variable(1, "vl");
 			this.segments =
 			(
 				from segmentIndex in Enumerable.Range(0, segmentCount)	
@@ -36,12 +48,26 @@ namespace Kurve.Curves
 			)
 			.ToArray();
 
-			ValueTerm objectiveValue = Term.Sum
+			ValueTerm velocityLengthError = Term.Sum
+			(
+				from segment in segments
+				let derivative = segment.GetLocalCurve().Derivative
+				from position in Scalars.GetIntermediateValues(0, 1, 20)
+				let segmentVelocity = derivative.InstantiatePosition(Term.Constant(position))
+				// TODO: is it okay to square the velocity norm?
+				select Term.Square(Term.Difference(Term.Square(Term.Norm(segmentVelocity)), velocityLength))
+			);
+			ValueTerm specificationError = Term.Sum
 			(
 				from curveSpecification in curveSpecifications
-				let segmentIndex = (int)(curveSpecification.Position * segmentCount)
-				let segment = segmentIndex == segmentCount ? segments.Last() : segments.ElementAt(segmentIndex)
+				from segment in GetAffectedSegments(segments, curveSpecification.Position)
 				select curveSpecification.GetErrorTerm(segment.GetGlobalCurve())
+			);
+
+			ValueTerm objectiveValue = Term.Sum
+			(
+				Term.Product(Term.Constant(0.1), velocityLengthError),
+				Term.Product(Term.Constant(1.0), specificationError)
 			);
 
 			objectiveValue = Rewriting.CompleteSimplification.Rewrite(objectiveValue);
@@ -95,7 +121,7 @@ namespace Kurve.Curves
 			(
 				from segment in segments
 				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select segment.Instantiate(value)
+				select segment.Instantiate(Term.Constant(value))
 			)
 			.ToArray();
 
@@ -132,6 +158,17 @@ namespace Kurve.Curves
 				Term.Difference(Term.Product(Term.Constant(segmentCount), position), Term.Constant(segmentIndex)).Abstract(position),
 				new BasicSyntax(string.Format("τ_{0}", segmentIndex))
 			);
+		}
+		static IEnumerable<Segment> GetAffectedSegments(IEnumerable<Segment> segments, double position)
+		{
+			return
+			(
+				from segment in segments
+				let localPosition = segment.PositionTransformation.Evaluate(Enumerables.Create(position)).Single()
+				where new OrderedRange<double>(0, 1).Contains(localPosition)
+				select segment
+			)
+			.ToArray();
 		}
 	}
 }

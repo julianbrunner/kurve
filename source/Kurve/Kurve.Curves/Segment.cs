@@ -32,9 +32,9 @@ namespace Kurve.Curves
 			this.positionTransformation = positionTransformation;
 		}
 
-		public Curve Instantiate(IEnumerable<double> values)
+		public Curve Instantiate(ValueTerm value)
 		{
-			return curveTemplate.InstantiateParameter(Term.Constant(values));
+			return curveTemplate.InstantiateParameter(value);
 		}
 		public Curve GetLocalCurve()
 		{

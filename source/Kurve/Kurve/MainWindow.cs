@@ -49,17 +49,36 @@ public partial class MainWindow: Gtk.Window
 //			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
 //			int segmentCount = 1;
 
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
+//				new PointCurveSpecification(0.2, new Vector2Double(+0.5, +0.5)),
+//				new PointCurveSpecification(0.4, new Vector2Double(+0.5, -0.5)),
+//				new PointCurveSpecification(0.6, new Vector2Double(-0.5, +0.5)),
+//				new PointCurveSpecification(0.8, new Vector2Double( 0.0,  0.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double( 0.0, -0.5))
+//			);
+//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(3);
+//			int segmentCount = 4;
+
 			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
 			(
 				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
-				new PointCurveSpecification(0.2, new Vector2Double(+0.5, +0.5)),
-				new PointCurveSpecification(0.4, new Vector2Double(+0.5, -0.5)),
-				new PointCurveSpecification(0.6, new Vector2Double(-0.5, +0.5)),
-				new PointCurveSpecification(0.8, new Vector2Double( 0.0,  0.0)),
-				new PointCurveSpecification(1.0, new Vector2Double( 0.0, -0.5))
+				new PointCurveSpecification(0.3, new Vector2Double( 0.0, +0.5)),
+				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
 			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(3);
-			int segmentCount = 4;
+			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(8);
+			int segmentCount = 1;
+
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
+//				new PointCurveSpecification(0.5, new Vector2Double( 0.0, +0.5)),
+//				new VelocityCurveSpecification(0.5, new Vector2Double( 0.0,  0.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
+//			);
+//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
+//			int segmentCount = 1;
 			
 			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount);
 
@@ -69,7 +88,10 @@ public partial class MainWindow: Gtk.Window
 			context.LineCap = LineCap.Round;
 
 			foreach (Kurve.Curves.Curve curve in curves)
+			{
 				DrawParametricCurve(context, curve, Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
+				DrawParametricCurve(context, curve.Derivative.Scale(0.1), Krach.Graphics.Colors.Black, Krach.Graphics.Colors.Black);
+			}
 
 			DrawCurveSpecifications(context, curveSpecifications);
 

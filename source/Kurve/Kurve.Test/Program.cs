@@ -11,6 +11,7 @@ using Krach.Calculus.Terms.Constraints;
 using Kurve.Curves;
 using Krach.Calculus.Abstract;
 using Krach.Calculus.Terms.Basic.Atoms;
+using System.Linq.Expressions;
 
 namespace Kurve.Test
 {
@@ -70,11 +71,20 @@ namespace Kurve.Test
 			)
 			.Abstract(x, y);
 
-			//Optimize(function4, Enumerables.Create(0.0, 0.0));
-			//Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
+			Optimize(function1, Enumerables.Create(0.0, 0.0));
+			Optimize(function2, Enumerables.Create(0.0, 0.0));
+			Optimize(function3, Enumerables.Create(0.0, 0.0));
+			Optimize(function4, Enumerables.Create(0.0, 0.0));
+			Optimize(rosenbrock, Enumerables.Create(-1.2, 1.0));
 
-			Console.WriteLine(Term.Sum(Term.Constant(1), Term.Constant(2)));
-			Console.WriteLine(Term.Sum(Term.Constant(1), Term.Constant(2)).GetDerivatives(x).Single());
+//			ValueTerm term = Term.Square(Term.Norm(Term.Polynomial(1, 4).Apply(Term.Vector(x, Term.Constant(1, 2, 3, 4)))));
+//			term = Rewriting.CompleteNormalization.Rewrite(term).GetDerivatives(x).Single();
+//
+//			Console.WriteLine(term);
+//			term = Rewriting.CompleteNormalization.RewriteAll(term);
+
+//			Console.WriteLine(term);
+//			Console.WriteLine(term.GetDerivatives(x).Single());
 		}
 		static void Optimize(FunctionTerm objectiveFunction, IEnumerable<double> startPosition)
 		{
