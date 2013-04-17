@@ -23,7 +23,7 @@ namespace Kurve.Curves
 
 		public override ValueTerm GetErrorTerm(Curve curve)
 		{
-			return Term.Square(Term.Norm(Term.Difference(curve.Derivative.InstantiatePosition(Term.Constant(position)), Term.Constant(velocity.X, velocity.Y))));
+			return Term.Difference(curve.Derivative.InstantiatePosition(Term.Constant(position)), Term.Constant(velocity.X, velocity.Y));
 		}
 	}
 }

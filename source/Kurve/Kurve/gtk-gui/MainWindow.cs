@@ -13,8 +13,8 @@ public partial class MainWindow
 		this.Title = global::Mono.Unix.Catalog.GetString ("MainWindow");
 		this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 		this.AllowShrink = true;
-		this.DefaultWidth = 512;
-		this.DefaultHeight = 512;
+		this.DefaultWidth = 768;
+		this.DefaultHeight = 768;
 		// Container child MainWindow.Gtk.Container+ContainerChild
 		this.drawingarea1 = new global::Gtk.DrawingArea ();
 		this.drawingarea1.Name = "drawingarea1";

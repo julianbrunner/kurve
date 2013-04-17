@@ -51,23 +51,15 @@ namespace Kurve.Curves
 			ValueTerm velocityLengthError = Term.Sum
 			(
 				from segment in segments
-				let derivative = segment.GetLocalCurve().Derivative
-				from position in Scalars.GetIntermediateValues(0, 1, 20)
-				let segmentVelocity = derivative.InstantiatePosition(Term.Constant(position))
-				// TODO: is it okay to square the velocity norm?
-				select Term.Square(Term.Difference(Term.Square(Term.Norm(segmentVelocity)), velocityLength))
-			);
-			ValueTerm specificationError = Term.Sum
-			(
-				from curveSpecification in curveSpecifications
-				from segment in GetAffectedSegments(segments, curveSpecification.Position)
-				select curveSpecification.GetErrorTerm(segment.GetGlobalCurve())
+				let position = new Variable(1, "t")
+				let segmentVelocity = segment.GetLocalCurve().Derivative.InstantiatePosition(position)
+				let segmentVelocityLengthError = Term.Square(Term.Difference(Term.Norm(segmentVelocity), velocityLength))
+				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 5)
 			);
 
 			ValueTerm objectiveValue = Term.Sum
 			(
-				Term.Product(Term.Constant(0.1), velocityLengthError),
-				Term.Product(Term.Constant(1.0), specificationError)
+				Term.Product(Term.Constant(1.0), velocityLengthError)
 			);
 
 			objectiveValue = Rewriting.CompleteSimplification.Rewrite(objectiveValue);
@@ -80,10 +72,36 @@ namespace Kurve.Curves
 			(
 				Enumerables.Concatenate
 				(
+					from curveSpecification in curveSpecifications
+					from segment in GetAffectedSegments(segments, curveSpecification.Position)
+					select Constraint.CreateZero(curveSpecification.GetErrorTerm(segment.GetGlobalCurve())),
+
 					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-					select CreatePointConnection(segments.ElementAt(segmentIndex + 0), segments.ElementAt(segmentIndex + 1)),
+					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve()
+					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve()
+					select Constraint.CreateEquality
+					(
+						segment0.InstantiatePosition(Term.Constant(1)),
+						segment1.InstantiatePosition(Term.Constant(0))
+					),
+
 					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-					select CreateVelocityConnection(segments.ElementAt(segmentIndex + 0), segments.ElementAt(segmentIndex + 1))
+					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Derivative
+					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Derivative
+					select Constraint.CreateEquality
+					(
+						segment0.InstantiatePosition(Term.Constant(1)),
+						segment1.InstantiatePosition(Term.Constant(0))
+					),
+
+					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
+					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Derivative.Derivative
+					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Derivative.Derivative
+					select Constraint.CreateEquality
+					(
+						segment0.InstantiatePosition(Term.Constant(1)),
+						segment1.InstantiatePosition(Term.Constant(0))
+					)
 				)
 			)
 			.ToArray();
@@ -100,12 +118,12 @@ namespace Kurve.Curves
 			this.problem = new Problem(objectiveFunction.Normalize(2), constraint.Normalize(2), new Settings());
 		}
 
-		public IEnumerable<Curve> Optimize()
+		public Tuple<double, IEnumerable<Curve>> Optimize()
 		{
 			IEnumerable<Assignment> startAssignments =
 			(
 				from variable in Variables
-				select new Assignment(variable, Enumerable.Repeat(0.0, variable.Dimension))
+				select new Assignment(variable, Enumerable.Repeat(1.0, variable.Dimension))
 			)
 			.ToArray();
 
@@ -116,6 +134,8 @@ namespace Kurve.Curves
 
 			Console.WriteLine("result assignments");
 			foreach (Assignment assignment in resultAssignments) Console.WriteLine(assignment);
+
+			double resultVelocityLength = resultAssignments.Single(assignment => assignment.Variable == velocityLength).Value.Single();
 
 			IEnumerable<Curve> resultCurves =
 			(
@@ -128,24 +148,7 @@ namespace Kurve.Curves
 			Console.WriteLine("result curves");
 			foreach (Curve curve in resultCurves) Console.WriteLine(curve);
 			
-			return resultCurves;
-		}
-		
-		static IConstraint<ValueTerm> CreatePointConnection(Segment end, Segment start)
-		{
-			return Constraint.CreateEquality
-			(
-				end.GetLocalCurve().InstantiatePosition(Term.Constant(1)),
-				start.GetLocalCurve().InstantiatePosition(Term.Constant(0))
-			);
-		}
-		static IConstraint<ValueTerm> CreateVelocityConnection(Segment end, Segment start)
-		{
-			return Constraint.CreateEquality
-			(
-				end.GetLocalCurve().Derivative.InstantiatePosition(Term.Constant(1)),
-				start.GetLocalCurve().Derivative.InstantiatePosition(Term.Constant(0))
-			);
+			return Tuple.Create(resultVelocityLength, resultCurves);
 		}
 
 		static FunctionTerm GetPositionTransformation(int segmentIndex, int segmentCount)
@@ -169,6 +172,34 @@ namespace Kurve.Curves
 				select segment
 			)
 			.ToArray();
+		}
+
+		static ValueTerm IntegrateTrapezoid(FunctionTerm function, OrderedRange<double> bounds, int segmentCount)
+		{
+			if (segmentCount < 1) throw new ArgumentOutOfRangeException("segmentCount");
+
+			ValueTerm segmentWidth = Term.Constant(bounds.Length() / segmentCount);
+
+			IEnumerable<ValueTerm> values =
+			(
+				from segmentPosition in Scalars.GetIntermediateValues(bounds.Start, bounds.End, segmentCount)
+				select function.Apply(Term.Constant(segmentPosition))
+			)
+			.ToArray();
+
+			return Term.Product
+			(
+				segmentWidth,
+				Term.Sum
+				(
+					Enumerables.Concatenate
+					(
+						Enumerables.Create(Term.Product(Term.Constant(0.5), values.First())),
+						values.Skip(1).SkipLast(1),
+						Enumerables.Create(Term.Product(Term.Constant(0.5), values.Last()))
+					)
+				)
+			);
 		}
 	}
 }

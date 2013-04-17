@@ -13,8 +13,8 @@
     <property name="Title" translatable="yes">MainWindow</property>
     <property name="WindowPosition">CenterOnParent</property>
     <property name="AllowShrink">True</property>
-    <property name="DefaultWidth">512</property>
-    <property name="DefaultHeight">512</property>
+    <property name="DefaultWidth">768</property>
+    <property name="DefaultHeight">768</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
       <widget class="Gtk.DrawingArea" id="drawingarea1">

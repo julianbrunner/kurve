@@ -12,6 +12,8 @@ using Kurve.Curves;
 using Krach.Calculus.Abstract;
 using Krach.Calculus.Terms.Basic.Atoms;
 using System.Linq.Expressions;
+using Krach.Calculus.Terms.Basic.Definitions;
+using Krach.Calculus.Terms.Notation.Custom;
 
 namespace Kurve.Test
 {
@@ -70,6 +72,13 @@ namespace Kurve.Test
 				Term.Product(Term.Constant(100), Term.Square(Term.Difference(y, Term.Square(x))))
 			)
 			.Abstract(x, y);
+
+			FunctionTerm f = new FunctionDefinition("f", Term.Identity(1), new BasicSyntax("f"));
+			FunctionTerm g = new FunctionDefinition("g", Term.Identity(1), new BasicSyntax("g"));
+
+			ValueTerm t = Term.Exponentiation(f.Apply(x), g.Apply(x)).GetDerivatives(x).Single();
+
+			Console.WriteLine (Rewriting.CompleteSimplification.Rewrite(t));
 
 			Optimize(function1, Enumerables.Create(0.0, 0.0));
 			Optimize(function2, Enumerables.Create(0.0, 0.0));

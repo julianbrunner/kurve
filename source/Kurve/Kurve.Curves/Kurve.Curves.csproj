@@ -43,7 +43,7 @@
     <Compile Include="Specification\PositionedCurveSpecification.cs" />
     <Compile Include="Specification\VelocityCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
-    <Compile Include="Specification\FairnessSpecification.cs" />
+    <Compile Include="Specification\AccelerationCurveSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
