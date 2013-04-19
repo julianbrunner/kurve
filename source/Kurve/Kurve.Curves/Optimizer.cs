@@ -54,7 +54,7 @@ namespace Kurve.Curves
 				let position = new Variable(1, "t")
 				let segmentVelocity = segment.GetLocalCurve().Derivative.InstantiatePosition(position)
 				let segmentVelocityLengthError = Term.Square(Term.Difference(Term.Norm(segmentVelocity), velocityLength))
-				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 5)
+				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 10)
 			);
 
 			ValueTerm objectiveValue = Term.Sum

@@ -20,7 +20,7 @@ namespace Kurve.Curves
 			if (function == null) throw new ArgumentNullException("position");
 			if (function.DomainDimension != 1) throw new ArgumentException("parameter 'function' has wrong dimension.");
 
-			this.function = function;
+			this.function = Rewriting.CompleteSimplification.Rewrite(function);
 		}
 		
 		public override string ToString()
