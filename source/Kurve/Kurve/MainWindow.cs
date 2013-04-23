@@ -84,24 +84,25 @@ public partial class MainWindow: Gtk.Window
 			(
 				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
 				new PointCurveSpecification(0.3, new Vector2Double( 0.0, +0.5)),
-				new AccelerationCurveSpecification(0.7, new Vector2Double(+25.0,  0.0)),
+				//new AccelerationCurveSpecification(0.7, new Vector2Double(+25.0,  0.0)),
 				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
 			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(5);
+			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
 			int segmentCount = 5;
+			double curveLength = 4;
 			
-			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount);
+			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount, curveLength);
 
-			Tuple<double, IEnumerable<Kurve.Curves.Curve>> result = optimizer.Optimize();
+			IEnumerable<Kurve.Curves.Curve> result = optimizer.Optimize();
 			
 			context.LineWidth = 3;
 			context.LineCap = LineCap.Round;
 
-			foreach (Kurve.Curves.Curve curve in result.Item2)
+			foreach (Kurve.Curves.Curve curve in result)
 			{
 				DrawParametricCurve(context, curve, Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
-				DrawParametricCurve(context, curve.Derivative.Scale(1.0 / result.Item1), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
-				DrawParametricCurve(context, curve.Derivative.Derivative.Scale(0.1), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
+				DrawParametricCurve(context, curve.Derivative.Scale(0.1), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
+				DrawParametricCurve(context, curve.Derivative.Derivative.Scale(0.05), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
 			}
 
 			DrawCurveSpecifications(context, curveSpecifications);
@@ -153,7 +154,7 @@ public partial class MainWindow: Gtk.Window
 	}
 	static void DrawParametricCurve(Context context, Kurve.Curves.Curve curve, Krach.Graphics.Color startColor, Krach.Graphics.Color endColor)
 	{
-		double stepLength = 0.001;
+		double stepLength = 0.01;
 
 		for (double position = 0; position < 1; position += stepLength)
 		{

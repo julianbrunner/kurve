@@ -72,13 +72,29 @@ namespace Kurve.Test
 				Term.Product(Term.Constant(100), Term.Square(Term.Difference(y, Term.Square(x))))
 			)
 			.Abstract(x, y);
-
-			FunctionTerm f = new FunctionDefinition("f", Term.Identity(1), new BasicSyntax("f"));
-			FunctionTerm g = new FunctionDefinition("g", Term.Identity(1), new BasicSyntax("g"));
-
-			ValueTerm t = Term.Exponentiation(f.Apply(x), g.Apply(x)).GetDerivatives(x).Single();
-
-			Console.WriteLine (Rewriting.CompleteSimplification.Rewrite(t));
+			
+			Variable coefficients = new Variable(4, "c");
+			Variable position = new Variable(1, "t");
+			ValueTerm t0 = Term.Difference(Term.Constant(1), position);
+			ValueTerm t1 = position;
+			FunctionTerm p = Term.Sum
+			(
+				Term.Product(Term.Constant(1), coefficients.Select(0), Term.Exponentiation(t0, Term.Constant(3)), Term.Exponentiation(t1, Term.Constant(0))),
+				Term.Product(Term.Constant(3), coefficients.Select(1), Term.Exponentiation(t0, Term.Constant(2)), Term.Exponentiation(t1, Term.Constant(1))),
+				Term.Product(Term.Constant(3), coefficients.Select(2), Term.Exponentiation(t0, Term.Constant(1)), Term.Exponentiation(t1, Term.Constant(2))),
+				Term.Product(Term.Constant(1), coefficients.Select(3), Term.Exponentiation(t0, Term.Constant(0)), Term.Exponentiation(t1, Term.Constant(3)))
+			)
+			.Abstract(position);
+			p = Rewriting.CompleteSimplification.Rewrite(p);
+			Console.WriteLine(p);
+			FunctionTerm pp = p.GetDerivatives().Single();
+			pp = Rewriting.CompleteSimplification.Rewrite(pp);
+			Console.WriteLine(pp);
+			
+			Console.WriteLine(Rewriting.CompleteSimplification.Rewrite(p.Apply(Term.Constant(0))));
+			Console.WriteLine(Rewriting.CompleteSimplification.Rewrite(p.Apply(Term.Constant(1))));
+			Console.WriteLine(Rewriting.CompleteSimplification.Rewrite(pp.Apply(Term.Constant(0))));
+			Console.WriteLine(Rewriting.CompleteSimplification.Rewrite(pp.Apply(Term.Constant(1))));
 
 			Optimize(function1, Enumerables.Create(0.0, 0.0));
 			Optimize(function2, Enumerables.Create(0.0, 0.0));

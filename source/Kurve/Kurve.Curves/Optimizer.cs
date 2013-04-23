@@ -18,7 +18,6 @@ namespace Kurve.Curves
 {
 	public class Optimizer
 	{
-		readonly Variable velocityLength;
 		readonly IEnumerable<Segment> segments;
 		readonly Problem problem;
 
@@ -26,35 +25,33 @@ namespace Kurve.Curves
 		{
 			get
 			{
-				return Enumerables.Concatenate
-				(
-					Enumerables.Create(velocityLength),
-					from segment in segments select segment.Parameter
-				);
+				return from segment in segments select segment.Parameter;
 			}
 		}
 		
-		public Optimizer(IEnumerable<PositionedCurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount)
+		public Optimizer(IEnumerable<PositionedCurveSpecification> curveSpecifications, CurveTemplate segmentCurveTemplate, int segmentCount, double curveLength)
 		{
 			if (curveSpecifications == null) throw new ArgumentNullException("curveSpecifications");
 			if (segmentCurveTemplate == null) throw new ArgumentNullException("segmentCurve");
 			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
+			if (curveLength < 0) throw new ArgumentOutOfRangeException("curveLength");
 
-			this.velocityLength = new Variable(1, "vl");
 			this.segments =
 			(
 				from segmentIndex in Enumerable.Range(0, segmentCount)	
 				select new Segment(segmentCurveTemplate, GetPositionTransformation(segmentIndex, segmentCount), segmentIndex)
 			)
 			.ToArray();
+			
+			double segmentLength = curveLength / segmentCount;
 
 			ValueTerm velocityLengthError = Term.Sum
 			(
 				from segment in segments
 				let position = new Variable(1, "t")
 				let segmentVelocity = segment.GetLocalCurve().Derivative.InstantiatePosition(position)
-				let segmentVelocityLengthError = Term.Square(Term.Difference(Term.Norm(segmentVelocity), velocityLength))
-				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 10)
+				let segmentVelocityLengthError = Term.Square(Term.Difference(Term.Norm(segmentVelocity), Term.Constant(segmentLength)))
+				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 5)
 			);
 
 			ValueTerm objectiveValue = Term.Sum
@@ -118,7 +115,7 @@ namespace Kurve.Curves
 			this.problem = new Problem(objectiveFunction.Normalize(2), constraint.Normalize(2), new Settings());
 		}
 
-		public Tuple<double, IEnumerable<Curve>> Optimize()
+		public IEnumerable<Curve> Optimize()
 		{
 			IEnumerable<Assignment> startAssignments =
 			(
@@ -135,8 +132,6 @@ namespace Kurve.Curves
 			Console.WriteLine("result assignments");
 			foreach (Assignment assignment in resultAssignments) Console.WriteLine(assignment);
 
-			double resultVelocityLength = resultAssignments.Single(assignment => assignment.Variable == velocityLength).Value.Single();
-
 			IEnumerable<Curve> resultCurves =
 			(
 				from segment in segments
@@ -148,7 +143,7 @@ namespace Kurve.Curves
 			Console.WriteLine("result curves");
 			foreach (Curve curve in resultCurves) Console.WriteLine(curve);
 			
-			return Tuple.Create(resultVelocityLength, resultCurves);
+			return resultCurves;
 		}
 
 		static FunctionTerm GetPositionTransformation(int segmentIndex, int segmentCount)
