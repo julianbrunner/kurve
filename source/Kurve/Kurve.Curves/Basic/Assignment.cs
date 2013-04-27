@@ -1,23 +1,21 @@
 using System;
 using System.Linq;
-using Kurve.Ipopt;
 using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Krach.Calculus.Terms;
-using Krach.Calculus.Terms.Composite;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
 	class Assignment
 	{
-		readonly Variable variable;
+		readonly ValueTerm variable;
 		readonly IEnumerable<double> value;
 
-		public Variable Variable { get { return variable; } }
+		public ValueTerm Variable { get { return variable; } }
 		public IEnumerable<double> Value { get { return value; } }
 
-		public Assignment(Variable variable, IEnumerable<double> value)
+		public Assignment(ValueTerm variable, IEnumerable<double> value)
 		{
 			if (variable == null) throw new ArgumentNullException("variable");
 			if (value == null) throw new ArgumentNullException("value");
@@ -31,7 +29,7 @@ namespace Kurve.Curves
 			return string.Format("{0} = {1}", variable, value.ToStrings().Separate(" ").AggregateString());
 		}
 
-		public static IEnumerable<double> AssignmentsToValues(IEnumerable<Variable> variables, IEnumerable<Assignment> assignments)
+		public static IEnumerable<double> AssignmentsToValues(IEnumerable<ValueTerm> variables, IEnumerable<Assignment> assignments)
 		{
 			return
 			(
@@ -41,7 +39,7 @@ namespace Kurve.Curves
 			)
 			.ToArray();
 		}
-		public static IEnumerable<Assignment> ValuesToAssignments(IEnumerable<Variable> variables, IEnumerable<double> values)
+		public static IEnumerable<Assignment> ValuesToAssignments(IEnumerable<ValueTerm> variables, IEnumerable<double> values)
 		{
 			return Enumerables.Zip
 			(

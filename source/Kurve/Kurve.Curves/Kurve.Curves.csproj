@@ -33,7 +33,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Optimizer.cs" />
     <Compile Include="Basic\Curve.cs" />
     <Compile Include="Basic\CurveTemplate.cs" />
@@ -47,13 +46,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Kurve.Ipopt\Kurve.Ipopt.csproj">
-      <Project>{21E52697-8DB2-4228-824D-BCDDBAA92691}</Project>
-      <Name>Kurve.Ipopt</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\libraries\krach\Source\Krach\Krach.csproj">
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wrappers.Casadi\Wrappers.Casadi.csproj">
+      <Project>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</Project>
+      <Name>Wrappers.Casadi</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

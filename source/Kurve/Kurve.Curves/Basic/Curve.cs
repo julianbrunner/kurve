@@ -1,11 +1,9 @@
 using System;
 using Krach.Basics;
-using Krach.Calculus.Terms;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
-using Krach.Calculus.Terms.Composite;
-using Krach.Calculus;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
@@ -20,7 +18,7 @@ namespace Kurve.Curves
 			if (function == null) throw new ArgumentNullException("position");
 			if (function.DomainDimension != 1) throw new ArgumentException("parameter 'function' has wrong dimension.");
 
-			this.function = Rewriting.CompleteSimplification.Rewrite(function);
+			this.function = function;
 		}
 		
 		public override string ToString()
@@ -30,13 +28,13 @@ namespace Kurve.Curves
 		
 		public Vector2Double EvaluatePoint(double position)
 		{
-			IEnumerable<double> result = function.Evaluate(Enumerables.Create(position));
+			IEnumerable<double> result = function.Apply(Terms.Constant(position)).Evaluate();
 
 			return new Vector2Double(result.ElementAt(0), result.ElementAt(1));
 		}
 		public Curve TransformPosition(FunctionTerm transformation)
 		{
-			Variable position = new Variable(1, "t");
+			ValueTerm position = Terms.Variable("t");
 
 			return new Curve(function.Apply(transformation.Apply(position)).Abstract(position));
 		}
@@ -48,9 +46,9 @@ namespace Kurve.Curves
 		// TODO: remove debug code
 		public Curve Scale(double factor)
 		{
-			Variable position = new Variable(1, "t");
+			ValueTerm position = Terms.Variable("t");
 
-			return new Curve(Term.Scaling(Term.Constant(factor), function.Apply(position)).Abstract(position));
+			return new Curve(Terms.Scaling(Terms.Constant(factor), function.Apply(position)).Abstract(position));
 		}
 	}
 }

@@ -1,5 +1,5 @@
 using System;
-using Krach.Calculus.Terms;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {

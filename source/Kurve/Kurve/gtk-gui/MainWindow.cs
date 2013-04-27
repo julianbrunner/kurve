@@ -4,7 +4,7 @@
 public partial class MainWindow
 {
 	private global::Gtk.DrawingArea drawingarea1;
-    
+	
 	protected virtual void Build ()
 	{
 		global::Stetic.Gui.Initialize (this);

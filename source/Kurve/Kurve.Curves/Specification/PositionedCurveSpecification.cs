@@ -1,5 +1,4 @@
 using System;
-using Krach.Calculus.Terms;
 
 namespace Kurve.Curves
 {

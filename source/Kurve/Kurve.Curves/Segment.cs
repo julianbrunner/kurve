@@ -1,24 +1,20 @@
 using System;
 using System.Linq;
-using Kurve.Ipopt;
 using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Krach.Calculus.Terms;
-using Krach.Calculus;
-using Krach.Calculus.Terms.Composite;
-using Krach.Calculus.Terms.Notation;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
 	class Segment
 	{
 		readonly CurveTemplate curveTemplate;
-		readonly Variable parameter;
+		readonly ValueTerm parameter;
 		readonly FunctionTerm positionTransformation;
 
 		public CurveTemplate CurveTemplate { get { return curveTemplate; } }
-		public Variable Parameter { get { return parameter; } }
+		public ValueTerm Parameter { get { return parameter; } }
 		public FunctionTerm PositionTransformation { get { return positionTransformation; } }
 
 		public Segment(CurveTemplate curveTemplate, FunctionTerm positionTransformation, int index)
@@ -28,7 +24,7 @@ namespace Kurve.Curves
 			if (index < 0) throw new ArgumentOutOfRangeException("index");
 
 			this.curveTemplate = curveTemplate;
-			this.parameter = new Variable(curveTemplate.ParameterDimension, string.Format("sp_{0}", index));
+			this.parameter = Terms.Variable(string.Format("sp_{0}", index), curveTemplate.ParameterDimension);
 			this.positionTransformation = positionTransformation;
 		}
 

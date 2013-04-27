@@ -1,0 +1,8 @@
+name = Wrappers.Casadi.Native
+type = library
+includeDirectories = /usr/local/include/casadi/
+libraries = casadi_ipopt_interface casadi ipopt coinmumps lapack dl
+libraryDirectories =
+classes = Terms Ipopt
+
+include makefiles/Makefile.build

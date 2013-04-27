@@ -1,14 +1,9 @@
 using System;
 using Krach.Basics;
-using Krach.Calculus.Terms;
 using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
-using Krach.Calculus.Terms.Composite;
-using Krach.Calculus;
-using Krach.Calculus.Terms.Basic.Definitions;
-using Krach.Calculus.Terms.Notation;
-using Krach.Calculus.Terms.Notation.Custom;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
@@ -33,7 +28,7 @@ namespace Kurve.Curves
 
 		public Curve InstantiateParameter(ValueTerm parameter)
 		{
-			Variable position = new Variable(1, "t");
+			ValueTerm position = Terms.Variable("t");
 
 			return new Curve(function.Apply(position, parameter).Abstract(position));
 		}
@@ -42,15 +37,7 @@ namespace Kurve.Curves
 		{
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
 
-			return new CurveTemplate
-			(
-				new FunctionDefinition
-				(
-					string.Format("polynomial_curve_template_{0}_{1}", 2, degree),
-					Rewriting.CompleteNormalization.Rewrite(Term.Polynomial(2, degree)),
-					new BasicSyntax("pct")
-				)
-			);
+			return new CurveTemplate(Terms.Polynomial(2, degree));
 		}
 	}
 }

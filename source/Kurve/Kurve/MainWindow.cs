@@ -7,7 +7,6 @@ using Krach.Basics;
 using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
-using Krach.Calculus.Terms;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -87,13 +86,15 @@ public partial class MainWindow: Gtk.Window
 				//new AccelerationCurveSpecification(0.7, new Vector2Double(+25.0,  0.0)),
 				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
 			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
-			int segmentCount = 5;
+			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(20);
+			int segmentCount = 1;
 			double curveLength = 4;
 			
 			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount, curveLength);
 
 			IEnumerable<Kurve.Curves.Curve> result = optimizer.Optimize();
+
+			double segmentLength = curveLength / segmentCount;
 			
 			context.LineWidth = 3;
 			context.LineCap = LineCap.Round;
@@ -101,8 +102,8 @@ public partial class MainWindow: Gtk.Window
 			foreach (Kurve.Curves.Curve curve in result)
 			{
 				DrawParametricCurve(context, curve, Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
-				DrawParametricCurve(context, curve.Derivative.Scale(0.1), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
-				DrawParametricCurve(context, curve.Derivative.Derivative.Scale(0.05), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
+				DrawParametricCurve(context, curve.Derivative.Scale(1 / segmentLength), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
+				DrawParametricCurve(context, curve.Derivative.Derivative.Scale(0.2 / segmentLength.Square()), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
 			}
 
 			DrawCurveSpecifications(context, curveSpecifications);

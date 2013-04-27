@@ -1,7 +1,6 @@
 using System;
 using Krach.Basics;
-using Krach.Calculus.Terms;
-using Krach.Calculus;
+using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
@@ -23,7 +22,7 @@ namespace Kurve.Curves
 
 		public override ValueTerm GetErrorTerm(Curve curve)
 		{
-			return Term.Difference(curve.InstantiatePosition(Term.Constant(position)), Term.Constant(point.X, point.Y));
+			return Terms.Difference(curve.InstantiatePosition(Terms.Constant(position)), Terms.Constant(point.X, point.Y));
 		}
 	}
 }

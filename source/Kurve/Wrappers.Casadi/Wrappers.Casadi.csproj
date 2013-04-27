@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{21E52697-8DB2-4228-824D-BCDDBAA92691}</ProjectGuid>
+    <ProjectGuid>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Kurve.Ipopt</RootNamespace>
-    <AssemblyName>Kurve.Ipopt</AssemblyName>
+    <RootNamespace>Wrappers.Casadi</RootNamespace>
+    <AssemblyName>Wrappers.Casadi</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,11 +33,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Wrapper.cs" />
-    <Compile Include="Problem.cs" />
-    <Compile Include="ApplicationReturnStatus.cs" />
+    <Compile Include="Constraints.cs" />
+    <Compile Include="Terms.cs" />
+    <Compile Include="Constraint.cs" />
+    <Compile Include="Native\IpoptNative.cs" />
+    <Compile Include="Native\TermsNative.cs" />
+    <Compile Include="FunctionTerm.cs" />
+    <Compile Include="ValueTerm.cs" />
+    <Compile Include="NlpProblem.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="TermsWrapped.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -45,5 +50,8 @@
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Native\" />
   </ItemGroup>
 </Project>
