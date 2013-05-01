@@ -11,7 +11,47 @@ namespace Kurve.Curves
 	{
 		readonly FunctionTerm function;
 
-		public Curve Derivative { get { return new Curve(function.GetDerivatives().Single()); } }
+		public FunctionTerm Point { get { return function; } }
+		public FunctionTerm Velocity { get { return Point.GetDerivatives().Single(); } }
+		public FunctionTerm Acceleration { get { return Velocity.GetDerivatives().Single(); } }
+//		public FunctionTerm Speed
+//		{
+//			get
+//			{
+//				ValueTerm position = Terms.Variable("t");
+//
+//				ValueTerm velocity = Velocity.Apply(position);
+//
+//				return Terms.Norm(velocity).Abstract(position);
+//			}
+//		}
+//		public FunctionTerm Direction
+//		{
+//			get
+//			{
+//				ValueTerm position = Terms.Variable("t");
+//
+//				ValueTerm velocity = Velocity.Apply(position);
+//
+//				return Terms.Scaling(Terms.Invert(Terms.Norm(velocity)), velocity).Abstract(position);
+//			}
+//		}
+//		public FunctionTerm Curvature
+//		{
+//			get
+//			{
+//				ValueTerm position = Terms.Variable("t");
+//
+//				ValueTerm acceleration = Acceleration.Apply(position);
+//				
+//				ValueTerm speed = Speed.Apply(position);
+//				ValueTerm linearDirection = Direction.Apply(position);
+//				ValueTerm angularDirection = Terms.Vector(linearDirection.Select(1), Terms.Negate(linearDirection.Select(0)));
+//				ValueTerm angularAcceleration = Terms.DotProduct(acceleration, angularDirection);
+//
+//				return Terms.Product(Terms.Invert(Terms.Square(speed)), angularAcceleration).Abstract(position);
+//			}
+//		}
 
 		public Curve(FunctionTerm function)
 		{
@@ -25,30 +65,18 @@ namespace Kurve.Curves
 		{
 			return function.ToString();
 		}
-		
-		public Vector2Double EvaluatePoint(double position)
-		{
-			IEnumerable<double> result = function.Apply(Terms.Constant(position)).Evaluate();
 
-			return new Vector2Double(result.ElementAt(0), result.ElementAt(1));
-		}
 		public Curve TransformPosition(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
 			return new Curve(function.Apply(transformation.Apply(position)).Abstract(position));
 		}
-		public ValueTerm InstantiatePosition(ValueTerm position)
-		{
-			return function.Apply(position);
-		}
-
-		// TODO: remove debug code
-		public Curve Scale(double factor)
+		public Curve TransformPoint(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
-			return new Curve(Terms.Scaling(Terms.Constant(factor), function.Apply(position)).Abstract(position));
+			return new Curve(transformation.Apply(function.Apply(position)).Abstract(position));
 		}
 	}
 }

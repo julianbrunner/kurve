@@ -22,7 +22,7 @@ namespace Kurve.Curves
 
 		public override ValueTerm GetErrorTerm(Curve curve)
 		{
-			return Terms.Difference(curve.InstantiatePosition(Terms.Constant(position)), Terms.Constant(point.X, point.Y));
+			return Terms.Difference(curve.Point.Apply(Terms.Constant(position)), Terms.Constant(point.X, point.Y));
 		}
 	}
 }

@@ -67,7 +67,7 @@ namespace Wrappers.Casadi
 		}
 		public static ValueTerm Constant(IEnumerable<double> values)
 		{
-			return Vector(values.Select(Constant));
+			return Vector(values.Select(Constant).ToArray());
 		}
 		public static ValueTerm Constant(params double[] values)
 		{

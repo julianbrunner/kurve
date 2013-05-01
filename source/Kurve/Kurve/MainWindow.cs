@@ -7,6 +7,7 @@ using Krach.Basics;
 using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
+using Wrappers.Casadi;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -79,15 +80,37 @@ public partial class MainWindow: Gtk.Window
 //			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(5);
 //			int segmentCount = 4;
 
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-1.0, -1.0)),
+//				new PointCurveSpecification(0.3, new Vector2Double(-0.5,  0.0)),
+//				new PointCurveSpecification(0.5, new Vector2Double( 0.0,  0.0)),
+//				new PointCurveSpecification(0.7, new Vector2Double(+0.5,  0.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double(+1.0, +1.0))
+//			);
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, -4.0)),
+//
+//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0)),
+//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
+//			);
+//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double( 0.0,  0.0)),
+//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, +4.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double( 0.0,  0.0)),
+//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
+//			);
 			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
 			(
-				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
-				new PointCurveSpecification(0.3, new Vector2Double( 0.0, +0.5)),
-				//new AccelerationCurveSpecification(0.7, new Vector2Double(+25.0,  0.0)),
-				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
+				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+				new AccelerationCurveSpecification(0.5, new Vector2Double( 0.0, +16.0)),
+				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
 			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(20);
-			int segmentCount = 1;
+			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
+			int segmentCount = 10;
 			double curveLength = 4;
 			
 			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount, curveLength);
@@ -95,16 +118,24 @@ public partial class MainWindow: Gtk.Window
 			IEnumerable<Kurve.Curves.Curve> result = optimizer.Optimize();
 
 			double segmentLength = curveLength / segmentCount;
-			
+			ValueTerm position = Terms.Variable("t");
+			ValueTerm point = Terms.Variable("point", 2);
+			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
+			FunctionTerm velocityScaling = Terms.Scaling(Terms.Constant(1.0 / segmentLength), point).Abstract(point);
+			FunctionTerm accelerationScaling = Terms.Scaling(Terms.Constant(0.2 / segmentLength.Square()), point).Abstract(point);
+
 			context.LineWidth = 3;
-			context.LineCap = LineCap.Round;
+			context.LineCap = LineCap.Butt;
 
 			foreach (Kurve.Curves.Curve curve in result)
 			{
-				DrawParametricCurve(context, curve, Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
-				DrawParametricCurve(context, curve.Derivative.Scale(1 / segmentLength), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
-				DrawParametricCurve(context, curve.Derivative.Derivative.Scale(0.2 / segmentLength.Square()), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
+				DrawParametricCurve(context, accelerationScaling.Apply(curve.Acceleration.Apply(position)).Abstract(position), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
+				DrawParametricCurve(context, velocityScaling.Apply(curve.Velocity.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
+				DrawParametricCurve(context, pointScaling.Apply(curve.Point.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
 			}
+			
+			context.LineWidth = 5;
+			context.LineCap = LineCap.Round;
 
 			DrawCurveSpecifications(context, curveSpecifications);
 
@@ -153,7 +184,7 @@ public partial class MainWindow: Gtk.Window
 			}
 		}
 	}
-	static void DrawParametricCurve(Context context, Kurve.Curves.Curve curve, Krach.Graphics.Color startColor, Krach.Graphics.Color endColor)
+	static void DrawParametricCurve(Context context, FunctionTerm curve, Krach.Graphics.Color startColor, Krach.Graphics.Color endColor)
 	{
 		double stepLength = 0.01;
 
@@ -161,7 +192,13 @@ public partial class MainWindow: Gtk.Window
 		{
 			Krach.Graphics.Color color = Krach.Graphics.Color.InterpolateHsv(startColor, endColor, Scalars.InterpolateLinear, position);
 
-			DrawLine(context, curve.EvaluatePoint(position), curve.EvaluatePoint(position + stepLength), color);
+			DrawLine(context, EvaluatePoint(curve, position), EvaluatePoint(curve, position + stepLength), color);
 		}
+	}
+	static Vector2Double EvaluatePoint(FunctionTerm curve, double position)
+	{
+		IEnumerable<double> result = curve.Apply(Terms.Constant(position)).Evaluate();
+
+		return new Vector2Double(result.ElementAt(0), result.ElementAt(1));
 	}
 }

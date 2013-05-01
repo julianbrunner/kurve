@@ -15,181 +15,120 @@ namespace Wrappers.Casadi
 
 		public static ValueTerm Variable(string name, int dimension)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Variable(name, dimension);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Variable(name, dimension));
 		}
 		public static FunctionTerm Abstraction(ValueTerm variable, ValueTerm value)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Abstraction(variable.Value, value.Value);
-
-			return new FunctionTerm(result);
+			lock (synchronization) return new FunctionTerm(TermsNative.Abstraction(variable.Value, value.Value));
 		}
 		public static ValueTerm Application(FunctionTerm function, ValueTerm value)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Application(function.Function, value.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Application(function.Function, value.Value));
 		}
 
 		public static ValueTerm Vector(IEnumerable<ValueTerm> values)
 		{
-			IntPtr valuePointers = values.Select(value => value.Value).Copy();
-			int valueCount = values.Count();
+			lock (synchronization)
+			{
+				IntPtr valuePointers = values.Select(value => value.Value).Copy();
+				int valueCount = values.Count();
 
-			IntPtr result;
+				IntPtr result = TermsNative.Vector(valuePointers, valueCount);
 
-			lock (synchronization) result = TermsNative.Vector(valuePointers, valueCount);
-
-			Marshal.FreeCoTaskMem(valuePointers);
-
-			return new ValueTerm(result);
+				Marshal.FreeCoTaskMem(valuePointers);
+				
+				return new ValueTerm(result);
+			}
 		}
 		public static ValueTerm Selection(ValueTerm value, int index)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Selection(value.Value, index);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Selection(value.Value, index));
 		}
 
 		public static ValueTerm Constant(double value)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Constant(value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Constant(value));
 		}
 
 		public static ValueTerm Sum(ValueTerm value1, ValueTerm value2)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Sum(value1.Value, value2.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Sum(value1.Value, value2.Value));
 		}
 		public static ValueTerm Product(ValueTerm value1, ValueTerm value2)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Product(value1.Value, value2.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Product(value1.Value, value2.Value));
 		}
 		public static ValueTerm Exponentiation(ValueTerm value1, ValueTerm value2)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Exponentiation(value1.Value, value2.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Exponentiation(value1.Value, value2.Value));
 		}
 		public static ValueTerm MatrixProduct(ValueTerm value1, ValueTerm value2)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.MatrixProduct(value1.Value, value2.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.MatrixProduct(value1.Value, value2.Value));
 		}
 		public static ValueTerm Transpose(ValueTerm value)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.Transpose(value.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.Transpose(value.Value));
 		}
 	
 		public static string ValueToString(ValueTerm value)
 		{
-			string result;
-
-			lock (synchronization) result = TermsNative.ValueToString(value.Value);
-
-			return result;
+			lock (synchronization) return TermsNative.ValueToString(value.Value);
 		}
 		public static int ValueDimension(ValueTerm value)
 		{
-			int result;
-
-			lock (synchronization) result = TermsNative.ValueDimension(value.Value);
-
-			return result;
+			lock (synchronization) return TermsNative.ValueDimension(value.Value);
 		}
 		public static IEnumerable<double> ValueEvaluate(ValueTerm value)
 		{
-			IntPtr values = Enumerable.Repeat(0.0, value.Dimension).Copy();
+			lock (synchronization)
+			{
+				IntPtr values = Enumerable.Repeat(0.0, value.Dimension).Copy();
 
-			lock (synchronization) TermsNative.ValueEvaluate(value.Value, values);
+				TermsNative.ValueEvaluate(value.Value, values);
 
-			IEnumerable<double> result = values.Read<double>(value.Dimension);
+				IEnumerable<double> result = values.Read<double>(value.Dimension);
 
-			Marshal.FreeCoTaskMem(values);
+				Marshal.FreeCoTaskMem(values);
 
-			return result;
+				return result;
+			}
 		}
 		public static ValueTerm ValueSimplify(ValueTerm value)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.ValueSimplify(value.Value);
-
-			return new ValueTerm(result);
+			lock (synchronization) return new ValueTerm(TermsNative.ValueSimplify(value.Value));
 		}
 	
 		public static string FunctionToString(FunctionTerm function)
 		{
-			string result;
-
-			lock (synchronization) result = TermsNative.FunctionToString(function.Function);
-
-			return result;
+			lock (synchronization) return TermsNative.FunctionToString(function.Function);
 		}
 		public static int FunctionDomainDimension(FunctionTerm function)
 		{
-			int result;
-
-			lock (synchronization) result = TermsNative.FunctionDomainDimension(function.Function);
-
-			return result;
+			lock (synchronization) return TermsNative.FunctionDomainDimension(function.Function);
 		}
 		public static int FunctionCodomainDimension(FunctionTerm function)
 		{
-			int result;
-
-			lock (synchronization) result = TermsNative.FunctionCodomainDimension(function.Function);
-
-			return result;
+			lock (synchronization) return TermsNative.FunctionCodomainDimension(function.Function);
 		}
 		public static IEnumerable<FunctionTerm> FunctionDerivatives(FunctionTerm function)
 		{
-			IntPtr derivatives = Enumerable.Repeat(IntPtr.Zero, function.DomainDimension).Copy();
+			lock (synchronization)
+			{
+				IntPtr derivatives = Enumerable.Repeat(IntPtr.Zero, function.DomainDimension).Copy();
 
-			lock (synchronization) TermsNative.FunctionDerivatives(function.Function, derivatives);
+				TermsNative.FunctionDerivatives(function.Function, derivatives);
 
-			IEnumerable<IntPtr> result = derivatives.Read<IntPtr>(function.DomainDimension);
+				IEnumerable<IntPtr> result = derivatives.Read<IntPtr>(function.DomainDimension);
 
-			Marshal.FreeCoTaskMem(derivatives);
+				Marshal.FreeCoTaskMem(derivatives);
 
-			return result.Select(derivative => new FunctionTerm(derivative)).ToArray();
+				return result.Select(derivative => new FunctionTerm(derivative)).ToArray();
+			}
 		}
 		public static FunctionTerm FunctionSimplify(FunctionTerm function)
 		{
-			IntPtr result;
-
-			lock (synchronization) result = TermsNative.FunctionSimplify(function.Function);
-
-			return new FunctionTerm(result);
+			lock (synchronization) return new FunctionTerm(TermsNative.FunctionSimplify(function.Function));
 		}
 
 		public static void DisposeValue(ValueTerm value)

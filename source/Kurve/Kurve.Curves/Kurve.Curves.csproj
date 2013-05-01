@@ -40,9 +40,9 @@
     <Compile Include="Segment.cs" />
     <Compile Include="Specification\PointCurveSpecification.cs" />
     <Compile Include="Specification\PositionedCurveSpecification.cs" />
-    <Compile Include="Specification\VelocityCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
     <Compile Include="Specification\AccelerationCurveSpecification.cs" />
+    <Compile Include="Specification\VelocityCurveSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

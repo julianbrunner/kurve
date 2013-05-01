@@ -10,7 +10,7 @@ namespace Kurve.Curves
 		readonly Vector2Double velocity;
 
 		public override double Position { get { return position; } }
-		public Vector2Double Velocity { get { return velocity; } }
+		public Vector2Double Direction { get { return velocity; } }
 		
 		public VelocityCurveSpecification(double position, Vector2Double velocity)
 		{
@@ -22,7 +22,7 @@ namespace Kurve.Curves
 
 		public override ValueTerm GetErrorTerm(Curve curve)
 		{
-			return Terms.Difference(curve.Derivative.InstantiatePosition(Terms.Constant(position)), Terms.Constant(velocity.X, velocity.Y));
+			return Terms.Difference(curve.Velocity.Apply(Terms.Constant(position)), Terms.Constant(velocity.X, velocity.Y));
 		}
 	}
 }

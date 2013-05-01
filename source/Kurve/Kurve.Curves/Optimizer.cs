@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
 using Wrappers.Casadi;
+using Krach;
 
 namespace Kurve.Curves
 {
@@ -36,23 +37,33 @@ namespace Kurve.Curves
 			
 			double segmentLength = curveLength / segmentCount;
 
-			ValueTerm velocityLengthError = Terms.Sum
+			ValueTerm speedError = Terms.Sum
 			(
 				from segment in segments
 				let position = Terms.Variable("t")
-				let segmentVelocity = segment.GetLocalCurve().Derivative.InstantiatePosition(position)
-				let segmentVelocityLengthError = Terms.Square(Terms.Difference(Terms.Norm(segmentVelocity), Terms.Constant(segmentLength)))
-				select IntegrateTrapezoid(segmentVelocityLengthError.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				let segmentCurve = segment.GetLocalCurve()
+				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), Terms.Constant(segmentLength)))
+				select IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 10)
+			);
+			ValueTerm fairnessError = Terms.Sum
+			(
+				from segment in segments
+				let position = Terms.Variable("t")
+				let segmentCurve = segment.GetLocalCurve()
+				let segmentError = Terms.Square(Terms.Norm(segmentCurve.Acceleration.Apply(position)))
+				select IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 10)
 			);
 
 			ValueTerm objectiveValue = Terms.Sum
 			(
-				Terms.Product(Terms.Constant(1.0), velocityLengthError)
-			);
+				Terms.Product(Terms.Constant(1.0), speedError),
+				Terms.Product(Terms.Constant(0.0001), fairnessError)
+			)
+			.Simplify();
 
-			Console.WriteLine("objective value");
-			Console.WriteLine(objectiveValue);
-			Console.WriteLine();
+//			Console.WriteLine("objective value");
+//			Console.WriteLine(objectiveValue);
+//			Console.WriteLine();
 
 			IEnumerable<Constraint<ValueTerm>> constraintValues =
 			(
@@ -63,38 +74,38 @@ namespace Kurve.Curves
 					select Constraints.CreateZero(curveSpecification.GetErrorTerm(segment.GetGlobalCurve())),
 
 					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve()
-					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve()
+					let segment0CurvePoint = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Point
+					let segment1CurvePoint = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Point
 					select Constraints.CreateEquality
 					(
-						segment0.InstantiatePosition(Terms.Constant(1)),
-						segment1.InstantiatePosition(Terms.Constant(0))
+						segment0CurvePoint.Apply(Terms.Constant(1)),
+						segment1CurvePoint.Apply(Terms.Constant(0))
 					),
 
 					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Derivative
-					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Derivative
+					let segment0CurveVelocity = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Velocity
+					let segment1CurveVelocity = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Velocity
 					select Constraints.CreateEquality
 					(
-						segment0.InstantiatePosition(Terms.Constant(1)),
-						segment1.InstantiatePosition(Terms.Constant(0))
+						segment0CurveVelocity.Apply(Terms.Constant(1)),
+						segment1CurveVelocity.Apply(Terms.Constant(0))
 					),
 
 					from segmentIndex in Enumerable.Range(0, segmentCount - 1)
-					let segment0 = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Derivative.Derivative
-					let segment1 = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Derivative.Derivative
+					let segment0CurveAcceleration = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Acceleration
+					let segment1CurveAcceleration = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Acceleration
 					select Constraints.CreateEquality
 					(
-						segment0.InstantiatePosition(Terms.Constant(1)),
-						segment1.InstantiatePosition(Terms.Constant(0))
+						segment0CurveAcceleration.Apply(Terms.Constant(1)),
+						segment1CurveAcceleration.Apply(Terms.Constant(0))
 					)
 				)
 			)
 			.ToArray();
 						
-			Console.WriteLine("constraint values");
-			foreach (Constraint<ValueTerm> constraintValue in constraintValues) Console.WriteLine(constraintValue);
-			Console.WriteLine();
+//			Console.WriteLine("constraint values");
+//			foreach (Constraint<ValueTerm> constraintValue in constraintValues) Console.WriteLine(constraintValue);
+//			Console.WriteLine();
 
 			FunctionTerm objectiveFunction = objectiveValue.Abstract(Variables);
 			Constraint<FunctionTerm> constraint = Constraints.Merge(constraintValues).Abstract(Variables);
@@ -104,17 +115,15 @@ namespace Kurve.Curves
 
 		public IEnumerable<Curve> Optimize()
 		{
-			IEnumerable<Assignment> startAssignments =
+			IEnumerable<double> result = problem.Solve
 			(
 				from variable in Variables
-				select new Assignment(variable, Enumerable.Repeat(1.0, variable.Dimension))
-			)
-			.ToArray();
+				from component in Enumerable.Range(0, variable.Dimension)
+				select new OrderedRange<double>(-10, +10),
+				10
+			);
 
-			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(Variables, problem.Solve(Assignment.AssignmentsToValues(Variables, startAssignments)));
-
-			Console.WriteLine("start assignments");
-			foreach (Assignment assignment in startAssignments) Console.WriteLine(assignment);
+			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(Variables, result);
 
 			Console.WriteLine("result assignments");
 			foreach (Assignment assignment in resultAssignments) Console.WriteLine(assignment);

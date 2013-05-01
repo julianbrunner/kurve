@@ -17,14 +17,15 @@ namespace Wrappers.Casadi
 
 		public Settings()
 		{
-			PrintLevel = 5;
+			PrintLevel = 0;
 			Tolerance = 1e-8;
-			MaximumIterationCount = 10000;
+			MaximumIterationCount = 1000;
 		}
 
 		internal void Apply(IntPtr solver)
 		{
 			IpoptNative.SetBooleanOption(solver, "generate_hessian", true);
+			IpoptNative.SetBooleanOption(solver, "print_time", false);
 
 			IpoptNative.SetIntegerOption(solver, "print_level", PrintLevel);
 			IpoptNative.SetDoubleOption(solver, "tol", Tolerance);
