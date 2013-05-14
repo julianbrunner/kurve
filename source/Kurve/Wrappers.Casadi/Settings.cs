@@ -17,7 +17,7 @@ namespace Wrappers.Casadi
 
 		public Settings()
 		{
-			PrintLevel = 0;
+			PrintLevel = 5;
 			Tolerance = 1e-8;
 			MaximumIterationCount = 1000;
 		}

@@ -31,18 +31,21 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Optimizer.cs" />
-    <Compile Include="Basic\Curve.cs" />
-    <Compile Include="Basic\CurveTemplate.cs" />
-    <Compile Include="Basic\Assignment.cs" />
     <Compile Include="Segment.cs" />
     <Compile Include="Specification\PointCurveSpecification.cs" />
-    <Compile Include="Specification\PositionedCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
     <Compile Include="Specification\AccelerationCurveSpecification.cs" />
     <Compile Include="Specification\VelocityCurveSpecification.cs" />
+    <Compile Include="Specification\Specification.cs" />
+    <Compile Include="Specification\CurveTemplate.cs" />
+    <Compile Include="Curve.cs" />
+    <Compile Include="Assignment.cs" />
+    <Compile Include="Specification\PolynomialCurveTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -56,7 +59,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Basic\" />
     <Folder Include="Specification\" />
   </ItemGroup>
 </Project>

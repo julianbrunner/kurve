@@ -63,29 +63,6 @@ namespace Wrappers.Casadi
 
 			return resultPosition;
 		}
-		public IEnumerable<double> Solve(IEnumerable<OrderedRange<double>> startPositionBounds, int startPositionsCount)
-		{
-			RandomNumberGenerator random = new RandomNumberGenerator();
-
-			IEnumerable<double> bestResult = null;
-			double bestObjectiveValue = 0;
-
-			for (int index = 0; index < startPositionsCount; index++)
-			{
-				IEnumerable<double> result = Solve(startPositionBounds.Select(bounds => random.NextDouble(bounds.Start, bounds.End)));
-				double objectiveValue = objectiveFunction.Apply(Terms.Constant(result)).Evaluate().Single();
-
-				Console.WriteLine(objectiveValue);
-
-				if (bestResult == null || objectiveValue < bestObjectiveValue)
-				{
-					bestResult = result;
-					bestObjectiveValue = objectiveValue;
-				}
-			}
-
-			return bestResult;
-		}
 
 		public void Dispose()
 		{

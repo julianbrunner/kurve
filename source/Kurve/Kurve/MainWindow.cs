@@ -8,6 +8,7 @@ using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
 using Wrappers.Casadi;
+using System.Xml.Linq;
 
 public partial class MainWindow: Gtk.Window
 {	
@@ -80,15 +81,15 @@ public partial class MainWindow: Gtk.Window
 //			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(5);
 //			int segmentCount = 4;
 
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-1.0, -1.0)),
-//				new PointCurveSpecification(0.3, new Vector2Double(-0.5,  0.0)),
-//				new PointCurveSpecification(0.5, new Vector2Double( 0.0,  0.0)),
-//				new PointCurveSpecification(0.7, new Vector2Double(+0.5,  0.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+1.0, +1.0))
-//			);
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+			(
+				new PointCurveSpecification(0.0, new Vector2Double(-1.0, -1.0)),
+				new PointCurveSpecification(0.3, new Vector2Double(-0.5,  0.0)),
+				new PointCurveSpecification(0.5, new Vector2Double( 0.0,  0.0)),
+				new PointCurveSpecification(0.7, new Vector2Double(+0.5,  0.0)),
+				new PointCurveSpecification(1.0, new Vector2Double(+1.0, +1.0))
+			);
+//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
 //			(
 //				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
 //				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, -4.0)),
@@ -96,28 +97,35 @@ public partial class MainWindow: Gtk.Window
 //				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0)),
 //				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
 //			);
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
+//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
 //			(
 //				new PointCurveSpecification(0.0, new Vector2Double( 0.0,  0.0)),
 //				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, +4.0)),
 //				new PointCurveSpecification(1.0, new Vector2Double( 0.0,  0.0)),
 //				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
 //			);
-			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-			(
-				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-				new AccelerationCurveSpecification(0.5, new Vector2Double( 0.0, +16.0)),
-				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
-			);
-			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
-			int segmentCount = 10;
+//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+//				new AccelerationCurveSpecification(0.5, new Vector2Double( 0.0, +16.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
+//			);
 			double curveLength = 4;
-			
-			Optimizer optimizer = new Optimizer(curveSpecifications, segmentCurveTemplate, segmentCount, curveLength);
+			int segmentCount = 10;
+			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+			IEnumerable<double> disambiguation =
+			(
+				from segmentIndex in Enumerable.Range(0, segmentCount)
+				from parameterIndex in Enumerable.Range(0, segmentTemplate.ParameterDimension)
+				select 1.0
+			)
+			.ToArray();
 
-			IEnumerable<Kurve.Curves.Curve> result = optimizer.Optimize();
+			Specification specification = new Specification(curveLength, segmentCount, segmentTemplate, curveSpecifications, disambiguation);
 
-			double segmentLength = curveLength / segmentCount;
+			IEnumerable<Kurve.Curves.Curve> result = Optimizer.Optimize(specification);
+
+			double segmentLength = specification.CurveLength / specification.SegmentCount;
 			ValueTerm position = Terms.Variable("t");
 			ValueTerm point = Terms.Variable("point", 2);
 			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
@@ -137,7 +145,7 @@ public partial class MainWindow: Gtk.Window
 			context.LineWidth = 5;
 			context.LineCap = LineCap.Round;
 
-			DrawCurveSpecifications(context, curveSpecifications);
+			DrawCurveSpecifications(context, specification.CurveSpecifications);
 
 			context.Target.Dispose();
 		}
@@ -172,9 +180,9 @@ public partial class MainWindow: Gtk.Window
 		context.Color = ToCairoColor(color);
 		context.Stroke();
 	}
-	static void DrawCurveSpecifications(Context context, IEnumerable<PositionedCurveSpecification> curveSpecifications)
+	static void DrawCurveSpecifications(Context context, IEnumerable<CurveSpecification> curveSpecifications)
 	{
-		foreach (PositionedCurveSpecification curveSpecification in curveSpecifications)
+		foreach (CurveSpecification curveSpecification in curveSpecifications)
 		{
 			if (curveSpecification is PointCurveSpecification)
 			{

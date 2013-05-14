@@ -1,16 +1,32 @@
 using System;
 using Krach.Basics;
 using Wrappers.Casadi;
+using System.Xml.Linq;
+using System.Linq;
 
 namespace Kurve.Curves
 {
-	public class PointCurveSpecification : PositionedCurveSpecification
+	public class PointCurveSpecification : CurveSpecification
 	{
 		readonly double position;
 		readonly Vector2Double point;
 
+		public static string XElementName { get { return "point_curve_specification"; } }
+
 		public override double Position { get { return position; } }
 		public Vector2Double Point { get { return point; } }
+		public override XElement XElement
+		{
+			get
+			{
+				return new XElement
+				(
+					XElementName,
+					new XElement("position", position),
+					new XElement("point", point.XElement)
+				);	
+			}
+		}
 		
 		public PointCurveSpecification(double position, Vector2Double point)
 		{
@@ -18,6 +34,13 @@ namespace Kurve.Curves
 			
 			this.position = position;
 			this.point = point;
+		}
+		public PointCurveSpecification(XElement source)
+		{	
+			if (source == null) throw new ArgumentNullException("source");
+
+			this.position = (double)source.Element("position");
+			this.point = new Vector2Double(source.Element("point").Elements().Single());
 		}
 
 		public override ValueTerm GetErrorTerm(Curve curve)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Krach.Extensions;
 using System.Runtime.InteropServices;
+using Krach.Basics;
 
 namespace Wrappers.Casadi
 {
@@ -174,6 +175,33 @@ namespace Wrappers.Casadi
 				select Scaling(power, parameter)
 			)
 			.Abstract(Enumerables.Concatenate(Enumerables.Create(variable), coefficients));
+		}
+		public static ValueTerm IntegrateTrapezoid(FunctionTerm function, OrderedRange<double> bounds, int segmentCount)
+		{
+			if (segmentCount < 1) throw new ArgumentOutOfRangeException("segmentCount");
+
+			ValueTerm segmentWidth = Terms.Constant(bounds.Length() / segmentCount);
+
+			IEnumerable<ValueTerm> values =
+			(
+				from segmentPosition in Scalars.GetIntermediateValues(bounds.Start, bounds.End, segmentCount)
+				select function.Apply(Terms.Constant(segmentPosition))
+			)
+			.ToArray();
+
+			return Terms.Product
+			(
+				segmentWidth,
+				Terms.Sum
+				(
+					Enumerables.Concatenate
+					(
+						Enumerables.Create(Terms.Product(Terms.Constant(0.5), values.First())),
+						values.Skip(1).SkipLast(1),
+						Enumerables.Create(Terms.Product(Terms.Constant(0.5), values.Last()))
+					)
+				)
+			);
 		}
 	}
 }

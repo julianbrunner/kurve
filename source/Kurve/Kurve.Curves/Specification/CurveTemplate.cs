@@ -4,16 +4,18 @@ using System.Linq;
 using System.Collections.Generic;
 using Krach.Extensions;
 using Wrappers.Casadi;
+using System.Xml.Linq;
 
 namespace Kurve.Curves
 {
-	public class CurveTemplate
+	public abstract class CurveTemplate
 	{
 		readonly FunctionTerm function;
 
 		public int ParameterDimension { get { return function.DomainDimension - 1; } }
+		public abstract XElement XElement { get; }
 
-		CurveTemplate(FunctionTerm function)
+		protected CurveTemplate(FunctionTerm function)
 		{
 			if (function == null) throw new ArgumentNullException("position");
 			if (function.DomainDimension < 1) throw new ArgumentException("parameter 'function' has wrong dimension.");
@@ -33,11 +35,13 @@ namespace Kurve.Curves
 			return new Curve(function.Apply(position, parameter).Abstract(position));
 		}
 
-		public static CurveTemplate CreatePolynomial(int degree)
+		public static CurveTemplate Parse(XElement element)
 		{
-			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
-
-			return new CurveTemplate(Terms.Polynomial(2, degree));
+			switch (element.Name.ToString()) 
+			{
+				case "polynomial_curve_template": return new PolynomialCurveTemplate(element);
+				default: throw new ArgumentException("Parameter 'element' is not a CurveTemplate.");
+			}
 		}
 	}
 }
