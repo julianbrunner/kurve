@@ -3,27 +3,26 @@
 
 public partial class MainWindow
 {
-	private global::Gtk.DrawingArea drawingarea1;
-	
 	protected virtual void Build ()
 	{
 		global::Stetic.Gui.Initialize (this);
 		// Widget MainWindow
+		this.Events = ((global::Gdk.EventMask)(2097924));
 		this.Name = "MainWindow";
 		this.Title = global::Mono.Unix.Catalog.GetString ("MainWindow");
 		this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 		this.AllowShrink = true;
 		this.DefaultWidth = 768;
 		this.DefaultHeight = 768;
-		// Container child MainWindow.Gtk.Container+ContainerChild
-		this.drawingarea1 = new global::Gtk.DrawingArea ();
-		this.drawingarea1.Name = "drawingarea1";
-		this.Add (this.drawingarea1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.drawingarea1.ExposeEvent += new global::Gtk.ExposeEventHandler (this.OnDrawingarea1ExposeEvent);
+		this.ExposeEvent += new global::Gtk.ExposeEventHandler (this.OnExposeEvent);
+		this.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnButtonPressEvent);
+		this.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler (this.OnButtonReleaseEvent);
+		this.MotionNotifyEvent += new global::Gtk.MotionNotifyEventHandler (this.OnMotionNotifyEvent);
+		this.ScrollEvent += new global::Gtk.ScrollEventHandler (this.OnScrollEvent);
 	}
 }

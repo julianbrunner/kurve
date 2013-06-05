@@ -70,6 +70,12 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Interface\Component.cs" />
+    <Compile Include="Interface\MouseButton.cs" />
+    <Compile Include="Interface\ScrollDirection.cs" />
+    <Compile Include="Interface\PointComponent.cs" />
+    <Compile Include="InterfaceUtility.cs" />
+    <Compile Include="Interface\CurveComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -85,5 +91,8 @@
       <Project>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</Project>
       <Name>Wrappers.Casadi</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interface\" />
   </ItemGroup>
 </Project>

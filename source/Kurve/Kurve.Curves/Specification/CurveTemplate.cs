@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Kurve.Curves
 {
-	public abstract class CurveTemplate
+	public abstract class CurveTemplate : IEquatable<CurveTemplate>
 	{
 		readonly FunctionTerm function;
 
@@ -27,6 +27,18 @@ namespace Kurve.Curves
 		{
 			return function.ToString();
 		}
+		public override bool Equals(object obj)
+		{
+			throw new InvalidOperationException();
+		}
+		public override int GetHashCode()
+		{
+			throw new InvalidOperationException();
+		}
+		public bool Equals(CurveTemplate other)
+		{
+			return object.Equals(this, other);
+		}
 
 		public Curve InstantiateParameter(ValueTerm parameter)
 		{
@@ -42,6 +54,15 @@ namespace Kurve.Curves
 				case "polynomial_curve_template": return new PolynomialCurveTemplate(element);
 				default: throw new ArgumentException("Parameter 'element' is not a CurveTemplate.");
 			}
+		}
+
+		public static bool operator ==(CurveTemplate curveTemplate1, CurveTemplate curveTemplate2)
+		{
+			return object.Equals(curveTemplate1, curveTemplate2);
+		}
+		public static bool operator !=(CurveTemplate curveTemplate1, CurveTemplate curveTemplate2)
+		{
+			return !object.Equals(curveTemplate1, curveTemplate2);
 		}
 	}
 }

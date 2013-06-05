@@ -34,6 +34,35 @@ namespace Kurve.Curves
 		}
 		public PolynomialCurveTemplate(XElement source) : this(Create(source)) { }
 
+		public override bool Equals(object obj)
+		{
+			return obj is PolynomialCurveTemplate && Equals(this, (PolynomialCurveTemplate)obj);
+		}
+		public override int GetHashCode()
+		{
+			return GetType().Name.GetHashCode() ^ degree.GetHashCode();
+		}
+		public bool Equals(PolynomialCurveTemplate other)
+		{
+			return object.Equals(this, other);
+		}
+
+		public static bool operator ==(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2)
+		{
+			return object.Equals(curveTemplate1, curveTemplate2);
+		}
+		public static bool operator !=(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2)
+		{
+			return !object.Equals(curveTemplate1, curveTemplate2);
+		}
+		
+		static bool Equals(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2) 
+		{
+			if (object.ReferenceEquals(curveTemplate1, curveTemplate2)) return true;
+			if (object.ReferenceEquals(curveTemplate1, null) || object.ReferenceEquals(curveTemplate2, null)) return false;
+			
+			return curveTemplate1.degree == curveTemplate2.degree;
+		}
 		static FunctionTerm Create(int degree)
 		{
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");

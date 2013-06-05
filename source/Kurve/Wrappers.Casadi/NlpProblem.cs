@@ -12,34 +12,51 @@ namespace Wrappers.Casadi
 {
 	public class NlpProblem : IDisposable
 	{
-		readonly FunctionTerm objectiveFunction;
-		readonly FunctionTerm constraintFunction;
 		readonly IntPtr solver;
-
-		int DomainDimension { get { return Items.Equal(objectiveFunction.DomainDimension, constraintFunction.DomainDimension); } }
-		int ObjectiveDimension { get { return objectiveFunction.CodomainDimension; } }
-		int ConstraintDimension { get { return constraintFunction.CodomainDimension; } }
+		readonly int domainDimension;
 
 		bool disposed = false;
 
-		public NlpProblem(FunctionTerm objectiveFunction, Constraint<FunctionTerm> constraint, Settings settings)
+		public NlpProblem(IpoptProblem problem, IEnumerable<OrderedRange<double>> constraints, Settings settings)
 		{
-			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
-			if (constraint == null) throw new ArgumentNullException("constraint");
+			if (problem == null) throw new ArgumentNullException("problem");
+			if (constraints == null) throw new ArgumentNullException("constraints");
 			if (settings == null) throw new ArgumentNullException("settings");
 
-			this.objectiveFunction = objectiveFunction;
-			this.constraintFunction = constraint.Item;
-			this.solver = IpoptNative.IpoptSolverCreate(objectiveFunction.Function, constraint.Item.Function);
+			this.solver = IpoptNative.IpoptSolverCreate(problem.Problem);
+			this.domainDimension = problem.DomainDimension;
 
 			settings.Apply(solver);
 
 			IpoptNative.IpoptSolverInitialize(solver);
 
-			IntPtr constraintLowerBounds = constraint.Ranges.Select(range => range.Start).Copy();
-			IntPtr constraintUpperBounds = constraint.Ranges.Select(range => range.End).Copy();
+			IntPtr constraintLowerBounds = constraints.Select(range => range.Start).Copy();
+			IntPtr constraintUpperBounds = constraints.Select(range => range.End).Copy();
 
-			IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, ConstraintDimension);
+			IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, constraints.Count());
+
+			Marshal.FreeCoTaskMem(constraintLowerBounds);
+			Marshal.FreeCoTaskMem(constraintUpperBounds);
+		}
+
+		public NlpProblem(FunctionTerm objectiveFunction, FunctionTerm constraintFunction, IEnumerable<OrderedRange<double>> constraints, Settings settings)
+		{
+			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
+			if (constraintFunction == null) throw new ArgumentNullException("constraintFunction");
+			if (constraints == null) throw new ArgumentNullException("constraints");
+			if (settings == null) throw new ArgumentNullException("settings");
+
+			this.solver = IpoptNative.IpoptSolverCreateSimple(objectiveFunction.Function, constraintFunction.Function);
+			this.domainDimension = Items.Equal(objectiveFunction.DomainDimension, constraintFunction.DomainDimension);
+
+			settings.Apply(solver);
+
+			IpoptNative.IpoptSolverInitialize(solver);
+
+			IntPtr constraintLowerBounds = constraints.Select(range => range.Start).Copy();
+			IntPtr constraintUpperBounds = constraints.Select(range => range.End).Copy();
+
+			IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, constraints.Count());
 
 			Marshal.FreeCoTaskMem(constraintLowerBounds);
 			Marshal.FreeCoTaskMem(constraintUpperBounds);
@@ -51,13 +68,15 @@ namespace Wrappers.Casadi
 
 		public IEnumerable<double> Solve(IEnumerable<double> startPosition)
 		{
+			if (startPosition.Count() != domainDimension) throw new ArgumentException("Parameter 'startPosition' has the wrong number of items.");
+
 			IntPtr position = startPosition.Copy();
 
-			IpoptNative.IpoptSolverSetInitialPosition(solver, position, DomainDimension);
+			IpoptNative.IpoptSolverSetInitialPosition(solver, position, domainDimension);
 			IpoptNative.IpoptSolverSolve(solver);
-			IpoptNative.IpoptSolverGetResultPosition(solver, position, DomainDimension);
+			IpoptNative.IpoptSolverGetResultPosition(solver, position, domainDimension);
 
-			IEnumerable<double> resultPosition = position.Read<double>(DomainDimension);
+			IEnumerable<double> resultPosition = position.Read<double>(domainDimension);
 
 			Marshal.FreeCoTaskMem(position);
 

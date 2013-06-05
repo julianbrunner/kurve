@@ -5,11 +5,70 @@
 using namespace std;
 using namespace CasADi;
 
+struct IpoptProblem
+{
+	SXFunction F;
+	SXFunction G;
+	SXFunction H;
+	SXFunction J;
+	SXFunction GF;
+};
+
 extern "C"
 {
-	const IpoptSolver* IpoptSolverCreate(SXFunction* objectiveFunction, SXFunction* constraintFunction)
+	const IpoptProblem* IpoptProblemCreate(SXFunction* objectiveFunction, SXFunction* constraintFunction)
+	{
+		SXMatrix position = objectiveFunction->inputExpr(0);
+		SXMatrix sigma = ssym("sigma", objectiveFunction->getNumScalarOutputs());
+		SXMatrix lambda = ssym("lambda", constraintFunction->getNumScalarOutputs());
+
+		vector<SXMatrix> lagrangeVariables;
+		lagrangeVariables.push_back(position);
+		lagrangeVariables.push_back(lambda);
+		lagrangeVariables.push_back(sigma);
+
+		SXMatrix lagrangeValue = sigma * objectiveFunction->eval(position) + inner_prod(lambda, constraintFunction->eval(position));
+		SXFunction lagrangeFunction = SXFunction(lagrangeVariables, lagrangeValue);
+		lagrangeFunction.init();
+
+		IpoptProblem* problem = new IpoptProblem();
+
+		problem->F = *objectiveFunction;
+		problem->G = *constraintFunction;
+		problem->H = SXFunction(lagrangeFunction.hessian());
+		problem->J = SXFunction(constraintFunction->jacobian());
+		problem->GF = SXFunction(objectiveFunction->gradient());
+
+		return problem;
+	}
+	void IpoptProblemDispose(IpoptProblem* problem)
+	{
+		delete problem;
+	}
+	const IpoptProblem* IpoptProblemSubstitute(IpoptProblem* problem, SXMatrix* variable, SXMatrix* value)
+	{
+		IpoptProblem* newProblem = new IpoptProblem();
+
+		newProblem->F = SXFunction(problem->F.inputExpr(), substitute(problem->F.outputExpr(0), *variable, *value));
+		newProblem->G = SXFunction(problem->G.inputExpr(), substitute(problem->G.outputExpr(0), *variable, *value));
+		newProblem->H = SXFunction(problem->H.inputExpr(), substitute(problem->H.outputExpr(0), *variable, *value));
+		newProblem->J = SXFunction(problem->J.inputExpr(), substitute(problem->J.outputExpr(0), *variable, *value));
+		newProblem->GF = SXFunction(problem->GF.inputExpr(), substitute(problem->GF.outputExpr(0), *variable, *value));
+
+		return newProblem;
+	}
+
+	const IpoptSolver* IpoptSolverCreateSimple(SXFunction* objectiveFunction, SXFunction* constraintFunction)
 	{
 		return new IpoptSolver(*objectiveFunction, *constraintFunction);
+	}
+	const IpoptSolver* IpoptSolverCreate(IpoptProblem* problem)
+	{
+		return new IpoptSolver(problem->F, problem->G, problem->H, problem->J, problem->GF);
+	}
+	void IpoptSolverDispose(IpoptSolver* solver)
+	{
+		delete solver;
 	}
 	void IpoptSolverInitialize(IpoptSolver* solver)
 	{
@@ -46,26 +105,5 @@ extern "C"
 		vector<double> positionValues = vector<double>(positionCount);
 		solver->getOutput(positionValues, NLP_X_OPT);
 		memcpy(position, positionValues.data(), sizeof(double) * positionCount);
-	}
-	void IpoptSolverDispose(IpoptSolver* solver)
-	{
-		delete solver;
-	}
-
-	void SetBooleanOption(FX* function, const char* name, bool value)
-	{
-		function->setOption(string(name), value);
-	}
-	void SetIntegerOption(FX* function, const char* name, int value)
-	{
-		function->setOption(string(name), value);
-	}
-	void SetDoubleOption(FX* function, const char* name, double value)
-	{
-		function->setOption(string(name), value);
-	}
-	void SetStringOption(FX* function, const char* name, const char* value)
-	{
-		function->setOption(string(name), string(value));
 	}
 }

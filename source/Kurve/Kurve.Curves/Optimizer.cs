@@ -8,53 +8,102 @@ using Krach;
 
 namespace Kurve.Curves
 {
-	public static class Optimizer
+	public class Optimizer
 	{
-		public static IEnumerable<Curve> Optimize(Specification specification)
-		{
-			if (specification == null) throw new ArgumentNullException("specification");
+		readonly BasicSpecification basicSpecification;
+		readonly IEnumerable<Segment> segments;
+		readonly IEnumerable<ValueTerm> variables;
+		readonly IEnumerable<double> position;
 
-			IEnumerable<Segment> segments =
+		Optimizer(BasicSpecification basicSpecification, IEnumerable<Segment> segments, IEnumerable<ValueTerm> variables, IEnumerable<double> position)
+		{
+			if (basicSpecification == null) throw new ArgumentNullException("basicSpecification");
+			if (segments == null) throw new ArgumentNullException("segments");
+			if (variables == null) throw new ArgumentNullException("variables");
+			if (position == null) throw new ArgumentNullException("position");
+
+			this.basicSpecification = basicSpecification;
+			this.segments = segments;
+			this.variables = variables;
+			this.position = position;
+		}
+
+		public Optimizer Modify(BasicSpecification newBasicSpecification)
+		{
+			IEnumerable<Segment> newSegments =
 			(
-				from segmentIndex in Enumerable.Range(0, specification.SegmentCount)	
-				select new Segment(specification.SegmentTemplate, GetPositionTransformation(segmentIndex, specification.SegmentCount), segmentIndex)
+				from segmentIndex in Enumerable.Range(0, newBasicSpecification.SegmentCount)	
+				select new Segment(newBasicSpecification.SegmentTemplate, GetPositionTransformation(segmentIndex, newBasicSpecification.SegmentCount), segmentIndex)
 			)
 			.ToArray();
-			IEnumerable<ValueTerm> variables =
+
+			IEnumerable<ValueTerm> newVariables =
 			(
-				from segment in segments
+				from segment in newSegments
 				select segment.Parameter
 			)
 			.ToArray();
+
+			NlpProblem newNlpProblem = GetNlpProblem(newBasicSpecification, newSegments, newVariables);
 			
-			NlpProblem problem = CreateProblem(specification.CurveSpecifications, specification.CurveLength / specification.SegmentCount, segments, variables);
+			IEnumerable<double> startPosition;
 
-			IEnumerable<double> result = problem.Solve(specification.Disambiguation);
+			if (newBasicSpecification.SegmentCount == basicSpecification.SegmentCount && newBasicSpecification.SegmentTemplate == basicSpecification.SegmentTemplate) startPosition = position;
+			else startPosition = newBasicSpecification.GetDefaultPosition();
 
-			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(variables, result);
+			IEnumerable<double> newPosition = newNlpProblem.Solve(startPosition);
 
-			IEnumerable<Curve> resultCurves =
+			return new Optimizer(newBasicSpecification, newSegments, newVariables, newPosition);
+		}
+		public IEnumerable<Curve> GetCurves()
+		{
+			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(variables, position);
+
+			return
 			(
 				from segment in segments
 				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select segment.Instantiate(Terms.Constant(value))
+				select segment.InstantiateLocalCurve(Terms.Constant(value))
+			)
+			.ToArray();
+		}
+
+		public static Optimizer Create(BasicSpecification newBasicSpecification)
+		{
+			IEnumerable<Segment> newSegments =
+			(
+				from segmentIndex in Enumerable.Range(0, newBasicSpecification.SegmentCount)	
+				select new Segment(newBasicSpecification.SegmentTemplate, GetPositionTransformation(segmentIndex, newBasicSpecification.SegmentCount), segmentIndex)
 			)
 			.ToArray();
 
-			Console.WriteLine("result curves");
-			foreach (Curve curve in resultCurves) Console.WriteLine(curve);
+			IEnumerable<ValueTerm> newVariables =
+			(
+				from segment in newSegments
+				select segment.Parameter
+			)
+			.ToArray();
+
+			NlpProblem newNlpProblem = GetNlpProblem(newBasicSpecification, newSegments, newVariables);
 			
-			return resultCurves;
+			IEnumerable<double> startPosition = newBasicSpecification.GetDefaultPosition();
+
+			IEnumerable<double> newPosition = newNlpProblem.Solve(startPosition);
+
+			return new Optimizer(newBasicSpecification, newSegments, newVariables, newPosition);
 		}
 
-		static NlpProblem CreateProblem(IEnumerable<CurveSpecification> curveSpecifications, double segmentLength, IEnumerable<Segment> segments, IEnumerable<ValueTerm> variables)
+		static NlpProblem GetNlpProblem(BasicSpecification basicSpecification, IEnumerable<Segment> segments, IEnumerable<ValueTerm> variables)
 		{
+			ValueTerm curveLength = Terms.Variable("curveLength");
+
 			ValueTerm speedError = Terms.Sum
 			(
 				from segment in segments
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.GetLocalCurve()
-				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), Terms.Constant(segmentLength)))
+				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(basicSpecification.SegmentCount))
+				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
 				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 			ValueTerm fairnessError = Terms.Sum
@@ -81,7 +130,7 @@ namespace Kurve.Curves
 			(
 				Enumerables.Concatenate
 				(
-					from curveSpecification in curveSpecifications
+					from curveSpecification in basicSpecification.CurveSpecifications
 					from segment in GetAffectedSegments(segments, curveSpecification.Position)
 					select Constraints.CreateZero(curveSpecification.GetErrorTerm(segment.GetGlobalCurve())),
 
@@ -114,16 +163,23 @@ namespace Kurve.Curves
 				)
 			)
 			.ToArray();
-						
+
 //			Console.WriteLine("constraint values");
 //			foreach (Constraint<ValueTerm> constraintValue in constraintValues) Console.WriteLine(constraintValue);
 //			Console.WriteLine();
 
-			FunctionTerm objectiveFunction = objectiveValue.Abstract(variables);
-			Constraint<FunctionTerm> constraint = Constraints.Merge(constraintValues).Abstract(variables);
+			Constraint<ValueTerm> constraint = Constraints.Merge(constraintValues);
 
-			return new NlpProblem(objectiveFunction, constraint, new Settings());
+			FunctionTerm objectiveFunction = objectiveValue.Abstract(variables);
+			FunctionTerm constraintFunction = constraint.Item.Abstract(variables);
+
+			IpoptProblem problem = IpoptProblem.Create(objectiveFunction, constraintFunction);
+
+			problem = problem.Substitute(curveLength, Terms.Constant(basicSpecification.CurveLength));
+
+			return new NlpProblem(problem, constraint.Ranges, new Settings());
 		}
+
 		static FunctionTerm GetPositionTransformation(int segmentIndex, int segmentCount)
 		{
 			ValueTerm position = Terms.Variable("t");

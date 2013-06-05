@@ -9,12 +9,17 @@ using Krach.Extensions;
 using System.Collections.Generic;
 using Wrappers.Casadi;
 using System.Xml.Linq;
+using Kurve.Interface;
 
-public partial class MainWindow: Gtk.Window
-{	
+public partial class MainWindow : Gtk.Window
+{
+	readonly List<Component> components = new List<Component>();
+
 	public MainWindow(): base (Gtk.WindowType.Toplevel)
 	{
 		Build();
+
+		AddComponent(new PointComponent(new Vector2Double(5, 5)));
 	}
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -23,109 +28,29 @@ public partial class MainWindow: Gtk.Window
 
 		a.RetVal = true;
 	}
-	protected void OnDrawingarea1ExposeEvent(object o, ExposeEventArgs args)
+	protected void OnExposeEvent(object o, ExposeEventArgs args)
 	{
-		using (Context context = CairoHelper.Create(drawingarea1.GdkWindow))
+		using (Context context = CairoHelper.Create(GdkWindow))
 		{
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-0.5,  0.0)),
-//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, +1.0)),
-//				new PointCurveSpecification(0.5, new Vector2Double(-0.25, +0.5)),
-//				new VelocityCurveSpecification(0.5, new Vector2Double(+5.0,  0.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.25)),
-//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, -10.0))
-//			);
-//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
-//			int segmentCount = 2;
-
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(0, 0)),
-//				new VelocityCurveSpecification(0.2, new Vector2Double(0.5, 0.5)),
-//				new VelocityCurveSpecification(0.5, new Vector2Double(0.5, 0.0)),
-//				new VelocityCurveSpecification(0.9, new Vector2Double(0.5, 0.5)),
-//				new PointCurveSpecification(1.0, new Vector2Double(0.5, 0.5))
-//			);
-//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(4);
-//			int segmentCount = 1;
-
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
-//				new PointCurveSpecification(0.2, new Vector2Double(+0.5, +0.5)),
-//				new PointCurveSpecification(0.4, new Vector2Double(+0.5, -0.5)),
-//				new PointCurveSpecification(0.6, new Vector2Double(-0.5, +0.5)),
-//				new PointCurveSpecification(0.8, new Vector2Double( 0.0,  0.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double( 0.0, -0.5))
-//			);
-//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(3);
-//			int segmentCount = 4;
-
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
-//				new PointCurveSpecification(0.3, new Vector2Double( 0.0, +0.5)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
-//			);
-//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(5);
-//			int segmentCount = 2;
-
-//			IEnumerable<PositionedCurveSpecification> curveSpecifications = Enumerables.Create<PositionedCurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-0.5, -0.5)),
-//				new PointCurveSpecification(0.3, new Vector2Double( 0.0, +0.5)),
-//				new VelocityCurveSpecification(0.7, new Vector2Double(+4.0,  0.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+0.5, -0.5))
-//			);
-//			CurveTemplate segmentCurveTemplate = CurveTemplate.CreatePolynomial(5);
-//			int segmentCount = 4;
-
-			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-			(
-				new PointCurveSpecification(0.0, new Vector2Double(-1.0, -1.0)),
-				new PointCurveSpecification(0.3, new Vector2Double(-0.5,  0.0)),
-				new PointCurveSpecification(0.5, new Vector2Double( 0.0,  0.0)),
-				new PointCurveSpecification(0.7, new Vector2Double(+0.5,  0.0)),
-				new PointCurveSpecification(1.0, new Vector2Double(+1.0, +1.0))
-			);
-//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, -4.0)),
-//
-//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0)),
-//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
-//			);
-//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double( 0.0,  0.0)),
-//				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, +4.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double( 0.0,  0.0)),
-//				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
-//			);
-//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-//				new AccelerationCurveSpecification(0.5, new Vector2Double( 0.0, +16.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
-//			);
 			double curveLength = 4;
 			int segmentCount = 10;
 			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
-			IEnumerable<double> disambiguation =
+			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
 			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				from parameterIndex in Enumerable.Range(0, segmentTemplate.ParameterDimension)
-				select 1.0
-			)
-			.ToArray();
+				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, -4.0)),
 
-			Specification specification = new Specification(curveLength, segmentCount, segmentTemplate, curveSpecifications, disambiguation);
+				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0)),
+				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
+			);
 
-			IEnumerable<Kurve.Curves.Curve> result = Optimizer.Optimize(specification);
+			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
 
-			double segmentLength = specification.CurveLength / specification.SegmentCount;
+			Optimizer optimizer = Optimizer.Create(basicSpecification);
+
+			IEnumerable<Kurve.Curves.Curve> result = optimizer.GetCurves();
+
+			double segmentLength = basicSpecification.CurveLength / basicSpecification.SegmentCount;
 			ValueTerm position = Terms.Variable("t");
 			ValueTerm point = Terms.Variable("point", 2);
 			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
@@ -145,10 +70,62 @@ public partial class MainWindow: Gtk.Window
 			context.LineWidth = 5;
 			context.LineCap = LineCap.Round;
 
-			DrawCurveSpecifications(context, specification.CurveSpecifications);
+			DrawCurveSpecifications(context, basicSpecification.CurveSpecifications);
+
+			foreach (Component component in components) component.Draw(context);
 
 			context.Target.Dispose();
 		}
+	}
+	protected void OnButtonPressEvent(object o, ButtonPressEventArgs args)
+	{
+		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
+		MouseButton button = (MouseButton)args.Event.Button;
+
+		foreach (Component component in components) component.MouseDown(position, button);
+	}
+	protected void OnButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
+	{
+		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
+		MouseButton button = (MouseButton)args.Event.Button;
+
+		foreach (Component component in components) component.MouseUp(position, button);
+	}
+	protected void OnMotionNotifyEvent(object o, MotionNotifyEventArgs args)
+	{
+		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
+
+		foreach (Component component in components) component.MouseMove(position);
+	}
+	protected void OnScrollEvent(object o, ScrollEventArgs args)
+	{
+		Kurve.Interface.ScrollDirection direction;
+
+		switch (args.Event.Direction)
+		{
+			case Gdk.ScrollDirection.Up: direction = Kurve.Interface.ScrollDirection.Up; break;
+			case Gdk.ScrollDirection.Down: direction = Kurve.Interface.ScrollDirection.Down; break;
+			default: return;
+		}
+
+		foreach (Component component in components) component.Scroll(direction);
+	}
+
+	void Invalidate()
+	{
+		GdkWindow.InvalidateRegion(GdkWindow.VisibleRegion, true);
+	}
+	void AddComponent(Component component)
+	{
+		component.Update += Invalidate;
+
+		components.Add(component);
+	}
+	void RemoveComponent(Component component)
+	{
+		component.Update -= Invalidate;
+
+		components.Remove(component);
 	}
 
 	static Vector2Double TransformPoint(Vector2Double point)

@@ -28,10 +28,6 @@ namespace Kurve.Curves
 			this.positionTransformation = positionTransformation;
 		}
 
-		public Curve Instantiate(ValueTerm value)
-		{
-			return curveTemplate.InstantiateParameter(value);
-		}
 		public Curve GetLocalCurve()
 		{
 			return curveTemplate.InstantiateParameter(parameter);
@@ -39,6 +35,10 @@ namespace Kurve.Curves
 		public Curve GetGlobalCurve()
 		{
 			return curveTemplate.InstantiateParameter(parameter).TransformPosition(positionTransformation);
+		}
+		public Curve InstantiateLocalCurve(ValueTerm value)
+		{
+			return curveTemplate.InstantiateParameter(value);
 		}
 	}
 }

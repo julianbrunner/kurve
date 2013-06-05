@@ -11,24 +11,22 @@ namespace Wrappers.Casadi
 {
 	static class TermsWrapped
 	{
-		static object synchronization = new object();
-
 		public static ValueTerm Variable(string name, int dimension)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Variable(name, dimension));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Variable(name, dimension));
 		}
 		public static FunctionTerm Abstraction(ValueTerm variable, ValueTerm value)
 		{
-			lock (synchronization) return new FunctionTerm(TermsNative.Abstraction(variable.Value, value.Value));
+			lock (GeneralNative.Synchronization) return new FunctionTerm(TermsNative.Abstraction(variable.Value, value.Value));
 		}
 		public static ValueTerm Application(FunctionTerm function, ValueTerm value)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Application(function.Function, value.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Application(function.Function, value.Value));
 		}
 
 		public static ValueTerm Vector(IEnumerable<ValueTerm> values)
 		{
-			lock (synchronization)
+			lock (GeneralNative.Synchronization)
 			{
 				IntPtr valuePointers = values.Select(value => value.Value).Copy();
 				int valueCount = values.Count();
@@ -42,46 +40,46 @@ namespace Wrappers.Casadi
 		}
 		public static ValueTerm Selection(ValueTerm value, int index)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Selection(value.Value, index));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Selection(value.Value, index));
 		}
 
 		public static ValueTerm Constant(double value)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Constant(value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Constant(value));
 		}
 
 		public static ValueTerm Sum(ValueTerm value1, ValueTerm value2)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Sum(value1.Value, value2.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Sum(value1.Value, value2.Value));
 		}
 		public static ValueTerm Product(ValueTerm value1, ValueTerm value2)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Product(value1.Value, value2.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Product(value1.Value, value2.Value));
 		}
 		public static ValueTerm Exponentiation(ValueTerm value1, ValueTerm value2)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Exponentiation(value1.Value, value2.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Exponentiation(value1.Value, value2.Value));
 		}
 		public static ValueTerm MatrixProduct(ValueTerm value1, ValueTerm value2)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.MatrixProduct(value1.Value, value2.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.MatrixProduct(value1.Value, value2.Value));
 		}
 		public static ValueTerm Transpose(ValueTerm value)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.Transpose(value.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.Transpose(value.Value));
 		}
 	
 		public static string ValueToString(ValueTerm value)
 		{
-			lock (synchronization) return TermsNative.ValueToString(value.Value);
+			lock (GeneralNative.Synchronization) return TermsNative.ValueToString(value.Value);
 		}
 		public static int ValueDimension(ValueTerm value)
 		{
-			lock (synchronization) return TermsNative.ValueDimension(value.Value);
+			lock (GeneralNative.Synchronization) return TermsNative.ValueDimension(value.Value);
 		}
 		public static IEnumerable<double> ValueEvaluate(ValueTerm value)
 		{
-			lock (synchronization)
+			lock (GeneralNative.Synchronization)
 			{
 				IntPtr values = Enumerable.Repeat(0.0, value.Dimension).Copy();
 
@@ -96,24 +94,24 @@ namespace Wrappers.Casadi
 		}
 		public static ValueTerm ValueSimplify(ValueTerm value)
 		{
-			lock (synchronization) return new ValueTerm(TermsNative.ValueSimplify(value.Value));
+			lock (GeneralNative.Synchronization) return new ValueTerm(TermsNative.ValueSimplify(value.Value));
 		}
 	
 		public static string FunctionToString(FunctionTerm function)
 		{
-			lock (synchronization) return TermsNative.FunctionToString(function.Function);
+			lock (GeneralNative.Synchronization) return TermsNative.FunctionToString(function.Function);
 		}
 		public static int FunctionDomainDimension(FunctionTerm function)
 		{
-			lock (synchronization) return TermsNative.FunctionDomainDimension(function.Function);
+			lock (GeneralNative.Synchronization) return TermsNative.FunctionDomainDimension(function.Function);
 		}
 		public static int FunctionCodomainDimension(FunctionTerm function)
 		{
-			lock (synchronization) return TermsNative.FunctionCodomainDimension(function.Function);
+			lock (GeneralNative.Synchronization) return TermsNative.FunctionCodomainDimension(function.Function);
 		}
 		public static IEnumerable<FunctionTerm> FunctionDerivatives(FunctionTerm function)
 		{
-			lock (synchronization)
+			lock (GeneralNative.Synchronization)
 			{
 				IntPtr derivatives = Enumerable.Repeat(IntPtr.Zero, function.DomainDimension).Copy();
 
@@ -128,16 +126,16 @@ namespace Wrappers.Casadi
 		}
 		public static FunctionTerm FunctionSimplify(FunctionTerm function)
 		{
-			lock (synchronization) return new FunctionTerm(TermsNative.FunctionSimplify(function.Function));
+			lock (GeneralNative.Synchronization) return new FunctionTerm(TermsNative.FunctionSimplify(function.Function));
 		}
 
 		public static void DisposeValue(ValueTerm value)
 		{
-			lock (synchronization) TermsNative.DisposeValue(value.Value);
+			lock (GeneralNative.Synchronization) TermsNative.DisposeValue(value.Value);
 		}
 		public static void DisposeFunction(FunctionTerm function)
 		{
-			lock (synchronization) TermsNative.DisposeFunction(function.Function);
+			lock (GeneralNative.Synchronization) TermsNative.DisposeFunction(function.Function);
 		}
 	}
 }

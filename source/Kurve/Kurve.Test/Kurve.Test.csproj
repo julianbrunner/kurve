@@ -19,11 +19,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <EnvironmentVariables>
-      <EnvironmentVariables>
-        <Variable name="LD_PRELOAD" value="libipopt.so liblapack.so libdl.so libcoinmumps.so libblas.so libm.so libquadmath.so" />
-      </EnvironmentVariables>
-    </EnvironmentVariables>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -32,15 +27,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <EnvironmentVariables>
-      <EnvironmentVariables>
-        <Variable name="LD_PRELOAD" value="libipopt.so liblapack.so libdl.so libcoinmumps.so libblas.so libm.so libquadmath.so" />
-      </EnvironmentVariables>
-    </EnvironmentVariables>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -54,6 +46,10 @@
     <ProjectReference Include="..\Wrappers.Casadi\Wrappers.Casadi.csproj">
       <Project>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</Project>
       <Name>Wrappers.Casadi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
+      <Project>{7AC660D7-ED47-4DDB-A10F-DD480AC99286}</Project>
+      <Name>Kurve.Curves</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

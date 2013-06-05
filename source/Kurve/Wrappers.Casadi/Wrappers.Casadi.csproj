@@ -43,6 +43,8 @@
     <Compile Include="NlpProblem.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="TermsWrapped.cs" />
+    <Compile Include="Native\GeneralNative.cs" />
+    <Compile Include="IpoptProblem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

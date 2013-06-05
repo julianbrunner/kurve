@@ -24,12 +24,12 @@ namespace Wrappers.Casadi
 
 		internal void Apply(IntPtr solver)
 		{
-			IpoptNative.SetBooleanOption(solver, "generate_hessian", true);
-			IpoptNative.SetBooleanOption(solver, "print_time", false);
+			GeneralNative.SetBooleanOption(solver, "generate_hessian", true);
+			GeneralNative.SetBooleanOption(solver, "print_time", false);
 
-			IpoptNative.SetIntegerOption(solver, "print_level", PrintLevel);
-			IpoptNative.SetDoubleOption(solver, "tol", Tolerance);
-			IpoptNative.SetIntegerOption(solver, "max_iter", MaximumIterationCount);
+			GeneralNative.SetIntegerOption(solver, "print_level", PrintLevel);
+			GeneralNative.SetDoubleOption(solver, "tol", Tolerance);
+			GeneralNative.SetIntegerOption(solver, "max_iter", MaximumIterationCount);
 		}
 	}
 }

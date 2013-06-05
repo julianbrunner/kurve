@@ -10,17 +10,20 @@
   </import>
   <widget class="Gtk.Window" id="MainWindow" design-size="496 341">
     <property name="MemberName" />
+    <property name="Events">PointerMotionMask, ButtonPressMask, ButtonReleaseMask, ScrollMask</property>
     <property name="Title" translatable="yes">MainWindow</property>
     <property name="WindowPosition">CenterOnParent</property>
     <property name="AllowShrink">True</property>
     <property name="DefaultWidth">768</property>
     <property name="DefaultHeight">768</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
+    <signal name="ExposeEvent" handler="OnExposeEvent" />
+    <signal name="ButtonPressEvent" handler="OnButtonPressEvent" />
+    <signal name="ButtonReleaseEvent" handler="OnButtonReleaseEvent" />
+    <signal name="MotionNotifyEvent" handler="OnMotionNotifyEvent" />
+    <signal name="ScrollEvent" handler="OnScrollEvent" />
     <child>
-      <widget class="Gtk.DrawingArea" id="drawingarea1">
-        <property name="MemberName" />
-        <signal name="ExposeEvent" handler="OnDrawingarea1ExposeEvent" />
-      </widget>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>
