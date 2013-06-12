@@ -21,7 +21,7 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="make &amp;&amp; cp bin/* ${ProjectDir}/" workingdir="${SolutionDir}/Wrappers.Casadi.Native" externalConsole="true" />
+        <Command type="BeforeBuild" command="${SolutionDir}/Wrappers.Casadi.Native/install &quot;${ProjectDir}&quot;" workingdir="${SolutionDir}/Wrappers.Casadi.Native" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -34,7 +34,7 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="BeforeBuild" command="make &amp;&amp; cp bin/* ${ProjectDir}/" workingdir="${SolutionDir}/Wrappers.Casadi.Native" externalConsole="true" />
+        <Command type="BeforeBuild" command="${SolutionDir}/Wrappers.Casadi.Native/install &quot;${ProjectDir}&quot;" workingdir="${SolutionDir}/Wrappers.Casadi.Native" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
