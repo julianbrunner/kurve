@@ -14,7 +14,7 @@ namespace Kurve.Test
 	{
 		static void Main(string[] parameters)
         {
-			BasicSpecification basicSpecification = new BasicSpecification(1, 2, new PolynomialCurveTemplate(4), Enumerables.Create<CurveSpecification>());
+			BasicSpecification basicSpecification = new BasicSpecification(1, 1, new PolynomialCurveTemplate(1), Enumerables.Create<CurveSpecification>());
 
 			Optimizer optimizer = Optimizer.Create(basicSpecification);
 
@@ -33,8 +33,6 @@ namespace Kurve.Test
 				basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
 
 				optimizer = optimizer.Modify(basicSpecification);
-
-				Console.WriteLine(optimizer.GetCurves().Count());
 			}
 		}
 	}

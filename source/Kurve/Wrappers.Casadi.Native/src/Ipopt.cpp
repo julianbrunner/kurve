@@ -36,11 +36,7 @@ extern "C"
 		lagrangeVariables.push_back(position);
 		lagrangeVariables.push_back(lambda);
 		lagrangeVariables.push_back(sigma);
-
-		SXMatrix lagrangeValue;
-		if (constraintFunction->getNumScalarOutputs() == 0) lagrangeValue = sigma * objectiveFunction->eval(position);
-		if (constraintFunction->getNumScalarOutputs() == 1) lagrangeValue = sigma * objectiveFunction->eval(position) + lambda * constraintFunction->eval(position);
-		if (constraintFunction->getNumScalarOutputs() > 1) lagrangeValue = sigma * objectiveFunction->eval(position) + inner_prod(lambda, constraintFunction->eval(position));
+		SXMatrix lagrangeValue = sigma * objectiveFunction->eval(position) + (constraintFunction->getNumScalarOutputs() == 0 ? 0 : inner_prod(lambda, constraintFunction->eval(position)));
 		SXFunction lagrangeFunction = SXFunction(lagrangeVariables, lagrangeValue);
 		lagrangeFunction.init();
 
@@ -49,7 +45,7 @@ extern "C"
 		problem->F = *objectiveFunction;
 		problem->G = *constraintFunction;
 		problem->H = SXFunction(lagrangeFunction.hessian());
-		problem->J = SXFunction(constraintFunction->jacobian());
+		problem->J = constraintFunction->getNumScalarOutputs() == 0 ? SXFunction(position, SXMatrix(0, position.size1())) : SXFunction(constraintFunction->jacobian());
 		problem->GF = SXFunction(objectiveFunction->gradient());
 
 		return problem;

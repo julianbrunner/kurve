@@ -48,7 +48,7 @@ namespace Kurve.Curves
 				let segmentCurve = segment.GetLocalCurve()
 				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(basicSpecification.SegmentCount))
 				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 1)
+				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 			ValueTerm fairnessError = Terms.Sum
 			(
@@ -56,7 +56,7 @@ namespace Kurve.Curves
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.GetLocalCurve()
 				let segmentError = Terms.Square(Terms.Norm(segmentCurve.Acceleration.Apply(position)))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 1)
+				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 
 			ValueTerm objectiveValue = Terms.Sum
@@ -113,8 +113,6 @@ namespace Kurve.Curves
 							select Terms.Scaling(segmentWeight, PointCurveSpecification.GetErrorTerm(segment.GetGlobalCurve(), position, point))
 						)
 					),
-
-					//Enumerables.Create(Constraints.CreateEquality(Terms.Constant(0), Terms.Constant(0)))
 
 					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
 					let segment0CurvePoint = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Point
