@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstring>
 #include <symbolic/casadi.hpp>
 #include <interfaces/ipopt/ipopt_solver.hpp>
@@ -14,6 +15,15 @@ struct IpoptProblem
 	SXFunction GF;
 };
 
+const string FunctionToString(SXFunction function)
+{
+	stringstream descriptionStream;
+
+	descriptionStream << "(λ " << function.inputExpr(0).getDescription() << ". " << function.outputExpr(0).getDescription() << ")";
+
+	return descriptionStream.str();
+}
+
 extern "C"
 {
 	const IpoptProblem* IpoptProblemCreate(SXFunction* objectiveFunction, SXFunction* constraintFunction)
@@ -27,7 +37,10 @@ extern "C"
 		lagrangeVariables.push_back(lambda);
 		lagrangeVariables.push_back(sigma);
 
-		SXMatrix lagrangeValue = sigma * objectiveFunction->eval(position) + inner_prod(lambda, constraintFunction->eval(position));
+		SXMatrix lagrangeValue;
+		if (constraintFunction->getNumScalarOutputs() == 0) lagrangeValue = sigma * objectiveFunction->eval(position);
+		if (constraintFunction->getNumScalarOutputs() == 1) lagrangeValue = sigma * objectiveFunction->eval(position) + lambda * constraintFunction->eval(position);
+		if (constraintFunction->getNumScalarOutputs() > 1) lagrangeValue = sigma * objectiveFunction->eval(position) + inner_prod(lambda, constraintFunction->eval(position));
 		SXFunction lagrangeFunction = SXFunction(lagrangeVariables, lagrangeValue);
 		lagrangeFunction.init();
 
@@ -45,25 +58,60 @@ extern "C"
 	{
 		delete problem;
 	}
-	const IpoptProblem* IpoptProblemSubstitute(IpoptProblem* problem, SXMatrix* variable, SXMatrix* value)
+//	const IpoptProblem* IpoptProblemSubstitute(IpoptProblem* problem, SXMatrix* variable, SXMatrix* value)
+//	{
+//		IpoptProblem* newProblem = new IpoptProblem();
+//
+//		newProblem->F = SXFunction(problem->F.inputExpr(), substitute(problem->F.outputExpr(0), *variable, *value));
+//		newProblem->G = SXFunction(problem->G.inputExpr(), substitute(problem->G.outputExpr(0), *variable, *value));
+//		newProblem->H = SXFunction(problem->H.inputExpr(), substitute(problem->H.outputExpr(0), *variable, *value));
+//		newProblem->J = SXFunction(problem->J.inputExpr(), substitute(problem->J.outputExpr(0), *variable, *value));
+//		newProblem->GF = SXFunction(problem->GF.inputExpr(), substitute(problem->GF.outputExpr(0), *variable, *value));
+//
+//		return newProblem;
+//	}
+	const IpoptProblem* IpoptProblemSubstitute(IpoptProblem* problem, SXMatrix** variables, SXMatrix** values, int count)
 	{
+		vector<SXMatrix> outputValuesVector;
+		outputValuesVector.push_back(problem->F.outputExpr(0));
+		outputValuesVector.push_back(problem->G.outputExpr(0));
+		outputValuesVector.push_back(problem->H.outputExpr(0));
+		outputValuesVector.push_back(problem->J.outputExpr(0));
+		outputValuesVector.push_back(problem->GF.outputExpr(0));
+
+		vector<SXMatrix> variablesVector;
+		for (int index = 0; index < count; index++) variablesVector.push_back(*variables[index]);
+
+		vector<SXMatrix> valuesVector;
+		for (int index = 0; index < count; index++) valuesVector.push_back(*values[index]);
+
+		outputValuesVector = substitute(outputValuesVector, variablesVector, valuesVector);
+
 		IpoptProblem* newProblem = new IpoptProblem();
 
-		newProblem->F = SXFunction(problem->F.inputExpr(), substitute(problem->F.outputExpr(0), *variable, *value));
-		newProblem->G = SXFunction(problem->G.inputExpr(), substitute(problem->G.outputExpr(0), *variable, *value));
-		newProblem->H = SXFunction(problem->H.inputExpr(), substitute(problem->H.outputExpr(0), *variable, *value));
-		newProblem->J = SXFunction(problem->J.inputExpr(), substitute(problem->J.outputExpr(0), *variable, *value));
-		newProblem->GF = SXFunction(problem->GF.inputExpr(), substitute(problem->GF.outputExpr(0), *variable, *value));
+		newProblem->F = SXFunction(problem->F.inputExpr(), outputValuesVector[0]);
+		newProblem->G = SXFunction(problem->G.inputExpr(), outputValuesVector[1]);
+		newProblem->H = SXFunction(problem->H.inputExpr(), outputValuesVector[2]);
+		newProblem->J = SXFunction(problem->J.inputExpr(), outputValuesVector[3]);
+		newProblem->GF = SXFunction(problem->GF.inputExpr(), outputValuesVector[4]);
 
 		return newProblem;
 	}
 
 	const IpoptSolver* IpoptSolverCreateSimple(SXFunction* objectiveFunction, SXFunction* constraintFunction)
 	{
+//		cout << "creating simple IpoptSolver..." << endl;
+//		cout << "objective function: " << FunctionToString(*objectiveFunction) << endl;
+//		cout << "constraint function: " << FunctionToString(*constraintFunction) << endl;
+
 		return new IpoptSolver(*objectiveFunction, *constraintFunction);
 	}
 	const IpoptSolver* IpoptSolverCreate(IpoptProblem* problem)
 	{
+//		cout << "creating IpoptSolver..." << endl;
+//		cout << "objective function: " << FunctionToString(problem->F) << endl;
+//		cout << "constraint function: " << FunctionToString(problem->G) << endl;
+
 		return new IpoptSolver(problem->F, problem->G, problem->H, problem->J, problem->GF);
 	}
 	void IpoptSolverDispose(IpoptSolver* solver)

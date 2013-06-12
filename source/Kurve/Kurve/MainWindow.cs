@@ -38,10 +38,8 @@ public partial class MainWindow : Gtk.Window
 			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
 			(
 				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-				new VelocityCurveSpecification(0.0, new Vector2Double( 0.0, -4.0)),
-
-				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0)),
-				new VelocityCurveSpecification(1.0, new Vector2Double( 0.0, +4.0))
+				new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
+				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
 			);
 
 			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);

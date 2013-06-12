@@ -159,6 +159,7 @@ namespace Wrappers.Casadi
 			if (dimension < 0) throw new ArgumentOutOfRangeException("dimension");
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
 
+
 			ValueTerm variable = Variable("x");
 			IEnumerable<ValueTerm> coefficients =
 			(
@@ -166,6 +167,8 @@ namespace Wrappers.Casadi
 				select Variable(string.Format("c_{0}", index), dimension)
 			)
 			.ToArray();
+
+			if (degree == 0) return Constant(Enumerable.Repeat(0.0, dimension)).Abstract(Enumerables.Concatenate(Enumerables.Create(variable), coefficients));
 
 			return Sum
 			(

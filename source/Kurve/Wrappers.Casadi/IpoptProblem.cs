@@ -43,10 +43,16 @@ namespace Wrappers.Casadi
 				GC.SuppressFinalize(this);
 			}
 		}
-		public IpoptProblem Substitute(ValueTerm variable, ValueTerm value)
+		public IpoptProblem Substitute(IEnumerable<Substitution> substitutions)
 		{
+			IntPtr variablesPointer = substitutions.Select(substitution => substitution.Variable.Value).Copy();
+			IntPtr valuesPointer = substitutions.Select(substitution => substitution.Value.Value).Copy();
+
 			IntPtr newProblem;
-			lock (GeneralNative.Synchronization) newProblem = IpoptNative.IpoptProblemSubstitute(problem, variable.Value, value.Value);
+			lock (GeneralNative.Synchronization) newProblem = IpoptNative.IpoptProblemSubstitute(problem, variablesPointer, valuesPointer, substitutions.Count());
+
+			Marshal.FreeCoTaskMem(variablesPointer);
+			Marshal.FreeCoTaskMem(valuesPointer);
 
 			return new IpoptProblem(newProblem, domainDimension);
 		}

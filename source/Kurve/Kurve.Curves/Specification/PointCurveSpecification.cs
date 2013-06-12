@@ -47,5 +47,10 @@ namespace Kurve.Curves
 		{
 			return Terms.Difference(curve.Point.Apply(Terms.Constant(position)), Terms.Constant(point.X, point.Y));
 		}
+
+		public static ValueTerm GetErrorTerm(Curve curve, ValueTerm position, ValueTerm point)
+		{
+			return Terms.Difference(curve.Point.Apply(position), point);
+		}
 	}
 }
