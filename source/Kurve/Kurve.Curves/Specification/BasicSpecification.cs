@@ -3,6 +3,7 @@ using Wrappers.Casadi;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Krach.Extensions;
 
 namespace Kurve.Curves
 {
@@ -46,6 +47,7 @@ namespace Kurve.Curves
 			this.segmentTemplate = segmentTemplate;
 			this.curveSpecifications = curveSpecifications;
 		}
+		public BasicSpecification() : this(1, 1, new PolynomialCurveTemplate(1), Enumerables.Create<CurveSpecification>()) { }
 		public BasicSpecification(XElement source)
 		{
 			if (source == null) throw new ArgumentNullException("source");
@@ -54,17 +56,6 @@ namespace Kurve.Curves
 			this.segmentCount = (int)source.Element("segment_count");
 			this.segmentTemplate = CurveTemplate.Parse(source.Element("segment_template").Elements().Single());
 			this.curveSpecifications = source.Element("curve_specifications").Elements().Select(CurveSpecification.Parse).ToArray();
-		}
-
-		public IEnumerable<double> GetDefaultPosition()
-		{
-			return
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				from parameterIndex in Enumerable.Range(0, segmentTemplate.ParameterDimension)
-				select 1.0
-			)
-			.ToArray();
 		}
 	}
 }

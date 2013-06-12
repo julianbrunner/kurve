@@ -14,25 +14,33 @@ namespace Kurve.Test
 	{
 		static void Main(string[] parameters)
         {
-			BasicSpecification basicSpecification = new BasicSpecification(1, 1, new PolynomialCurveTemplate(1), Enumerables.Create<CurveSpecification>());
+			Optimizer optimizer = new Optimizer();
 
-			Optimizer optimizer = Optimizer.Create(basicSpecification);
+			double curveLength = 4;
+			int segmentCount = 10;
+			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+			(
+				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+				new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
+				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
+			);
+			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
+
+			Specification specification = new Specification(basicSpecification);
 
 			foreach (double x in Scalars.GetIntermediateValues(4, 5, 10))
 			{
-				double curveLength = x;
-				int segmentCount = 10;
-				CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
-				IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+				specification = optimizer.Normalize
 				(
-					new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-					new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
-					new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
+					new Specification
+					(
+						new BasicSpecification(x, specification.BasicSpecification.SegmentCount, specification.BasicSpecification.SegmentTemplate, specification.BasicSpecification.CurveSpecifications),
+						specification.Position
+					)
 				);
 
-				basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
-
-				optimizer = optimizer.Modify(basicSpecification);
+				optimizer.GetCurves(specification);
 			}
 		}
 	}

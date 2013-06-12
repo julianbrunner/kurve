@@ -17,10 +17,9 @@ namespace Wrappers.Casadi
 
 		bool disposed = false;
 
-		public IpoptSolver(IpoptProblem problem, IEnumerable<OrderedRange<double>> constraints, Settings settings)
+		public IpoptSolver(IpoptProblem problem, Settings settings)
 		{
 			if (problem == null) throw new ArgumentNullException("problem");
-			if (constraints == null) throw new ArgumentNullException("constraints");
 			if (settings == null) throw new ArgumentNullException("settings");
 
 			lock (GeneralNative.Synchronization)
@@ -32,16 +31,15 @@ namespace Wrappers.Casadi
 
 				IpoptNative.IpoptSolverInitialize(solver);
 
-				IntPtr constraintLowerBounds = constraints.Select(range => range.Start).Copy();
-				IntPtr constraintUpperBounds = constraints.Select(range => range.End).Copy();
+				IntPtr constraintLowerBounds = problem.ConstraintRanges.Select(range => range.Start).Copy();
+				IntPtr constraintUpperBounds = problem.ConstraintRanges.Select(range => range.End).Copy();
 
-				IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, constraints.Count());
+				IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, problem.ConstraintRanges.Count());
 
 				Marshal.FreeCoTaskMem(constraintLowerBounds);
 				Marshal.FreeCoTaskMem(constraintUpperBounds);
 			}
 		}
-
 		public IpoptSolver(FunctionTerm objectiveFunction, FunctionTerm constraintFunction, IEnumerable<OrderedRange<double>> constraints, Settings settings)
 		{
 			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
@@ -72,21 +70,21 @@ namespace Wrappers.Casadi
 			Dispose();
 		}
 
-		public IEnumerable<double> Solve (IEnumerable<double> startPosition)
+		public IEnumerable<double> Solve(IEnumerable<double> startPosition)
 		{
-			if (startPosition.Count () != domainDimension)
-				throw new ArgumentException ("Parameter 'startPosition' has the wrong number of items.");
+			if (startPosition.Count() != domainDimension) throw new ArgumentException("Parameter 'startPosition' has the wrong number of items.");
 
-			IntPtr position = startPosition.Copy ();
-			string returnStatus;
-			lock (GeneralNative.Synchronization) {
-				IpoptNative.IpoptSolverSetInitialPosition (solver, position, domainDimension);
-				returnStatus = IpoptNative.IpoptSolverSolve (solver);
-				IpoptNative.IpoptSolverGetResultPosition (solver, position, domainDimension);
-			}
+			IntPtr position = startPosition.Copy();
 
-			if (returnStatus != "Solve_Succeeded" && returnStatus != "Solved_To_Acceptable_Level") {
-				throw new InvalidOperationException(returnStatus);
+			lock (GeneralNative.Synchronization)
+			{
+				IpoptNative.IpoptSolverSetInitialPosition(solver, position, domainDimension);
+
+				string returnStatus = IpoptNative.IpoptSolverSolve(solver);
+
+				if (returnStatus != "Solve_Succeeded" && returnStatus != "Solved_To_Acceptable_Level") throw new InvalidOperationException(returnStatus);
+
+				IpoptNative.IpoptSolverGetResultPosition(solver, position, domainDimension);
 			}
 
 			IEnumerable<double> resultPosition = position.Read<double>(domainDimension);

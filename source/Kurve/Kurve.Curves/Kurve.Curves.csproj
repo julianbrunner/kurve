@@ -47,7 +47,6 @@
     <Compile Include="Assignment.cs" />
     <Compile Include="Specification\PolynomialCurveTemplate.cs" />
     <Compile Include="Specification\BasicSpecification.cs" />
-    <Compile Include="OptimizationProblem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

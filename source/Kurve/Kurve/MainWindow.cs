@@ -30,50 +30,50 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnExposeEvent(object o, ExposeEventArgs args)
 	{
-		using (Context context = CairoHelper.Create(GdkWindow))
-		{
-			double curveLength = 4;
-			int segmentCount = 10;
-			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
-			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-			(
-				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-				new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
-				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
-			);
-
-			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
-
-			Optimizer optimizer = Optimizer.Create(basicSpecification);
-
-			IEnumerable<Kurve.Curves.Curve> result = optimizer.GetCurves();
-
-			double segmentLength = basicSpecification.CurveLength / basicSpecification.SegmentCount;
-			ValueTerm position = Terms.Variable("t");
-			ValueTerm point = Terms.Variable("point", 2);
-			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
-			FunctionTerm velocityScaling = Terms.Scaling(Terms.Constant(1.0 / segmentLength), point).Abstract(point);
-			FunctionTerm accelerationScaling = Terms.Scaling(Terms.Constant(0.2 / segmentLength.Square()), point).Abstract(point);
-
-			context.LineWidth = 3;
-			context.LineCap = LineCap.Butt;
-
-			foreach (Kurve.Curves.Curve curve in result)
-			{
-				DrawParametricCurve(context, accelerationScaling.Apply(curve.Acceleration.Apply(position)).Abstract(position), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
-				DrawParametricCurve(context, velocityScaling.Apply(curve.Velocity.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
-				DrawParametricCurve(context, pointScaling.Apply(curve.Point.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
-			}
-			
-			context.LineWidth = 5;
-			context.LineCap = LineCap.Round;
-
-			DrawCurveSpecifications(context, basicSpecification.CurveSpecifications);
-
-			foreach (Component component in components) component.Draw(context);
-
-			context.Target.Dispose();
-		}
+//		using (Context context = CairoHelper.Create(GdkWindow))
+//		{
+//			double curveLength = 4;
+//			int segmentCount = 10;
+//			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
+//			(
+//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
+//				new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
+//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
+//			);
+//
+//			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
+//
+//			Optimizer optimizer = Optimizer.Create(basicSpecification);
+//
+//			IEnumerable<Kurve.Curves.Curve> result = optimizer.GetCurves();
+//
+//			double segmentLength = basicSpecification.CurveLength / basicSpecification.SegmentCount;
+//			ValueTerm position = Terms.Variable("t");
+//			ValueTerm point = Terms.Variable("point", 2);
+//			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
+//			FunctionTerm velocityScaling = Terms.Scaling(Terms.Constant(1.0 / segmentLength), point).Abstract(point);
+//			FunctionTerm accelerationScaling = Terms.Scaling(Terms.Constant(0.2 / segmentLength.Square()), point).Abstract(point);
+//
+//			context.LineWidth = 3;
+//			context.LineCap = LineCap.Butt;
+//
+//			foreach (Kurve.Curves.Curve curve in result)
+//			{
+//				DrawParametricCurve(context, accelerationScaling.Apply(curve.Acceleration.Apply(position)).Abstract(position), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
+//				DrawParametricCurve(context, velocityScaling.Apply(curve.Velocity.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
+//				DrawParametricCurve(context, pointScaling.Apply(curve.Point.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
+//			}
+//			
+//			context.LineWidth = 5;
+//			context.LineCap = LineCap.Round;
+//
+//			DrawCurveSpecifications(context, basicSpecification.CurveSpecifications);
+//
+//			foreach (Component component in components) component.Draw(context);
+//
+//			context.Target.Dispose();
+//		}
 	}
 	protected void OnButtonPressEvent(object o, ButtonPressEventArgs args)
 	{
