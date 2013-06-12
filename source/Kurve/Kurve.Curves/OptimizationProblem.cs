@@ -48,7 +48,7 @@ namespace Kurve.Curves
 				let segmentCurve = segment.GetLocalCurve()
 				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(basicSpecification.SegmentCount))
 				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 1)
 			);
 			ValueTerm fairnessError = Terms.Sum
 			(
@@ -56,7 +56,7 @@ namespace Kurve.Curves
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.GetLocalCurve()
 				let segmentError = Terms.Square(Terms.Norm(segmentCurve.Acceleration.Apply(position)))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 1)
 			);
 
 			ValueTerm objectiveValue = Terms.Sum
@@ -114,23 +114,25 @@ namespace Kurve.Curves
 						)
 					),
 
-//					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
-//					let segment0CurvePoint = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Point
-//					let segment1CurvePoint = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Point
-//					select Constraints.CreateEquality
-//					(
-//						segment0CurvePoint.Apply(Terms.Constant(1)),
-//						segment1CurvePoint.Apply(Terms.Constant(0))
-//					),
-//
-//					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
-//					let segment0CurveVelocity = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Velocity
-//					let segment1CurveVelocity = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Velocity
-//					select Constraints.CreateEquality
-//					(
-//						segment0CurveVelocity.Apply(Terms.Constant(1)),
-//						segment1CurveVelocity.Apply(Terms.Constant(0))
-//					),
+					//Enumerables.Create(Constraints.CreateEquality(Terms.Constant(0), Terms.Constant(0)))
+
+					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
+					let segment0CurvePoint = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Point
+					let segment1CurvePoint = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Point
+					select Constraints.CreateEquality
+					(
+						segment0CurvePoint.Apply(Terms.Constant(1)),
+						segment1CurvePoint.Apply(Terms.Constant(0))
+					),
+
+					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
+					let segment0CurveVelocity = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Velocity
+					let segment1CurveVelocity = segments.ElementAt(segmentIndex + 1).GetLocalCurve().Velocity
+					select Constraints.CreateEquality
+					(
+						segment0CurveVelocity.Apply(Terms.Constant(1)),
+						segment1CurveVelocity.Apply(Terms.Constant(0))
+					),
 
 					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
 					let segment0CurveAcceleration = segments.ElementAt(segmentIndex + 0).GetLocalCurve().Acceleration
@@ -164,7 +166,7 @@ namespace Kurve.Curves
 
 			return this;
 		}
-		public NlpProblem GetProblem(BasicSpecification newBasicSpecification)
+		public IpoptSolver GetProblem(BasicSpecification newBasicSpecification)
 		{
 			if (newBasicSpecification.SegmentCount != basicSpecification.SegmentCount) throw new ArgumentException();
 			if (newBasicSpecification.SegmentTemplate != basicSpecification.SegmentTemplate) throw new ArgumentException();
@@ -174,7 +176,7 @@ namespace Kurve.Curves
 
 			IpoptProblem instantiatedProblem = problem.Substitute(substitutions);
 
-			return new NlpProblem(instantiatedProblem, constraints, new Settings());
+			return new IpoptSolver(instantiatedProblem, constraints, new Settings());
 		}
 		public IEnumerable<Curve> GetCurves(IEnumerable<double> position)
 		{
