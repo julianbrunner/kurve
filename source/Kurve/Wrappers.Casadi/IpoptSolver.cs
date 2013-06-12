@@ -72,17 +72,21 @@ namespace Wrappers.Casadi
 			Dispose();
 		}
 
-		public IEnumerable<double> Solve(IEnumerable<double> startPosition)
+		public IEnumerable<double> Solve (IEnumerable<double> startPosition)
 		{
-			if (startPosition.Count() != domainDimension) throw new ArgumentException("Parameter 'startPosition' has the wrong number of items.");
+			if (startPosition.Count () != domainDimension)
+				throw new ArgumentException ("Parameter 'startPosition' has the wrong number of items.");
 
-			IntPtr position = startPosition.Copy();
+			IntPtr position = startPosition.Copy ();
+			string returnStatus;
+			lock (GeneralNative.Synchronization) {
+				IpoptNative.IpoptSolverSetInitialPosition (solver, position, domainDimension);
+				returnStatus = IpoptNative.IpoptSolverSolve (solver);
+				IpoptNative.IpoptSolverGetResultPosition (solver, position, domainDimension);
+			}
 
-			lock (GeneralNative.Synchronization)
-			{
-				IpoptNative.IpoptSolverSetInitialPosition(solver, position, domainDimension);
-				IpoptNative.IpoptSolverSolve(solver);
-				IpoptNative.IpoptSolverGetResultPosition(solver, position, domainDimension);
+			if (returnStatus != "Solve_Succeeded" && returnStatus != "Solved_To_Acceptable_Level") {
+				throw new InvalidOperationException(returnStatus);
 			}
 
 			IEnumerable<double> resultPosition = position.Read<double>(domainDimension);

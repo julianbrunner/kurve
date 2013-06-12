@@ -2,6 +2,7 @@
 #include <cstring>
 #include <symbolic/casadi.hpp>
 #include <interfaces/ipopt/ipopt_solver.hpp>
+#include <symbolic/generic_type.hpp>
 
 using namespace std;
 using namespace CasADi;
@@ -140,9 +141,15 @@ extern "C"
 
 		solver->setInput(positionValues, NLP_X_INIT);
 	}
-	void IpoptSolverSolve(IpoptSolver* solver)
+	const char* IpoptSolverSolve(IpoptSolver* solver)
 	{
 		solver->solve();
+
+		string returnStatus = solver->getStat("return_status").toString();
+		char* result = new char[returnStatus.size() + 1];
+		strcpy(result, returnStatus.c_str());
+
+		return result;
 	}
 	void IpoptSolverGetResultPosition(IpoptSolver* solver, double* position, int positionCount)
 	{

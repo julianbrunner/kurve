@@ -30,7 +30,7 @@ namespace Wrappers.Casadi.Native
 		[DllImport("Wrappers.Casadi.Native")]
 		public static extern void IpoptSolverSetInitialPosition(IntPtr solver, IntPtr position, int positionCount);
 		[DllImport("Wrappers.Casadi.Native")]
-		public static extern void IpoptSolverSolve(IntPtr solver);
+		public static extern string IpoptSolverSolve(IntPtr solver);
 		[DllImport("Wrappers.Casadi.Native")]
 		public static extern void IpoptSolverGetResultPosition(IntPtr solver, IntPtr position, int positionCount);
 	}
