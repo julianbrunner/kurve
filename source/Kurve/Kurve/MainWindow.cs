@@ -10,16 +10,41 @@ using System.Collections.Generic;
 using Wrappers.Casadi;
 using System.Xml.Linq;
 using Kurve.Interface;
+using Kurve.Curves.Optimization;
+using Kurve;
 
 public partial class MainWindow : Gtk.Window
 {
-	readonly List<Component> components = new List<Component>();
+	readonly List<Component> components;
+	readonly OptimizationWorker worker;
+	readonly CurveComponent curve;
+	readonly IEnumerable<PointComponent> points;
 
 	public MainWindow(): base (Gtk.WindowType.Toplevel)
 	{
 		Build();
 
-		AddComponent(new PointComponent(new Vector2Double(5, 5)));
+		this.components = new List<Component>();
+		this.worker = new OptimizationWorker();
+		this.worker.Update += WorkerUpdate;
+		this.curve = new CurveComponent();
+		this.points = Enumerables.Create
+		(
+			new PointComponent(0.0, new Vector2Double(0, 0)),
+			new PointComponent(0.5, new Vector2Double(50, 50)),
+			new PointComponent(1.0, new Vector2Double(100, 100))
+		)
+		.ToArray();
+
+		AddComponent(curve);
+		foreach (PointComponent point in points)
+		{
+			AddComponent(point);
+
+			point.Update += UpdateSpecification;
+		}
+
+		UpdateSpecification();
 	}
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -30,50 +55,12 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnExposeEvent(object o, ExposeEventArgs args)
 	{
-//		using (Context context = CairoHelper.Create(GdkWindow))
-//		{
-//			double curveLength = 4;
-//			int segmentCount = 10;
-//			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
-//			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
-//			(
-//				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
-//				new PointCurveSpecification(0.5, new Vector2Double( 0.0, -1.0)),
-//				new PointCurveSpecification(1.0, new Vector2Double(+1.0,  0.0))
-//			);
-//
-//			BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
-//
-//			Optimizer optimizer = Optimizer.Create(basicSpecification);
-//
-//			IEnumerable<Kurve.Curves.Curve> result = optimizer.GetCurves();
-//
-//			double segmentLength = basicSpecification.CurveLength / basicSpecification.SegmentCount;
-//			ValueTerm position = Terms.Variable("t");
-//			ValueTerm point = Terms.Variable("point", 2);
-//			FunctionTerm pointScaling = Terms.Scaling(Terms.Constant(1.0), point).Abstract(point);
-//			FunctionTerm velocityScaling = Terms.Scaling(Terms.Constant(1.0 / segmentLength), point).Abstract(point);
-//			FunctionTerm accelerationScaling = Terms.Scaling(Terms.Constant(0.2 / segmentLength.Square()), point).Abstract(point);
-//
-//			context.LineWidth = 3;
-//			context.LineCap = LineCap.Butt;
-//
-//			foreach (Kurve.Curves.Curve curve in result)
-//			{
-//				DrawParametricCurve(context, accelerationScaling.Apply(curve.Acceleration.Apply(position)).Abstract(position), Krach.Graphics.Colors.Cyan, Krach.Graphics.Colors.Blue);
-//				DrawParametricCurve(context, velocityScaling.Apply(curve.Velocity.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Yellow);
-//				DrawParametricCurve(context, pointScaling.Apply(curve.Point.Apply(position)).Abstract(position), Krach.Graphics.Colors.Red, Krach.Graphics.Colors.Blue);
-//			}
-//			
-//			context.LineWidth = 5;
-//			context.LineCap = LineCap.Round;
-//
-//			DrawCurveSpecifications(context, basicSpecification.CurveSpecifications);
-//
-//			foreach (Component component in components) component.Draw(context);
-//
-//			context.Target.Dispose();
-//		}
+		using (Context context = CairoHelper.Create(GdkWindow))
+		{
+			foreach (Component component in components) component.Draw(context);
+
+			context.Target.Dispose();
+		}
 	}
 	protected void OnButtonPressEvent(object o, ButtonPressEventArgs args)
 	{
@@ -125,63 +112,23 @@ public partial class MainWindow : Gtk.Window
 
 		components.Remove(component);
 	}
-
-	static Vector2Double TransformPoint(Vector2Double point)
+	void UpdateSpecification()
 	{
-		return 256 * point + new Vector2Double(384, 384);
+		double curveLength = 200;
+		int segmentCount = 10;
+		CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+		IEnumerable<CurveSpecification> curveSpecifications =
+		(
+			from point in points
+			select new PointCurveSpecification(point.Position, point.Point)
+		)
+		.ToArray();
+		BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
+
+		worker.SubmitSpecification(basicSpecification);
 	}
-	static Cairo.Color ToCairoColor(Krach.Graphics.Color color)
+	void WorkerUpdate()
 	{
-		return new Cairo.Color(color.Red, color.Green, color.Blue, color.Alpha);
-	}
-	static void DrawPoint(Context context, Vector2Double point, Krach.Graphics.Color color)
-	{
-		point = TransformPoint(point);
-
-		context.MoveTo(point.X, point.Y);
-		context.LineTo(point.X, point.Y);
-
-		context.Color = ToCairoColor(color);
-		context.Stroke();
-	}
-	static void DrawLine(Context context, Vector2Double startPoint, Vector2Double endPoint, Krach.Graphics.Color color)
-	{
-		startPoint = TransformPoint(startPoint);
-		endPoint = TransformPoint(endPoint);
-
-		context.MoveTo(startPoint.X, startPoint.Y);
-		context.LineTo(endPoint.X, endPoint.Y);
-
-		context.Color = ToCairoColor(color);
-		context.Stroke();
-	}
-	static void DrawCurveSpecifications(Context context, IEnumerable<CurveSpecification> curveSpecifications)
-	{
-		foreach (CurveSpecification curveSpecification in curveSpecifications)
-		{
-			if (curveSpecification is PointCurveSpecification)
-			{
-				PointCurveSpecification pointCurveSpecification = (PointCurveSpecification)curveSpecification;
-
-				DrawPoint(context, pointCurveSpecification.Point, Krach.Graphics.Colors.Black);
-			}
-		}
-	}
-	static void DrawParametricCurve(Context context, FunctionTerm curve, Krach.Graphics.Color startColor, Krach.Graphics.Color endColor)
-	{
-		double stepLength = 0.01;
-
-		for (double position = 0; position < 1; position += stepLength)
-		{
-			Krach.Graphics.Color color = Krach.Graphics.Color.InterpolateHsv(startColor, endColor, Scalars.InterpolateLinear, position);
-
-			DrawLine(context, EvaluatePoint(curve, position), EvaluatePoint(curve, position + stepLength), color);
-		}
-	}
-	static Vector2Double EvaluatePoint(FunctionTerm curve, double position)
-	{
-		IEnumerable<double> result = curve.Apply(Terms.Constant(position)).Evaluate();
-
-		return new Vector2Double(result.ElementAt(0), result.ElementAt(1));
+		curve.Segments = worker.CurrentSegments;
 	}
 }

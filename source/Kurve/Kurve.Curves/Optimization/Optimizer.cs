@@ -26,7 +26,7 @@ namespace Kurve.Curves.Optimization
 
 			return new Specification(specification.BasicSpecification, optimizationPosition.Position);
 		}
-		public IEnumerable<Curve> GetCurves(Specification specification)
+		public IEnumerable<Curve> GetSegments(Specification specification)
 		{
 			Rebuild(specification);
 

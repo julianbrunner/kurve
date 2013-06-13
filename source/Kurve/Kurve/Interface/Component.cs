@@ -12,11 +12,11 @@ namespace Kurve.Interface
 	{
 		public event Action Update;
 
-		public abstract void Draw(Context context);
-		public abstract void MouseDown(Vector2Double mousePosition, MouseButton mouseButton);
-		public abstract void MouseUp(Vector2Double mousePosition, MouseButton mouseButton);
-		public abstract void MouseMove(Vector2Double mousePosition);
-		public abstract void Scroll(ScrollDirection scrollDirection);
+		public virtual void Draw(Context context) { }
+		public virtual void MouseDown(Vector2Double mousePosition, MouseButton mouseButton) { }
+		public virtual void MouseUp(Vector2Double mousePosition, MouseButton mouseButton) { }
+		public virtual void MouseMove(Vector2Double mousePosition) { }
+		public virtual void Scroll(ScrollDirection scrollDirection) { }
 
 		protected void OnUpdate()
 		{

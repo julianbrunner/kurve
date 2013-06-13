@@ -69,13 +69,14 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Interface\Component.cs" />
     <Compile Include="Interface\MouseButton.cs" />
     <Compile Include="Interface\ScrollDirection.cs" />
     <Compile Include="Interface\PointComponent.cs" />
     <Compile Include="InterfaceUtility.cs" />
     <Compile Include="Interface\CurveComponent.cs" />
+    <Compile Include="OptimizationWorker.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

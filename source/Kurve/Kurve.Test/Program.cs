@@ -41,7 +41,7 @@ namespace Kurve.Test
 					)
 				);
 
-				Console.WriteLine(optimizer.GetCurves(specification));
+				Console.WriteLine(optimizer.GetSegments(specification));
 			}
 		}
 	}

@@ -13,14 +13,19 @@ namespace Kurve.Interface
 	{
 		static readonly Vector2Double size = new Vector2Double(10, 10);
 
-		Vector2Double position;
+		double position;
+		Vector2Double point;
 		bool dragging;
 
-		Orthotope2Double Bounds { get { return new Orthotope2Double(position - 0.5 * size, position + 0.5 * size); } }
+		Orthotope2Double Bounds { get { return new Orthotope2Double(point - 0.5 * size, point + 0.5 * size); } }
 
-		public PointComponent(Vector2Double position)
+		public double Position { get { return position; } }
+		public Vector2Double Point { get { return point; } }
+
+		public PointComponent(double position, Vector2Double point)
 		{
 			this.position = position;
+			this.point = point;
 			this.dragging = false;
 			
 			OnUpdate();
@@ -47,12 +52,22 @@ namespace Kurve.Interface
 		{
 			if (dragging) 
 			{
-				position = mousePosition;
+				point = mousePosition;
 				
 				OnUpdate();
 			}	
 		}
-		public override void Scroll(ScrollDirection scrollDirection) { }
+		public override void Scroll(ScrollDirection scrollDirection)
+		{
+			switch (scrollDirection)
+			{
+				case ScrollDirection.Up: position -= 0.01; break;
+				case ScrollDirection.Down: position += 0.01; break;
+				default: throw new ArgumentException();
+			}
+
+			OnUpdate();
+		}
 	}
 }
 
