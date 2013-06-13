@@ -7,7 +7,7 @@ using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
-	class Segment
+	public class Segment
 	{
 		readonly CurveTemplate curveTemplate;
 		readonly ValueTerm parameter;

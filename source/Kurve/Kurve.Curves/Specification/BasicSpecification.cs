@@ -7,7 +7,7 @@ using Krach.Extensions;
 
 namespace Kurve.Curves
 {
-	public class BasicSpecification
+	public class BasicSpecification : IEquatable<BasicSpecification>
 	{
 		readonly double curveLength;
 		readonly int segmentCount;
@@ -56,6 +56,40 @@ namespace Kurve.Curves
 			this.segmentCount = (int)source.Element("segment_count");
 			this.segmentTemplate = CurveTemplate.Parse(source.Element("segment_template").Elements().Single());
 			this.curveSpecifications = source.Element("curve_specifications").Elements().Select(CurveSpecification.Parse).ToArray();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is BasicSpecification && Equals(this, (BasicSpecification)obj);
+		}
+		public override int GetHashCode()
+		{
+			return curveLength.GetHashCode() ^ segmentCount.GetHashCode() ^ segmentTemplate.GetHashCode() ^ Enumerables.GetSequenceHashCode(curveSpecifications);
+		}
+		public bool Equals(BasicSpecification other)
+		{
+			return object.Equals(this, other);
+		}
+
+		public static bool operator ==(BasicSpecification basicSpecification1, BasicSpecification basicSpecification2)
+		{
+			return object.Equals(basicSpecification1, basicSpecification2);
+		}
+		public static bool operator !=(BasicSpecification basicSpecification1, BasicSpecification basicSpecification2)
+		{
+			return !object.Equals(basicSpecification1, basicSpecification2);
+		}
+		
+		static bool Equals(BasicSpecification basicSpecification1, BasicSpecification basicSpecification2) 
+		{
+			if (object.ReferenceEquals(basicSpecification1, basicSpecification2)) return true;
+			if (object.ReferenceEquals(basicSpecification1, null) || object.ReferenceEquals(basicSpecification2, null)) return false;
+			
+			return
+				basicSpecification1.curveLength == basicSpecification2.curveLength &&
+				basicSpecification1.segmentCount == basicSpecification2.segmentCount &&
+				basicSpecification1.segmentTemplate == basicSpecification2.segmentTemplate &&
+				Enumerable.SequenceEqual(basicSpecification1.curveSpecifications, basicSpecification2.curveSpecifications);
 		}
 	}
 }

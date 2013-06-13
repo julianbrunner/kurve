@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Kurve.Curves
 {
-	public class PolynomialCurveTemplate : CurveTemplate
+	public class PolynomialCurveTemplate : CurveTemplate, IEquatable<PolynomialCurveTemplate>
 	{
 		readonly int degree;
 

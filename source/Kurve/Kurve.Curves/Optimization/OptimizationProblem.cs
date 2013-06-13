@@ -6,55 +6,46 @@ using Krach.Extensions;
 using Wrappers.Casadi;
 using Krach;
 
-namespace Kurve.Curves
+namespace Kurve.Curves.Optimization
 {
-	public class Optimizer
+	public class OptimizationProblem
 	{
-		IEnumerable<Segment> segments;
-		IEnumerable<ValueTerm> variables;
-		ValueTerm curveLength;
-		int pointSpecificationCount;
-		IEnumerable<ValueTerm> pointSpecificationPositions;
-		IEnumerable<ValueTerm> pointSpecificationPoints;
-		IEnumerable<IEnumerable<ValueTerm>> pointSpecificationSegmentWeights;
-		IpoptProblem problem;
+		readonly int segmentCount;
+		readonly CurveTemplate segmentTemplate;
+		readonly IEnumerable<CurveSpecification> curveSpecifications;
 
-		IpoptSolver solver;
+		readonly IEnumerable<Segment> segments;
+		readonly IEnumerable<ValueTerm> variables;
+		readonly ValueTerm curveLength;
+		readonly int pointSpecificationCount;
+		readonly IEnumerable<ValueTerm> pointSpecificationPositions;
+		readonly IEnumerable<ValueTerm> pointSpecificationPoints;
+		readonly IEnumerable<IEnumerable<ValueTerm>> pointSpecificationSegmentWeights;
+		readonly IpoptProblem problem;
 
-		IEnumerable<double> position;
+		public IEnumerable<Segment> Segments { get { return segments; } }
+		public IEnumerable<ValueTerm> Variables { get { return variables; } }
+		public ValueTerm CurveLength { get { return curveLength; } }
+		public int PointSpecificationCount { get { return pointSpecificationCount; } }
+		public IEnumerable<ValueTerm> PointSpecificationPositions { get { return pointSpecificationPositions; } }
+		public IEnumerable<ValueTerm> PointSpecificationPoints { get { return pointSpecificationPoints; } }
+		public IEnumerable<IEnumerable<ValueTerm>> PointSpecificationSegmentWeights { get { return pointSpecificationSegmentWeights; } }
+		public IpoptProblem Problem { get { return problem; } }
 
-		public Optimizer()
+		OptimizationProblem(int segmentCount, CurveTemplate segmentTemplate, IEnumerable<CurveSpecification> curveSpecifications)
 		{
-			RebuildAll(new Specification());
-		}
+			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
+			if (segmentTemplate == null) throw new ArgumentNullException("segmentTemplate");
+			if (curveSpecifications == null) throw new ArgumentNullException("curveSpecifications");
 
-		public Specification Normalize(Specification specification)
-		{			
-			RebuildLazy(specification);
+			this.segmentCount = segmentCount;
+			this.segmentTemplate = segmentTemplate;
+			this.curveSpecifications = curveSpecifications;
 
-			return new Specification(specification.BasicSpecification, position);
-		}
-		public IEnumerable<Curve> GetCurves(Specification specification)
-		{
-			RebuildLazy(specification);
-
-			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(variables, position);
-
-			return
-			(
-				from segment in segments
-				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select segment.InstantiateLocalCurve(Terms.Constant(value))
-			)
-			.ToArray();
-		}
-
-		void RebuildIpoptProblem(Specification specification)
-		{
 			this.segments =
 			(
-				from segmentIndex in Enumerable.Range(0, specification.BasicSpecification.SegmentCount)	
-				select new Segment(specification.BasicSpecification.SegmentTemplate, GetPositionTransformation(segmentIndex, specification.BasicSpecification.SegmentCount), segmentIndex)
+				from segmentIndex in Enumerable.Range(0, segmentCount)	
+				select new Segment(segmentTemplate, GetPositionTransformation(segmentIndex, segmentCount), segmentIndex)
 			)
 			.ToArray();
 
@@ -72,7 +63,7 @@ namespace Kurve.Curves
 				from segment in segments
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.GetLocalCurve()
-				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(specification.BasicSpecification.SegmentCount))
+				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(segmentCount))
 				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
 				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
@@ -96,7 +87,7 @@ namespace Kurve.Curves
 //			Console.WriteLine(objectiveValue);
 //			Console.WriteLine();
 
-			this.pointSpecificationCount = specification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
+			this.pointSpecificationCount = curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
 			this.pointSpecificationPositions =
 			(
 				from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
@@ -181,68 +172,23 @@ namespace Kurve.Curves
 
 			this.problem = IpoptProblem.Create(objectiveFunction, constraintFunction, constraint.Ranges);
 		}
-		void RebuildSolver(Specification specification)
-		{
-			IEnumerable<Substitution> substitutions = GetSubstitutions(specification).ToArray();
 
-			IpoptProblem instantiatedProblem = problem.Substitute(substitutions);
-
-			this.solver = new IpoptSolver(instantiatedProblem, new Settings());
-		}
-		void RebuildPosition(Specification specification)
+		public bool NeedsRebuild(Specification newSpecification)
 		{
-			this.position = solver.Solve(specification.Position);
-		}
-		void RebuildAll(Specification specification)
-		{
-			RebuildIpoptProblem(specification);
-			RebuildSolver(specification);
-			RebuildPosition(specification);
-		}
-		void RebuildLazy(Specification specification)
-		{
-			if (specification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) > pointSpecificationCount) RebuildIpoptProblem(specification);
-
-			// TODO: do not rebuild solver if specification hasn't changed
-			RebuildSolver(specification);
-
-			// TODO: do not rebuild specification if specification hasn't changed
-			RebuildPosition(specification);
+			return
+				segmentCount != newSpecification.BasicSpecification.SegmentCount ||
+				segmentTemplate != newSpecification.BasicSpecification.SegmentTemplate ||
+				curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
 		}
 
-		IEnumerable<Substitution> GetSubstitutions(Specification newSpecification)
+		public static OptimizationProblem Create(Specification specification)
 		{
-			yield return new Substitution(curveLength, Terms.Constant(newSpecification.BasicSpecification.CurveLength));
-
-			foreach (int pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount))
-			{
-				ValueTerm position = pointSpecificationPositions.ElementAt(pointSpecificationIndex);
-				ValueTerm point = pointSpecificationPoints.ElementAt(pointSpecificationIndex);
-				IEnumerable<ValueTerm> segmentWeights = pointSpecificationSegmentWeights.ElementAt(pointSpecificationIndex);
-
-				if (pointSpecificationIndex < newSpecification.BasicSpecification.CurveSpecifications.Count())
-				{
-					PointCurveSpecification pointCurveSpecification = (PointCurveSpecification)newSpecification.BasicSpecification.CurveSpecifications.ElementAt(pointSpecificationIndex);
-					
-					yield return new Substitution(position, Terms.Constant(pointCurveSpecification.Position));
-					yield return new Substitution(point, Terms.Constant(pointCurveSpecification.Point.X, pointCurveSpecification.Point.Y));
-					foreach (int segmentIndex in Enumerable.Range(0, segments.Count()))
-					{
-						Segment segment = segments.ElementAt(segmentIndex);
-						double localPosition = segment.PositionTransformation.Apply(Terms.Constant(pointCurveSpecification.Position)).Evaluate().Single();
-						double segmentWeight = new OrderedRange<double>(0, 1).Contains(localPosition) ? 1 : 0;
-
-						yield return new Substitution(segmentWeights.ElementAt(segmentIndex), Terms.Constant(segmentWeight));
-					}
-				}
-				else
-				{
-					yield return new Substitution(position, Terms.Constant(0));
-					yield return new Substitution(point, Terms.Constant(0, 0));
-					foreach (int segmentIndex in Enumerable.Range(0, segments.Count()))
-						yield return new Substitution(segmentWeights.ElementAt(segmentIndex), Terms.Constant(0));
-				}
-			}
+			return new OptimizationProblem
+			(
+				specification.BasicSpecification.SegmentCount,
+				specification.BasicSpecification.SegmentTemplate,
+				specification.BasicSpecification.CurveSpecifications
+			);
 		}
 
 		static FunctionTerm GetPositionTransformation(int segmentIndex, int segmentCount)

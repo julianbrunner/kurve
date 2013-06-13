@@ -3,10 +3,11 @@ using Wrappers.Casadi;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Krach.Extensions;
 
 namespace Kurve.Curves
 {
-	public class Specification
+	public class Specification : IEquatable<Specification>
 	{
 		readonly BasicSpecification basicSpecification;
 		readonly IEnumerable<double> position;
@@ -61,6 +62,38 @@ namespace Kurve.Curves
 				select (double)element
 			)
 			.ToArray();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is Specification && Equals(this, (Specification)obj);
+		}
+		public override int GetHashCode()
+		{
+			return basicSpecification.GetHashCode() ^ Enumerables.GetSequenceHashCode(position);
+		}
+		public bool Equals(Specification other)
+		{
+			return object.Equals(this, other);
+		}
+
+		public static bool operator ==(Specification specification1, Specification specification2)
+		{
+			return object.Equals(specification1, specification2);
+		}
+		public static bool operator !=(Specification specification1, Specification specification2)
+		{
+			return !object.Equals(specification1, specification2);
+		}
+		
+		static bool Equals(Specification specification1, Specification specification2) 
+		{
+			if (object.ReferenceEquals(specification1, specification2)) return true;
+			if (object.ReferenceEquals(specification1, null) || object.ReferenceEquals(specification2, null)) return false;
+
+			return
+				specification1.basicSpecification == specification2.basicSpecification &&
+				Enumerable.SequenceEqual(specification1.position, specification2.position);
 		}
 	}
 }

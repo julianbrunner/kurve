@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Wrappers.Casadi;
 using Kurve.Curves;
 using System.Xml.Linq;
+using Kurve.Curves.Optimization;
 
 namespace Kurve.Test
 {
@@ -40,7 +41,7 @@ namespace Kurve.Test
 					)
 				);
 
-				optimizer.GetCurves(specification);
+				Console.WriteLine(optimizer.GetCurves(specification));
 			}
 		}
 	}

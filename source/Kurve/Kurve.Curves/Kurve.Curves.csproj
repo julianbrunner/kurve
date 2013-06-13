@@ -35,7 +35,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Optimizer.cs" />
     <Compile Include="Segment.cs" />
     <Compile Include="Specification\PointCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
@@ -47,6 +46,11 @@
     <Compile Include="Assignment.cs" />
     <Compile Include="Specification\PolynomialCurveTemplate.cs" />
     <Compile Include="Specification\BasicSpecification.cs" />
+    <Compile Include="Optimization\Optimizer.cs" />
+    <Compile Include="Optimization\OptimizationProblem.cs" />
+    <Compile Include="Optimization\OptimizationSubstitutions.cs" />
+    <Compile Include="Optimization\OptimizationSolver.cs" />
+    <Compile Include="Optimization\OptimizationPosition.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -61,5 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Specification\" />
+    <Folder Include="Optimization\" />
   </ItemGroup>
 </Project>

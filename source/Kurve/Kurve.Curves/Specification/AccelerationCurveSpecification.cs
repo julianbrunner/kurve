@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Kurve.Curves
 {
-	public class AccelerationCurveSpecification : CurveSpecification
+	public class AccelerationCurveSpecification : CurveSpecification, IEquatable<AccelerationCurveSpecification>
 	{
 		readonly double position;
 		readonly Vector2Double acceleration;
@@ -43,9 +43,39 @@ namespace Kurve.Curves
 			this.acceleration = new Vector2Double(source.Element("acceleration").Elements().Single());
 		}
 
-		public override ValueTerm GetErrorTerm(Curve curve)
+		public override bool Equals(object obj)
 		{
-			return Terms.Difference(curve.Acceleration.Apply(Terms.Constant(position)), Terms.Constant(acceleration.X, acceleration.Y));
+			return obj is AccelerationCurveSpecification && Equals(this, (AccelerationCurveSpecification)obj);
+		}
+		public override int GetHashCode()
+		{
+			return GetType().Name.GetHashCode() ^ position.GetHashCode() ^ acceleration.GetHashCode();
+		}
+		public bool Equals(AccelerationCurveSpecification other)
+		{
+			return object.Equals(this, other);
+		}
+
+//		public override ValueTerm GetErrorTerm(Curve curve)
+//		{
+//			return Terms.Difference(curve.Acceleration.Apply(Terms.Constant(position)), Terms.Constant(acceleration.X, acceleration.Y));
+//		}
+
+		public static bool operator ==(AccelerationCurveSpecification curveSpecification1, AccelerationCurveSpecification curveSpecification2)
+		{
+			return object.Equals(curveSpecification1, curveSpecification2);
+		}
+		public static bool operator !=(AccelerationCurveSpecification curveSpecification1, AccelerationCurveSpecification curveSpecification2)
+		{
+			return !object.Equals(curveSpecification1, curveSpecification2);
+		}
+		
+		static bool Equals(AccelerationCurveSpecification curveSpecification1, AccelerationCurveSpecification curveSpecification2) 
+		{
+			if (object.ReferenceEquals(curveSpecification1, curveSpecification2)) return true;
+			if (object.ReferenceEquals(curveSpecification1, null) || object.ReferenceEquals(curveSpecification2, null)) return false;
+			
+			return curveSpecification1.position == curveSpecification2.position && curveSpecification1.acceleration == curveSpecification2.acceleration;
 		}
 	}
 }
