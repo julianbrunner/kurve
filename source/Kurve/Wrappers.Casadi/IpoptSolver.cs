@@ -40,31 +40,6 @@ namespace Wrappers.Casadi
 				Marshal.FreeCoTaskMem(constraintUpperBounds);
 			}
 		}
-		public IpoptSolver(FunctionTerm objectiveFunction, FunctionTerm constraintFunction, IEnumerable<OrderedRange<double>> constraints, Settings settings)
-		{
-			if (objectiveFunction == null) throw new ArgumentNullException("objectiveFunction");
-			if (constraintFunction == null) throw new ArgumentNullException("constraintFunction");
-			if (constraints == null) throw new ArgumentNullException("constraints");
-			if (settings == null) throw new ArgumentNullException("settings");
-
-			lock (GeneralNative.Synchronization)
-			{
-				this.solver = IpoptNative.IpoptSolverCreateSimple(objectiveFunction.Function, constraintFunction.Function);
-				this.domainDimension = Items.Equal(objectiveFunction.DomainDimension, constraintFunction.DomainDimension);
-
-				settings.Apply(solver);
-
-				IpoptNative.IpoptSolverInitialize(solver);
-
-				IntPtr constraintLowerBounds = constraints.Select(range => range.Start).Copy();
-				IntPtr constraintUpperBounds = constraints.Select(range => range.End).Copy();
-
-				IpoptNative.IpoptSolverSetConstraintBounds(solver, constraintLowerBounds, constraintUpperBounds, constraints.Count());
-
-				Marshal.FreeCoTaskMem(constraintLowerBounds);
-				Marshal.FreeCoTaskMem(constraintUpperBounds);
-			}
-		}
 		~IpoptSolver()
 		{
 			Dispose();

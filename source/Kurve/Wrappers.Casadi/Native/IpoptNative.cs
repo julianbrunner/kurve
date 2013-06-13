@@ -18,8 +18,6 @@ namespace Wrappers.Casadi.Native
 		public static extern IntPtr IpoptProblemSubstitute(IntPtr problem, IntPtr variables, IntPtr values, int count);
 
 		[DllImport("Wrappers.Casadi.Native")]
-		public static extern IntPtr IpoptSolverCreateSimple(IntPtr objectiveFunction, IntPtr constraintFunction);
-		[DllImport("Wrappers.Casadi.Native")]
 		public static extern IntPtr IpoptSolverCreate(IntPtr problem);
 		[DllImport("Wrappers.Casadi.Native")]
 		public static extern void IpoptSolverDispose(IntPtr solver);
