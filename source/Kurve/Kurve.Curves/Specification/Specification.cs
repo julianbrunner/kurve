@@ -33,6 +33,7 @@ namespace Kurve.Curves
 		{
 			if (basicSpecification == null) throw new ArgumentNullException("basicSpecification");
 			if (position == null) throw new ArgumentNullException("position");
+			if (position.Count() != basicSpecification.SegmentCount * basicSpecification.SegmentTemplate.ParameterDimension) throw new ArgumentException("Parameter 'position' does not fit the given basic specification.");
 
 			this.basicSpecification = basicSpecification;
 			this.position = position;

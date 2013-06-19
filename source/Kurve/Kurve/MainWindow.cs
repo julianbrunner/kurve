@@ -15,33 +15,49 @@ using Kurve;
 
 public partial class MainWindow : Gtk.Window
 {
-	readonly List<Component> components;
 	readonly OptimizationWorker worker;
-	readonly CurveComponent curve;
-	readonly IEnumerable<PointComponent> points;
+	readonly IEnumerable<PointComponent> specificationPoints;
+
+	double curveLength = 1000;
+	int segmentCount = 1;
+	CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+	
+	IEnumerable<PolygonComponent> segmentPolygons;
+
+	IEnumerable<Component> Components
+	{
+		get
+		{
+			return Enumerables.Concatenate<Component>
+			(
+				segmentPolygons,
+				specificationPoints
+			);
+		}
+	}
 
 	public MainWindow(): base (Gtk.WindowType.Toplevel)
 	{
 		Build();
 
-		this.components = new List<Component>();
 		this.worker = new OptimizationWorker();
 		this.worker.Update += WorkerUpdate;
-		this.curve = new CurveComponent();
-		this.points = Enumerables.Create
+		this.segmentPolygons = Enumerables.Create<PolygonComponent>();
+		this.specificationPoints = Enumerables.Create
 		(
-			new PointComponent(0.0, new Vector2Double(0, 0)),
-			new PointComponent(0.5, new Vector2Double(50, 50)),
-			new PointComponent(1.0, new Vector2Double(100, 100))
+			new PointComponent(0.0, new Vector2Double(100, 100)),
+			new PointComponent(0.2, new Vector2Double(200, 200)),
+			new PointComponent(0.4, new Vector2Double(300, 300)),
+			new PointComponent(0.6, new Vector2Double(400, 400)),
+			new PointComponent(0.8, new Vector2Double(500, 500)),
+			new PointComponent(1.0, new Vector2Double(600, 600))
 		)
 		.ToArray();
 
-		AddComponent(curve);
-		foreach (PointComponent point in points)
+		foreach (PointComponent specificationPoint in specificationPoints)
 		{
-			AddComponent(point);
-
-			point.Update += UpdateSpecification;
+			specificationPoint.Update += Invalidate;
+			specificationPoint.Update += UpdateSpecification;
 		}
 
 		UpdateSpecification();
@@ -57,7 +73,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(GdkWindow))
 		{
-			foreach (Component component in components) component.Draw(context);
+			foreach (Component component in Components) component.Draw(context);
 
 			context.Target.Dispose();
 		}
@@ -67,68 +83,78 @@ public partial class MainWindow : Gtk.Window
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 		MouseButton button = (MouseButton)args.Event.Button;
 
-		foreach (Component component in components) component.MouseDown(position, button);
+		foreach (Component component in Components) component.MouseDown(position, button);
 	}
 	protected void OnButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 	{
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 		MouseButton button = (MouseButton)args.Event.Button;
 
-		foreach (Component component in components) component.MouseUp(position, button);
+		foreach (Component component in Components) component.MouseUp(position, button);
 	}
 	protected void OnMotionNotifyEvent(object o, MotionNotifyEventArgs args)
 	{
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 
-		foreach (Component component in components) component.MouseMove(position);
+		foreach (Component component in Components) component.MouseMove(position);
 	}
 	protected void OnScrollEvent(object o, ScrollEventArgs args)
 	{
-		Kurve.Interface.ScrollDirection direction;
+		Kurve.Interface.ScrollDirection scrollDirection;
 
 		switch (args.Event.Direction)
 		{
-			case Gdk.ScrollDirection.Up: direction = Kurve.Interface.ScrollDirection.Up; break;
-			case Gdk.ScrollDirection.Down: direction = Kurve.Interface.ScrollDirection.Down; break;
+			case Gdk.ScrollDirection.Up: scrollDirection = Kurve.Interface.ScrollDirection.Up; break;
+			case Gdk.ScrollDirection.Down: scrollDirection = Kurve.Interface.ScrollDirection.Down; break;
 			default: return;
 		}
 
-		foreach (Component component in components) component.Scroll(direction);
+		foreach (Component component in Components) component.Scroll(scrollDirection);
+
+		if (!specificationPoints.Any(specificationPoint => specificationPoint.Selected))
+		{
+			switch (scrollDirection)
+			{
+				case Kurve.Interface.ScrollDirection.Up: curveLength -= 10; break;
+				case Kurve.Interface.ScrollDirection.Down: curveLength += 10; break;
+				default: throw new ArgumentException();
+			}
+
+			UpdateSpecification();
+		}
 	}
 
 	void Invalidate()
 	{
 		GdkWindow.InvalidateRegion(GdkWindow.VisibleRegion, true);
 	}
-	void AddComponent(Component component)
-	{
-		component.Update += Invalidate;
 
-		components.Add(component);
-	}
-	void RemoveComponent(Component component)
-	{
-		component.Update -= Invalidate;
-
-		components.Remove(component);
-	}
 	void UpdateSpecification()
 	{
-		double curveLength = 200;
-		int segmentCount = 10;
-		CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
-		IEnumerable<CurveSpecification> curveSpecifications =
+		worker.SubmitSpecification
 		(
-			from point in points
-			select new PointCurveSpecification(point.Position, point.Point)
-		)
-		.ToArray();
-		BasicSpecification basicSpecification = new BasicSpecification(curveLength, segmentCount, segmentTemplate, curveSpecifications);
-
-		worker.SubmitSpecification(basicSpecification);
+			new BasicSpecification
+			(
+				curveLength,
+				segmentCount,
+				segmentTemplate,
+				(
+					from point in specificationPoints
+					select new PointCurveSpecification(point.Position, point.Point)
+				)
+				.ToArray()
+			)
+		);
 	}
 	void WorkerUpdate()
 	{
-		curve.Segments = worker.CurrentSegments;
+		segmentPolygons =
+		(
+			from segmentPolygon in worker.SegmentPolygons
+			select new PolygonComponent(segmentPolygon)
+		)
+		.ToArray();
+
+		Invalidate();
 	}
 }

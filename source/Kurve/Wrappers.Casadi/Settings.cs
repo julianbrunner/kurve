@@ -17,9 +17,9 @@ namespace Wrappers.Casadi
 
 		public Settings()
 		{
-			PrintLevel = 5;
+			PrintLevel = 0;
 			Tolerance = 1e-8;
-			MaximumIterationCount = 1000;
+			MaximumIterationCount = 10000;
 		}
 
 		internal void Apply(IntPtr solver)

@@ -74,9 +74,9 @@
     <Compile Include="Interface\ScrollDirection.cs" />
     <Compile Include="Interface\PointComponent.cs" />
     <Compile Include="InterfaceUtility.cs" />
-    <Compile Include="Interface\CurveComponent.cs" />
     <Compile Include="OptimizationWorker.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Interface\PolygonComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

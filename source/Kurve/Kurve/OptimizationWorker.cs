@@ -20,17 +20,16 @@ namespace Kurve
 		readonly Thread workerThread;
 
 		bool disposed = false;
-		Specification currentSpecification;
-		IEnumerable<Kurve.Curves.Curve> currentSegments;
 		BasicSpecification nextBasicSpecification;
+		IEnumerable<IEnumerable<Vector2Double>> segmentPolygons;
 
 		public event System.Action Update;
 
-		public IEnumerable<Kurve.Curves.Curve> CurrentSegments
+		public IEnumerable<IEnumerable<Vector2Double>> SegmentPolygons
 		{
 			get
 			{
-				lock (synchronization) return currentSegments;
+				lock (synchronization) return segmentPolygons;
 			}
 		}
 
@@ -68,21 +67,38 @@ namespace Kurve
 
 		void Work()
 		{
+			Specification specification = null;
+
 			while (true)
 			{
 				workAvailable.WaitOne();
 
-				Specification newSpecification;
-				lock (synchronization) newSpecification = currentSpecification == null ? new Specification(nextBasicSpecification) : new Specification(nextBasicSpecification, currentSpecification.Position);
+				lock (synchronization) specification = specification == null ? new Specification(nextBasicSpecification) : new Specification(nextBasicSpecification, specification.Position);
 
-				Specification newCurrentSpecification = optimizer.Normalize(newSpecification);
-				lock (synchronization) currentSpecification = newCurrentSpecification;
+				specification = optimizer.Normalize(specification);
 
-				IEnumerable<Kurve.Curves.Curve> newCurrentSegments = optimizer.GetSegments(newCurrentSpecification);
-				lock (synchronization) currentSegments = newCurrentSegments;
+				IEnumerable<Kurve.Curves.Curve> segments = optimizer.GetSegments(specification);
+
+				lock (synchronization) segmentPolygons = GetSegmentPolygons(segments);
 
 				Application.Invoke(delegate (object sender, EventArgs e) { OnUpdate(); });
 			}
+		}
+
+		static IEnumerable<IEnumerable<Vector2Double>> GetSegmentPolygons(IEnumerable<Kurve.Curves.Curve> segments)
+		{
+			return
+			(
+				from segment in segments
+				select
+				(
+					from position in Scalars.GetIntermediateValues(0, 1, 100)
+					let point = segment.Point.Apply(Terms.Constant(position)).Evaluate()
+					select new Vector2Double(point.ElementAt(0), point.ElementAt(1))
+				)
+				.ToArray()
+			)
+			.ToArray();
 		}
 	}
 }
