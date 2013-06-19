@@ -8,7 +8,7 @@ using Krach;
 
 namespace Kurve.Curves.Optimization
 {
-	public class OptimizationPosition
+	class OptimizationPosition
 	{
 		readonly OptimizationSolver optimizationSolver;
 		readonly IEnumerable<double> initialPosition;

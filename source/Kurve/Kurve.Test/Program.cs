@@ -19,7 +19,7 @@ namespace Kurve.Test
 
 			double curveLength = 4;
 			int segmentCount = 10;
-			CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+			FunctionTermCurveTemplate segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
 			IEnumerable<CurveSpecification> curveSpecifications = Enumerables.Create<CurveSpecification>
 			(
 				new PointCurveSpecification(0.0, new Vector2Double(-1.0,  0.0)),
@@ -41,7 +41,7 @@ namespace Kurve.Test
 					)
 				);
 
-				Console.WriteLine(optimizer.GetSegments(specification));
+				Console.WriteLine(optimizer.GetCurve(specification));
 			}
 		}
 	}

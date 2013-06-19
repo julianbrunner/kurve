@@ -57,7 +57,7 @@ namespace Kurve.Curves
 		}
 
 		// TODO: clean up
-		public static ValueTerm GetErrorTerm(Curve curve, ValueTerm position, ValueTerm point)
+		public static ValueTerm GetErrorTerm(FunctionTermCurve curve, ValueTerm position, ValueTerm point)
 		{
 			return Terms.Difference(curve.Point.Apply(position), point);
 		}

@@ -41,16 +41,17 @@
     <Compile Include="Specification\AccelerationCurveSpecification.cs" />
     <Compile Include="Specification\VelocityCurveSpecification.cs" />
     <Compile Include="Specification\Specification.cs" />
-    <Compile Include="Specification\CurveTemplate.cs" />
-    <Compile Include="Curve.cs" />
-    <Compile Include="Assignment.cs" />
-    <Compile Include="Specification\PolynomialCurveTemplate.cs" />
     <Compile Include="Specification\BasicSpecification.cs" />
     <Compile Include="Optimization\Optimizer.cs" />
     <Compile Include="Optimization\OptimizationProblem.cs" />
     <Compile Include="Optimization\OptimizationSubstitutions.cs" />
     <Compile Include="Optimization\OptimizationSolver.cs" />
     <Compile Include="Optimization\OptimizationPosition.cs" />
+    <Compile Include="FunctionTermCurves\FunctionTermCurve.cs" />
+    <Compile Include="FunctionTermCurves\FunctionTermCurveTemplate.cs" />
+    <Compile Include="FunctionTermCurves\PolynomialFunctionTermCurveTemplate.cs" />
+    <Compile Include="Curve.cs" />
+    <Compile Include="SegmentedCurve.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -66,5 +67,6 @@
   <ItemGroup>
     <Folder Include="Specification\" />
     <Folder Include="Optimization\" />
+    <Folder Include="FunctionTermCurves\" />
   </ItemGroup>
 </Project>

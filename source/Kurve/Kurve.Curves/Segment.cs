@@ -7,38 +7,29 @@ using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
-	public class Segment
+	class Segment
 	{
-		readonly CurveTemplate curveTemplate;
-		readonly ValueTerm parameter;
+		readonly FunctionTermCurve curve;
 		readonly FunctionTerm positionTransformation;
 
-		public CurveTemplate CurveTemplate { get { return curveTemplate; } }
-		public ValueTerm Parameter { get { return parameter; } }
+		public FunctionTermCurve LocalCurve { get { return curve; } }
+		public FunctionTermCurve GlobalCurve { get { return curve.TransformPosition(positionTransformation); } }
 		public FunctionTerm PositionTransformation { get { return positionTransformation; } }
 
-		public Segment(CurveTemplate curveTemplate, FunctionTerm positionTransformation, int index)
+		public Segment(FunctionTermCurve curve, FunctionTerm positionTransformation)
 		{
-			if (curveTemplate == null) throw new ArgumentNullException("curveTemplate");
+			if (curve == null) throw new ArgumentNullException("curve");
 			if (positionTransformation == null) throw new ArgumentNullException("positionTransformation");
-			if (index < 0) throw new ArgumentOutOfRangeException("index");
 
-			this.curveTemplate = curveTemplate;
-			this.parameter = Terms.Variable(string.Format("sp_{0}", index), curveTemplate.ParameterDimension);
+			this.curve = curve;
 			this.positionTransformation = positionTransformation;
 		}
 
-		public Curve GetLocalCurve()
+		public bool Contains(double position)
 		{
-			return curveTemplate.InstantiateParameter(parameter);
-		}
-		public Curve GetGlobalCurve()
-		{
-			return curveTemplate.InstantiateParameter(parameter).TransformPosition(positionTransformation);
-		}
-		public Curve InstantiateLocalCurve(ValueTerm value)
-		{
-			return curveTemplate.InstantiateParameter(value);
+			double localPosition = positionTransformation.Apply(Terms.Constant(position)).Evaluate().Single();
+
+			return new OrderedRange<double>(0, 1).Contains(localPosition);
 		}
 	}
 }

@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace Kurve.Curves
 {
-	public class PolynomialCurveTemplate : CurveTemplate, IEquatable<PolynomialCurveTemplate>
+	public class PolynomialFunctionTermCurveTemplate : FunctionTermCurveTemplate, IEquatable<PolynomialFunctionTermCurveTemplate>
 	{
 		readonly int degree;
 
@@ -26,37 +26,37 @@ namespace Kurve.Curves
 			}
 		}
 
-		public PolynomialCurveTemplate(int degree) : base(Create(degree))
+		public PolynomialFunctionTermCurveTemplate(int degree) : base(Create(degree))
 		{
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
 
 			this.degree = degree;
 		}
-		public PolynomialCurveTemplate(XElement source) : this(Create(source)) { }
+		public PolynomialFunctionTermCurveTemplate(XElement source) : this(Create(source)) { }
 
 		public override bool Equals(object obj)
 		{
-			return obj is PolynomialCurveTemplate && Equals(this, (PolynomialCurveTemplate)obj);
+			return obj is PolynomialFunctionTermCurveTemplate && Equals(this, (PolynomialFunctionTermCurveTemplate)obj);
 		}
 		public override int GetHashCode()
 		{
 			return GetType().Name.GetHashCode() ^ degree.GetHashCode();
 		}
-		public bool Equals(PolynomialCurveTemplate other)
+		public bool Equals(PolynomialFunctionTermCurveTemplate other)
 		{
 			return object.Equals(this, other);
 		}
 
-		public static bool operator ==(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2)
+		public static bool operator ==(PolynomialFunctionTermCurveTemplate curveTemplate1, PolynomialFunctionTermCurveTemplate curveTemplate2)
 		{
 			return object.Equals(curveTemplate1, curveTemplate2);
 		}
-		public static bool operator !=(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2)
+		public static bool operator !=(PolynomialFunctionTermCurveTemplate curveTemplate1, PolynomialFunctionTermCurveTemplate curveTemplate2)
 		{
 			return !object.Equals(curveTemplate1, curveTemplate2);
 		}
 		
-		static bool Equals(PolynomialCurveTemplate curveTemplate1, PolynomialCurveTemplate curveTemplate2) 
+		static bool Equals(PolynomialFunctionTermCurveTemplate curveTemplate1, PolynomialFunctionTermCurveTemplate curveTemplate2) 
 		{
 			if (object.ReferenceEquals(curveTemplate1, curveTemplate2)) return true;
 			if (object.ReferenceEquals(curveTemplate1, null) || object.ReferenceEquals(curveTemplate2, null)) return false;

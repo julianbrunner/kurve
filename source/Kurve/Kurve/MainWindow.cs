@@ -16,13 +16,13 @@ using Kurve;
 public partial class MainWindow : Gtk.Window
 {
 	readonly OptimizationWorker worker;
-	readonly IEnumerable<PointComponent> specificationPoints;
 
 	double curveLength = 1000;
 	int segmentCount = 1;
-	CurveTemplate segmentTemplate = new PolynomialCurveTemplate(10);
+	FunctionTermCurveTemplate segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
 	
-	IEnumerable<PolygonComponent> segmentPolygons;
+	CurveComponent curveComponent;
+	IEnumerable<PointSpecificationComponent> pointSpecificationComponents;
 
 	IEnumerable<Component> Components
 	{
@@ -30,8 +30,8 @@ public partial class MainWindow : Gtk.Window
 		{
 			return Enumerables.Concatenate<Component>
 			(
-				segmentPolygons,
-				specificationPoints
+				Enumerables.Create(curveComponent),
+				pointSpecificationComponents
 			);
 		}
 	}
@@ -42,19 +42,22 @@ public partial class MainWindow : Gtk.Window
 
 		this.worker = new OptimizationWorker();
 		this.worker.Update += WorkerUpdate;
-		this.segmentPolygons = Enumerables.Create<PolygonComponent>();
-		this.specificationPoints = Enumerables.Create
+
+		this.curveComponent = new CurveComponent();
+		this.curveComponent.Update += Invalidate;
+
+		this.pointSpecificationComponents = Enumerables.Create
 		(
-			new PointComponent(0.0, new Vector2Double(100, 100)),
-			new PointComponent(0.2, new Vector2Double(200, 200)),
-			new PointComponent(0.4, new Vector2Double(300, 300)),
-			new PointComponent(0.6, new Vector2Double(400, 400)),
-			new PointComponent(0.8, new Vector2Double(500, 500)),
-			new PointComponent(1.0, new Vector2Double(600, 600))
+			new PointSpecificationComponent(0.0, new Vector2Double(100, 100)),
+			new PointSpecificationComponent(0.2, new Vector2Double(200, 200)),
+			new PointSpecificationComponent(0.4, new Vector2Double(300, 300)),
+			new PointSpecificationComponent(0.6, new Vector2Double(400, 400)),
+			new PointSpecificationComponent(0.8, new Vector2Double(500, 500)),
+			new PointSpecificationComponent(1.0, new Vector2Double(600, 600))
 		)
 		.ToArray();
 
-		foreach (PointComponent specificationPoint in specificationPoints)
+		foreach (PointSpecificationComponent specificationPoint in pointSpecificationComponents)
 		{
 			specificationPoint.Update += Invalidate;
 			specificationPoint.Update += UpdateSpecification;
@@ -111,7 +114,7 @@ public partial class MainWindow : Gtk.Window
 
 		foreach (Component component in Components) component.Scroll(scrollDirection);
 
-		if (!specificationPoints.Any(specificationPoint => specificationPoint.Selected))
+		if (!pointSpecificationComponents.Any(specificationPoint => specificationPoint.Selected))
 		{
 			switch (scrollDirection)
 			{
@@ -139,7 +142,7 @@ public partial class MainWindow : Gtk.Window
 				segmentCount,
 				segmentTemplate,
 				(
-					from point in specificationPoints
+					from point in pointSpecificationComponents
 					select new PointCurveSpecification(point.Position, point.Point)
 				)
 				.ToArray()
@@ -148,13 +151,6 @@ public partial class MainWindow : Gtk.Window
 	}
 	void WorkerUpdate()
 	{
-		segmentPolygons =
-		(
-			from segmentPolygon in worker.SegmentPolygons
-			select new PolygonComponent(segmentPolygon)
-		)
-		.ToArray();
-
-		Invalidate();
+		curveComponent.DiscreteCurve = worker.DiscreteCurve;
 	}
 }

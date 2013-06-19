@@ -10,20 +10,26 @@ using Kurve.Curves;
 
 namespace Kurve.Interface
 {
-	class PolygonComponent : Component
+	class CurveComponent : Component
 	{
-		readonly IEnumerable<Vector2Double> points;
+		DiscreteCurve discreteCurve;
 
-		public PolygonComponent(IEnumerable<Vector2Double> points)
+		public DiscreteCurve DiscreteCurve
 		{
-			if (points == null) throw new ArgumentNullException("points");
+			get { return discreteCurve; }
+			set
+			{
+				discreteCurve = value;
 
-			this.points = points;
+				OnUpdate();
+			} 
 		}
 
 		public override void Draw(Context context)
 		{
-			IEnumerable<Tuple<Vector2Double, Vector2Double>> segments = points.GetRanges().ToArray();
+			if (discreteCurve == null) return;
+
+			IEnumerable<Tuple<Vector2Double, Vector2Double>> segments = discreteCurve.Items.Select(item => item.Point).GetRanges().ToArray();
 
 			for (int index = 0; index < segments.Count(); index++)
 			{

@@ -21,17 +21,11 @@ namespace Kurve
 
 		bool disposed = false;
 		BasicSpecification nextBasicSpecification;
-		IEnumerable<IEnumerable<Vector2Double>> segmentPolygons;
+		DiscreteCurve discreteCurve;
 
 		public event System.Action Update;
 
-		public IEnumerable<IEnumerable<Vector2Double>> SegmentPolygons
-		{
-			get
-			{
-				lock (synchronization) return segmentPolygons;
-			}
-		}
+		public DiscreteCurve DiscreteCurve { get { lock (synchronization) return discreteCurve; } }
 
 		public OptimizationWorker()
 		{
@@ -77,28 +71,12 @@ namespace Kurve
 
 				specification = optimizer.Normalize(specification);
 
-				IEnumerable<Kurve.Curves.Curve> segments = optimizer.GetSegments(specification);
+				Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
 
-				lock (synchronization) segmentPolygons = GetSegmentPolygons(segments);
+				lock (synchronization) discreteCurve = new Kurve.DiscreteCurve(curve);
 
 				Application.Invoke(delegate (object sender, EventArgs e) { OnUpdate(); });
 			}
-		}
-
-		static IEnumerable<IEnumerable<Vector2Double>> GetSegmentPolygons(IEnumerable<Kurve.Curves.Curve> segments)
-		{
-			return
-			(
-				from segment in segments
-				select
-				(
-					from position in Scalars.GetIntermediateValues(0, 1, 100)
-					let point = segment.Point.Apply(Terms.Constant(position)).Evaluate()
-					select new Vector2Double(point.ElementAt(0), point.ElementAt(1))
-				)
-				.ToArray()
-			)
-			.ToArray();
 		}
 	}
 }

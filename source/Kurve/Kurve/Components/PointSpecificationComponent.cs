@@ -9,7 +9,7 @@ using Krach.Graphics;
 
 namespace Kurve.Interface
 {
-	class PointComponent : Component
+	class PointSpecificationComponent : Component
 	{
 		static readonly Vector2Double size = new Vector2Double(10, 10);
 
@@ -25,7 +25,7 @@ namespace Kurve.Interface
 		public Vector2Double Point { get { return point; } }
 		public bool Selected { get { return selected; } }
 
-		public PointComponent(double position, Vector2Double point)
+		public PointSpecificationComponent(double position, Vector2Double point)
 		{
 			this.position = position;
 			this.point = point;

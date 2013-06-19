@@ -26,19 +26,23 @@ namespace Kurve.Curves.Optimization
 
 			return new Specification(specification.BasicSpecification, optimizationPosition.Position);
 		}
-		public IEnumerable<Curve> GetSegments(Specification specification)
+		public Curve GetCurve(Specification specification)
 		{
 			Rebuild(specification);
 
-			IEnumerable<Assignment> resultAssignments = Assignment.ValuesToAssignments(optimizationProblem.Variables, optimizationPosition.Position);
+			int segmentCount = specification.BasicSpecification.SegmentCount;
+			FunctionTermCurveTemplate segmentTemplate = specification.BasicSpecification.SegmentTemplate;
 
-			return
+			return new SegmentedCurve
 			(
-				from segment in optimizationProblem.Segments
-				let value = resultAssignments.Single(assignment => assignment.Variable == segment.Parameter).Value
-				select segment.InstantiateLocalCurve(Terms.Constant(value))
-			)
-			.ToArray();
+				(
+					from segmentIndex in Enumerable.Range(0, segmentCount)
+					let segment = optimizationProblem.Segments.ElementAt(segmentIndex)
+					let value = optimizationPosition.Position.Skip(segmentIndex * segmentTemplate.ParameterDimension).Take(segmentTemplate.ParameterDimension)
+					select new Segment(segmentTemplate.InstantiateParameter(Terms.Constant(value)), segment.PositionTransformation)
+				)
+				.ToArray()
+			);
 		}
 
 		void Rebuild(Specification specification)

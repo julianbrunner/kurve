@@ -8,7 +8,7 @@ using Krach;
 
 namespace Kurve.Curves.Optimization
 {
-	public class OptimizationSolver
+	class OptimizationSolver
 	{
 		readonly OptimizationProblem optimizationProblem;
 		readonly OptimizationSubstitutions optimizationSubstitutions;

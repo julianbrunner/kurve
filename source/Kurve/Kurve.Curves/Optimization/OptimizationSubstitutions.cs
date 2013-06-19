@@ -8,7 +8,7 @@ using Krach;
 
 namespace Kurve.Curves.Optimization
 {
-	public class OptimizationSubstitutions
+	class OptimizationSubstitutions
 	{
 		readonly OptimizationProblem optimizationProblem;
 		readonly double curveLength;
@@ -68,8 +68,7 @@ namespace Kurve.Curves.Optimization
 					foreach (int segmentIndex in Enumerable.Range(0, optimizationProblem.Segments.Count()))
 					{
 						Segment segment = optimizationProblem.Segments.ElementAt(segmentIndex);
-						double localPosition = segment.PositionTransformation.Apply(Terms.Constant(pointCurveSpecification.Position)).Evaluate().Single();
-						double segmentWeight = new OrderedRange<double>(0, 1).Contains(localPosition) ? 1 : 0;
+						double segmentWeight = segment.Contains(pointCurveSpecification.Position) ? 1 : 0;
 
 						yield return new Substitution(segmentWeights.ElementAt(segmentIndex), Terms.Constant(segmentWeight));
 					}
