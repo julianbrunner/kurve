@@ -15,55 +15,14 @@ using Kurve;
 
 public partial class MainWindow : Gtk.Window
 {
-	readonly OptimizationWorker worker;
-
-	double curveLength = 1000;
-	int segmentCount = 1;
-	FunctionTermCurveTemplate segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
-	
-	CurveComponent curveComponent;
-	IEnumerable<PointSpecificationComponent> pointSpecificationComponents;
-
-	IEnumerable<Component> Components
-	{
-		get
-		{
-			return Enumerables.Concatenate<Component>
-			(
-				Enumerables.Create(curveComponent),
-				pointSpecificationComponents
-			);
-		}
-	}
+	readonly RootComponent rootComponent;
 
 	public MainWindow(): base (Gtk.WindowType.Toplevel)
 	{
 		Build();
 
-		this.worker = new OptimizationWorker();
-		this.worker.Update += WorkerUpdate;
-
-		this.curveComponent = new CurveComponent();
-		this.curveComponent.Update += Invalidate;
-
-		this.pointSpecificationComponents = Enumerables.Create
-		(
-			new PointSpecificationComponent(0.0, new Vector2Double(100, 100)),
-			new PointSpecificationComponent(0.2, new Vector2Double(200, 200)),
-			new PointSpecificationComponent(0.4, new Vector2Double(300, 300)),
-			new PointSpecificationComponent(0.6, new Vector2Double(400, 400)),
-			new PointSpecificationComponent(0.8, new Vector2Double(500, 500)),
-			new PointSpecificationComponent(1.0, new Vector2Double(600, 600))
-		)
-		.ToArray();
-
-		foreach (PointSpecificationComponent specificationPoint in pointSpecificationComponents)
-		{
-			specificationPoint.Update += Invalidate;
-			specificationPoint.Update += UpdateSpecification;
-		}
-
-		UpdateSpecification();
+		this.rootComponent = new RootComponent();
+		this.rootComponent.ComponentChanged += RootComponentChanged;
 	}
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -76,7 +35,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		using (Context context = CairoHelper.Create(GdkWindow))
 		{
-			foreach (Component component in Components) component.Draw(context);
+			rootComponent.Draw(context);
 
 			context.Target.Dispose();
 		}
@@ -86,20 +45,20 @@ public partial class MainWindow : Gtk.Window
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 		MouseButton button = (MouseButton)args.Event.Button;
 
-		foreach (Component component in Components) component.MouseDown(position, button);
+		rootComponent.MouseDown(position, button);
 	}
 	protected void OnButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 	{
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 		MouseButton button = (MouseButton)args.Event.Button;
 
-		foreach (Component component in Components) component.MouseUp(position, button);
+		rootComponent.MouseUp(position, button);
 	}
 	protected void OnMotionNotifyEvent(object o, MotionNotifyEventArgs args)
 	{
 		Vector2Double position = new Vector2Double(args.Event.X, args.Event.Y);
 
-		foreach (Component component in Components) component.MouseMove(position);
+		rootComponent.MouseMove(position);
 	}
 	protected void OnScrollEvent(object o, ScrollEventArgs args)
 	{
@@ -112,45 +71,11 @@ public partial class MainWindow : Gtk.Window
 			default: return;
 		}
 
-		foreach (Component component in Components) component.Scroll(scrollDirection);
-
-		if (!pointSpecificationComponents.Any(specificationPoint => specificationPoint.Selected))
-		{
-			switch (scrollDirection)
-			{
-				case Kurve.Interface.ScrollDirection.Up: curveLength -= 10; break;
-				case Kurve.Interface.ScrollDirection.Down: curveLength += 10; break;
-				default: throw new ArgumentException();
-			}
-
-			UpdateSpecification();
-		}
+		rootComponent.Scroll(scrollDirection);
 	}
 
-	void Invalidate()
+	void RootComponentChanged()
 	{
 		GdkWindow.InvalidateRegion(GdkWindow.VisibleRegion, true);
-	}
-
-	void UpdateSpecification()
-	{
-		worker.SubmitSpecification
-		(
-			new BasicSpecification
-			(
-				curveLength,
-				segmentCount,
-				segmentTemplate,
-				(
-					from point in pointSpecificationComponents
-					select new PointCurveSpecification(point.Position, point.Point)
-				)
-				.ToArray()
-			)
-		);
-	}
-	void WorkerUpdate()
-	{
-		curveComponent.DiscreteCurve = worker.DiscreteCurve;
 	}
 }

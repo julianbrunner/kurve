@@ -25,15 +25,13 @@ namespace Kurve.Interface
 		public Vector2Double Point { get { return point; } }
 		public bool Selected { get { return selected; } }
 
-		public PointSpecificationComponent(double position, Vector2Double point)
+		public PointSpecificationComponent(Component parent, double position, Vector2Double point) : base(parent)
 		{
 			this.position = position;
 			this.point = point;
 			this.mouseDown = false;
 			this.dragging = false;
 			this.selected = false;
-			
-			OnUpdate();
 		}
 
 		public override void Draw(Context context)
@@ -46,6 +44,8 @@ namespace Kurve.Interface
 
 			if (selected) context.Fill();
 			else context.Stroke();
+
+			base.Draw(context);
 		}
 		public override void MouseDown(Vector2Double mousePosition, MouseButton mouseButton)
 		{
@@ -53,8 +53,10 @@ namespace Kurve.Interface
 			{
 				mouseDown = true;
 
-				OnUpdate();
+				SubComponentChanged();
 			}
+
+			base.MouseDown(mousePosition, mouseButton);
 		}
 		public override void MouseUp(Vector2Double mousePosition, MouseButton mouseButton)
 		{
@@ -67,8 +69,10 @@ namespace Kurve.Interface
 					dragging = false;
 				}
 				
-				OnUpdate();
+				SubComponentChanged();
 			}
+			
+			base.MouseUp(mousePosition, mouseButton);
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
@@ -77,8 +81,10 @@ namespace Kurve.Interface
 				point = mousePosition;
 				dragging = true;
 				
-				OnUpdate();
-			}	
+				SubComponentChanged();
+			}
+			
+			base.MouseMove(mousePosition);
 		}
 		public override void Scroll(ScrollDirection scrollDirection)
 		{
@@ -93,8 +99,10 @@ namespace Kurve.Interface
 
 				position = position.Clamp(0, 1);
 
-				OnUpdate();
+				SubComponentChanged();
 			}
+
+			base.Scroll(scrollDirection);
 		}
 	}
 }

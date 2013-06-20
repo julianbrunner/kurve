@@ -10,17 +10,41 @@ namespace Kurve.Interface
 {
 	abstract class Component
 	{
-		public event Action Update;
+		readonly Component parent;
 
-		public virtual void Draw(Context context) { }
-		public virtual void MouseDown(Vector2Double mousePosition, MouseButton mouseButton) { }
-		public virtual void MouseUp(Vector2Double mousePosition, MouseButton mouseButton) { }
-		public virtual void MouseMove(Vector2Double mousePosition) { }
-		public virtual void Scroll(ScrollDirection scrollDirection) { }
+		protected virtual IEnumerable<Component> SubComponents { get { yield break; } }
 
-		protected void OnUpdate()
+		protected Component() { }
+		protected Component(Component parent)
 		{
-			if (Update != null) Update();
+			if (parent == null) throw new ArgumentNullException("parent");
+
+			this.parent = parent;
+		}
+
+		public virtual void Draw(Context context)
+		{
+			foreach (Component component in SubComponents) component.Draw(context);
+		}
+		public virtual void MouseDown(Vector2Double mousePosition, MouseButton mouseButton)
+		{
+			foreach (Component component in SubComponents) component.MouseDown(mousePosition, mouseButton);
+		}
+		public virtual void MouseUp(Vector2Double mousePosition, MouseButton mouseButton)
+		{
+			foreach (Component component in SubComponents) component.MouseUp(mousePosition, mouseButton);
+		}
+		public virtual void MouseMove(Vector2Double mousePosition) 
+		{
+			foreach (Component component in SubComponents) component.MouseMove(mousePosition);
+		}
+		public virtual void Scroll(ScrollDirection scrollDirection)
+		{
+			foreach (Component component in SubComponents) component.Scroll(scrollDirection);
+		}
+		public virtual void SubComponentChanged()
+		{
+			parent.SubComponentChanged();
 		}
 	}
 }

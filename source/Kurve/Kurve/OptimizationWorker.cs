@@ -9,30 +9,24 @@ using Kurve.Curves.Optimization;
 using Kurve.Curves;
 using System.Threading;
 using Gtk;
+using Kurve.Interface;
 
 namespace Kurve
 {
 	class OptimizationWorker : IDisposable
 	{
-		readonly object synchronization = new object();
-		readonly Optimizer optimizer;
-		readonly AutoResetEvent workAvailable;
+		readonly ManualResetEvent workAvailable;
 		readonly Thread workerThread;
+		readonly Dictionary<CurveComponent, BasicSpecification> optimizationTasks;
 
 		bool disposed = false;
-		BasicSpecification nextBasicSpecification;
-		DiscreteCurve discreteCurve;
-
-		public event System.Action Update;
-
-		public DiscreteCurve DiscreteCurve { get { lock (synchronization) return discreteCurve; } }
 
 		public OptimizationWorker()
 		{
-			this.optimizer = new Optimizer();
-			this.workAvailable = new AutoResetEvent(false);
+			this.workAvailable = new ManualResetEvent(false);
 			this.workerThread = new Thread(Work);
 			this.workerThread.Start();
+			this.optimizationTasks = new Dictionary<CurveComponent, BasicSpecification>();
 		}
 
 		public void Dispose()
@@ -47,35 +41,34 @@ namespace Kurve
 				GC.SuppressFinalize(this);
 			}
 		}
-		public void SubmitSpecification(BasicSpecification basicSpecification)
+		public void SubmitTask(CurveComponent curveComponent, BasicSpecification basicSpecification)
 		{
-			lock (synchronization) nextBasicSpecification = basicSpecification;
+			lock (optimizationTasks)
+			{
+				optimizationTasks[curveComponent] = basicSpecification;
 
-			workAvailable.Set();
-		}
-
-		protected void OnUpdate()
-		{
-			if (Update != null) Update();
+				workAvailable.Set();
+			}
 		}
 
 		void Work()
 		{
-			Specification specification = null;
-
 			while (true)
 			{
 				workAvailable.WaitOne();
 
-				lock (synchronization) specification = specification == null ? new Specification(nextBasicSpecification) : new Specification(nextBasicSpecification, specification.Position);
+				KeyValuePair<CurveComponent, BasicSpecification> item;
 
-				specification = optimizer.Normalize(specification);
+				lock (optimizationTasks)
+				{
+					item = optimizationTasks.First();
 
-				Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
+					optimizationTasks.Remove(item.Key);
 
-				lock (synchronization) discreteCurve = new Kurve.DiscreteCurve(curve);
+					if (!optimizationTasks.Any()) workAvailable.Reset();
+				}
 
-				Application.Invoke(delegate (object sender, EventArgs e) { OnUpdate(); });
+				item.Key.Optimize(item.Value);
 			}
 		}
 	}
