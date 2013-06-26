@@ -3,30 +3,30 @@ using Kurve.Interface;
 using Cairo;
 using Krach.Basics;
 using Krach.Graphics;
+using Kurve.Curves;
 
 namespace Kurve.Component
 {
-	class InterSpecificationComponent : SpecificationComponent
+	class InterSpecificationComponent : PositionedControlComponent
 	{
 		static readonly Vector2Double size = new Vector2Double(10, 10);
 
-		readonly SpecificationComponent rightComponent;
 		readonly SpecificationComponent leftComponent;
-
-		DiscreteCurve discreteCurve;
+		readonly SpecificationComponent rightComponent;
 
 		Orthotope2Double Bounds 
 		{ 
-			get { 
-				if (discreteCurve == null) return Orthotope2Double.Empty;
+			get
+			{ 
+				if (Curve == null) return Orthotope2Double.Empty;
 
-				return new Orthotope2Double(discreteCurve.GetPoint(Position) - 0.5 * size, discreteCurve.GetPoint(Position) + 0.5 * size);
+				return new Orthotope2Double(Curve.GetPoint(Position) - 0.5 * size, Curve.GetPoint(Position) + 0.5 * size);
 			} 
 		}
-		public DiscreteCurve DiscreteCurve { get { return discreteCurve; } set { discreteCurve = value; } }
-		public override double Position { get { return GetPosition(rightComponent, leftComponent); } }
 
-		public InterSpecificationComponent(Component parent, SpecificationComponent leftComponent, SpecificationComponent rightComponent) : base(parent, GetPosition(rightComponent, leftComponent))
+		public override double Position { get { return (leftComponent.Position + rightComponent.Position) / 2; } }
+
+		public InterSpecificationComponent(Component parent, SpecificationComponent leftComponent, SpecificationComponent rightComponent) : base(parent)
 		{
 			if (leftComponent == null) throw new ArgumentNullException("leftComponent");
 			if (rightComponent == null) throw new ArgumentNullException("rightComponent");
@@ -52,11 +52,6 @@ namespace Kurve.Component
 		public override bool Contains(Vector2Double position)
 		{
 			return Bounds.Contains(position);
-		}
-
-		static double GetPosition(SpecificationComponent leftComponent, SpecificationComponent rightComponent) 
-		{
-			return (leftComponent.Position + rightComponent.Position) / 2;
 		}
 	}
 }

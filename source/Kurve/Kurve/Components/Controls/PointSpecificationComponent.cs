@@ -13,11 +13,16 @@ namespace Kurve.Component
 	class PointSpecificationComponent : SpecificationComponent
 	{
 		static readonly Vector2Double size = new Vector2Double(10, 10);
-		Vector2Double point;
+
+		Vector2Double point = Vector2Double.Origin;
 
 		Orthotope2Double Bounds { get { return new Orthotope2Double(point - 0.5 * size, point + 0.5 * size); } }
 
-		public Vector2Double Point { get { return point; } }
+		public Vector2Double Point
+		{
+			get { return point; }
+			set { point = value; }
+		}
 
 		public PointSpecificationComponent(Component parent, double position, Vector2Double point) : base(parent, position)
 		{
@@ -37,7 +42,6 @@ namespace Kurve.Component
 
 			base.Draw(context);
 		}
-
 		public override void MouseMove(Vector2Double mousePosition)
 		{
 			if (IsMouseDown) 
@@ -45,14 +49,14 @@ namespace Kurve.Component
 				point = mousePosition;
 
 				OnSpecificationChanged();
+
 				Changed();
 			}
 			
 			base.MouseMove(mousePosition);
 		}
 
-
-		public override bool Contains (Vector2Double position)
+		public override bool Contains(Vector2Double position)
 		{
 			return Bounds.Contains(position);
 		}

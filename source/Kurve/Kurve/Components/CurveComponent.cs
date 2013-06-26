@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
 using Wrappers.Casadi;
-using Cairo;
 using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
-using Gtk;
 using Krach.Maps.Abstract;
 using System.Diagnostics;
 using Krach.Maps.Scalar;
 using Krach.Maps;
 using Kurve.Interface;
+using Gtk;
+using Cairo;
 
 namespace Kurve.Component
 {
@@ -23,81 +23,112 @@ namespace Kurve.Component
 		readonly OptimizationWorker optimizationWorker;
 
 		Specification specification;
-		DiscreteCurve discreteCurve;		
+		Kurve.Curves.Curve curve;		
 
 		double curveLength;
 		int segmentCount;
 		FunctionTermCurveTemplate segmentTemplate;
 		IEnumerable<PointSpecificationComponent> pointSpecificationComponents;
+
+		CurveLengthComponent curveLengthComponent;
 		IEnumerable<InterSpecificationComponent> interSpecificationComponents;
 
-		protected override IEnumerable<Component> SubComponents
+		IEnumerable<PositionedControlComponent> PositionedControlComponents
 		{
 			get
 			{
-				return Enumerables.Concatenate<CurveControlComponent>
+				return Enumerables.Concatenate<PositionedControlComponent>
 				(
 					pointSpecificationComponents,
 					interSpecificationComponents
 				);
 			}
 		}
-
-		public CurveComponent (Component parent, OptimizationWorker optimizationWorker) : base(parent)
+		IEnumerable<SpecificationComponent> SpecificationComponents
 		{
-			if (optimizationWorker == null)
-				throw new ArgumentNullException ("optimizationWorker");
+			get
+			{
+				return Enumerables.Concatenate<SpecificationComponent>
+				(
+					pointSpecificationComponents
+				);
+			}
+		}
 
-			this.optimizer = new Optimizer ();
+		protected override IEnumerable<Component> SubComponents
+		{
+			get
+			{
+				return Enumerables.Concatenate<Component>
+				(
+					pointSpecificationComponents,
+					Enumerables.Create(curveLengthComponent),
+					interSpecificationComponents
+				);
+			}
+		}
+
+		public CurveComponent(Component parent, OptimizationWorker optimizationWorker) : base(parent)
+		{
+			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
+
+			this.optimizer = new Optimizer();
 			this.optimizationWorker = optimizationWorker;
 
 			this.curveLength = 1000;
 			this.segmentCount = 1;
-			this.segmentTemplate = new PolynomialFunctionTermCurveTemplate (10);
+			this.segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
 			this.pointSpecificationComponents = Enumerables.Create
 			(
-				new PointSpecificationComponent (this, 0.0, new Vector2Double (100, 100)),
-				new PointSpecificationComponent (this, 0.2, new Vector2Double (200, 200)),
-				new PointSpecificationComponent (this, 0.4, new Vector2Double (300, 300)),
-				new PointSpecificationComponent (this, 0.6, new Vector2Double (400, 400)),
-				new PointSpecificationComponent (this, 0.8, new Vector2Double (500, 500)),
-				new PointSpecificationComponent (this, 1.0, new Vector2Double (600, 600))
+				new PointSpecificationComponent(this, 0.0, new Vector2Double(100, 100)),
+				new PointSpecificationComponent(this, 0.2, new Vector2Double(200, 200)),
+				new PointSpecificationComponent(this, 0.4, new Vector2Double(300, 300)),
+				new PointSpecificationComponent(this, 0.6, new Vector2Double(400, 400)),
+				new PointSpecificationComponent(this, 0.8, new Vector2Double(500, 500)),
+				new PointSpecificationComponent(this, 1.0, new Vector2Double(600, 600))
 			)
-			.ToArray ();
+			.ToArray();
 
-			this.interSpecificationComponents = pointSpecificationComponents.GetRanges().Select(specificationPair => new InterSpecificationComponent(this, specificationPair.Item1, specificationPair.Item2)).ToArray();
-			
+			this.curveLengthComponent = new CurveLengthComponent(this);
+			this.interSpecificationComponents =
+			(
+				from specificationRange in pointSpecificationComponents.GetRanges()
+				select new InterSpecificationComponent(this, specificationRange.Item1, specificationRange.Item2)
+			)
+			.ToArray();
+
 			foreach (PointSpecificationComponent pointSpecificationComponent in pointSpecificationComponents) pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
 
-			foreach (CurveControlComponent controlComponent in SubComponents) controlComponent.InsertLength += InsertLength;
+			curveLengthComponent.InsertLength += InsertLength;
 
-			SpecificationChanged();
+			foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.InsertLength += InsertLength;
+
+			RebuildSpecification();
 		}
 
-		void InsertLength(double position, double length)
+		void SpecificationChanged()
 		{
-			double shiftFactor = curveLength / (curveLength + length);
+			RebuildSpecification();
+		}
+		void InsertLength(double length)
+		{
+			if (PositionedControlComponents.Any(positionedControlComponent => positionedControlComponent.Selected)) return;
+
 			curveLength += length;
 
-			foreach (SpecificationComponent component in pointSpecificationComponents) 
-			{
-
-				component.setPosition(MovePosition(component.Position, position, shiftFactor));
-				
-				Console.WriteLine ("position: {0}", component.Position);
-
-				Changed();
-				SpecificationChanged();
-			}
+			RebuildSpecification();
 		}
-
-		static double MovePosition(double position, double insertPosition, double shiftFactor)
+		void InsertLength(double position, double length)
 		{
-			if (position == insertPosition) return position;
-			if (position < insertPosition) return position * shiftFactor;
-			if (position > insertPosition) return 1 - (1 - position) * shiftFactor;
+			double newCurveLength = curveLength + length;
+			double lengthRatio = curveLength / newCurveLength;
 
-			throw new InvalidOperationException();
+			curveLength = newCurveLength;
+
+			foreach (SpecificationComponent specificationComponent in SpecificationComponents)
+				specificationComponent.CurrentPosition = ShiftPosition(specificationComponent.CurrentPosition, position, lengthRatio);
+
+			RebuildSpecification();
 		}
 
 		public void Optimize(BasicSpecification basicSpecification)
@@ -116,7 +147,7 @@ namespace Kurve.Component
 			Console.WriteLine("normalization: {0} s", stopwatch.Elapsed.TotalSeconds);
 
 			stopwatch.Restart();
-			DiscreteCurve newDiscreteCurve = new DiscreteCurve(optimizer.GetCurve(specification));
+			Kurve.Curves.Curve newCurve = new DiscreteCurve(optimizer.GetCurve(specification));
 			stopwatch.Stop();
 
 			Console.WriteLine("discrete curve: {0} s", stopwatch.Elapsed.TotalSeconds);
@@ -125,9 +156,9 @@ namespace Kurve.Component
 			(
 				delegate (object sender, EventArgs e)
 				{
-					discreteCurve = newDiscreteCurve;
+					curve = newCurve;
 
-					foreach (InterSpecificationComponent component in interSpecificationComponents) component.DiscreteCurve = discreteCurve;
+					foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.Curve = curve;
 
 					Changed();
 				}
@@ -136,39 +167,23 @@ namespace Kurve.Component
 
 		public override void Draw(Context context)
 		{
-			if (discreteCurve == null) return;
+			if (curve == null) return;
 
 			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
 			{
-				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / specification.BasicSpecification.CurveLength;
+				double stretchFactor = curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / specification.BasicSpecification.CurveLength;
 
 				Krach.Graphics.Color color = Colors.Green;
 				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, (1.0 * stretchFactor).Clamp(0, 1));
 				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, (1.0 / stretchFactor).Clamp(0, 1));
 
-				InterfaceUtility.DrawLine(context, discreteCurve.GetPoint(positions.Item1), discreteCurve.GetPoint(positions.Item2), 2, color);
+				InterfaceUtility.DrawLine(context, curve.GetPoint(positions.Item1), curve.GetPoint(positions.Item2), 2, color);
 			}
 
 			base.Draw(context);
 		}
-		public override void Scroll(ScrollDirection scrollDirection)
-		{
-			if (!pointSpecificationComponents.Any(specificationPoint => specificationPoint.Selected))
-			{
-				switch (scrollDirection)
-				{
-					case Kurve.Interface.ScrollDirection.Up: curveLength -= 10; break;
-					case Kurve.Interface.ScrollDirection.Down: curveLength += 10; break;
-					default: throw new ArgumentException();
-				}
 
-				SpecificationChanged();
-			}
-
-			base.Scroll(scrollDirection);
-		}
-
-		void SpecificationChanged()
+		void RebuildSpecification()
 		{
 			optimizationWorker.SubmitTask
 			(
@@ -185,6 +200,15 @@ namespace Kurve.Component
 					.ToArray()
 				)
 			);
+		}
+
+		static double ShiftPosition(double position, double insertionPosition, double lengthRatio)
+		{
+			if (position == insertionPosition) return position;
+			if (position < insertionPosition) return position * lengthRatio;
+			if (position > insertionPosition) return 1 - (1 - position) * lengthRatio;
+
+			throw new InvalidOperationException();
 		}
 	}
 }

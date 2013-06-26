@@ -5,11 +5,18 @@ using Krach.Extensions;
 
 namespace Kurve.Component
 {
-	abstract class SpecificationComponent : CurveControlComponent
+	abstract class SpecificationComponent : PositionedControlComponent
 	{
-		double position;
-		public override double Position { get { return position; } }
+		double position = 0;
+
 		public event Action SpecificationChanged;
+
+		public double CurrentPosition
+		{
+			get { return position; }
+			set { position = value; }
+		}
+		public override double Position { get { return position; } }
 
 		public SpecificationComponent(Component parent, double position) : base(parent) 
 		{
@@ -32,6 +39,7 @@ namespace Kurve.Component
 				position = position.Clamp(0, 1);
 
 				OnSpecificationChanged();
+
 				Changed();
 			}
 
@@ -41,11 +49,6 @@ namespace Kurve.Component
 		protected void OnSpecificationChanged()
 		{
 			if (SpecificationChanged != null) SpecificationChanged();
-		}
-
-		public void setPosition(double position) 
-		{
-			this.position = position;
 		}
 	}
 }
