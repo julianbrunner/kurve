@@ -26,12 +26,7 @@ namespace Kurve.Curves
 			this.segmentCount = segmentCount;
 			this.segmentTemplate = segmentTemplate;
 
-			this.parameters = 
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				select Terms.Variable(string.Format("sp_{0}", segmentIndex), segmentTemplate.ParameterDimension)
-			)
-			.ToArray();
+			this.parameters = GetParameters(segmentCount, segmentTemplate);
 			this.segments = GetSegments(segmentCount, segmentTemplate, parameters);
 		}
 
@@ -44,14 +39,17 @@ namespace Kurve.Curves
 
 		public Curve GetCurve(IEnumerable<double> values)
 		{
-			IEnumerable<ValueTerm> parameters =
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				select Terms.Constant(values.Skip(segmentIndex * segmentTemplate.ParameterDimension).Take(segmentTemplate.ParameterDimension))
-			)
-			.ToArray();
+			IEnumerable<ValueTerm> parameters = GetValues(segmentCount, segmentTemplate, values);
+			IEnumerable<Segment> segments = GetSegments(segmentCount, segmentTemplate, parameters);
 
-			return new SegmentedCurve(GetSegments(segmentCount, segmentTemplate, parameters));
+			Func<double, int> getSegmentIndex = delegate (double position)
+			{
+				if (position == 1) return segmentCount - 1;
+
+				return (int)(position * segmentCount);
+			};
+
+			return new SegmentedCurve(segments, getSegmentIndex);
 		}
 
 		public static OptimizationSegments Create(Specification specification)
@@ -63,6 +61,24 @@ namespace Kurve.Curves
 			);
 		}
 
+		static IEnumerable<ValueTerm> GetParameters(int segmentCount, FunctionTermCurveTemplate segmentTemplate)
+		{
+			return
+			(
+				from segmentIndex in Enumerable.Range(0, segmentCount)
+				select Terms.Variable(string.Format("sp_{0}", segmentIndex), segmentTemplate.ParameterDimension)
+			)
+			.ToArray();
+		}
+		static IEnumerable<ValueTerm> GetValues(int segmentCount, FunctionTermCurveTemplate segmentTemplate, IEnumerable<double> values)
+		{
+			return
+			(
+				from segmentIndex in Enumerable.Range(0, segmentCount)
+				select Terms.Constant(values.Skip(segmentIndex * segmentTemplate.ParameterDimension).Take(segmentTemplate.ParameterDimension))
+			)
+			.ToArray();
+		}
 		static IEnumerable<Segment> GetSegments(int segmentCount, FunctionTermCurveTemplate segmentTemplate, IEnumerable<ValueTerm> parameters)
 		{
 			return
@@ -70,16 +86,11 @@ namespace Kurve.Curves
 				from segmentIndex in Enumerable.Range(0, segmentCount)
 				let parameter = parameters.ElementAt(segmentIndex)
 				let curve = segmentTemplate.InstantiateParameter(parameter)
-				let positionTransformation = GetPositionTransformation(segmentCount, segmentIndex)
+				let position = Terms.Variable("t")
+				let positionTransformation = Terms.Difference(Terms.Product(Terms.Constant(segmentCount), position), Terms.Constant(segmentIndex)).Abstract(position)
 				select new Segment(curve, positionTransformation)
 			)
 			.ToArray();
-		}
-		static FunctionTerm GetPositionTransformation(int segmentCount, int segmentIndex)
-		{
-			ValueTerm position = Terms.Variable("t");
-			
-			return Terms.Difference(Terms.Product(Terms.Constant(segmentCount), position), Terms.Constant(segmentIndex)).Abstract(position);
 		}
 	}
 }

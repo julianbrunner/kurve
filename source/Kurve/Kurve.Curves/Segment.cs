@@ -9,19 +9,21 @@ namespace Kurve.Curves
 {
 	class Segment
 	{
-		readonly FunctionTermCurve curve;
+		readonly FunctionTermCurve localCurve;
+		readonly FunctionTermCurve globalCurve;
 		readonly FunctionTerm positionTransformation;
 
-		public FunctionTermCurve LocalCurve { get { return curve; } }
-		public FunctionTermCurve GlobalCurve { get { return curve.TransformPosition(positionTransformation); } }
+		public FunctionTermCurve LocalCurve { get { return localCurve; } }
+		public FunctionTermCurve GlobalCurve { get { return globalCurve; } }
 		public FunctionTerm PositionTransformation { get { return positionTransformation; } }
 
-		public Segment(FunctionTermCurve curve, FunctionTerm positionTransformation)
+		public Segment(FunctionTermCurve localCurve, FunctionTerm positionTransformation)
 		{
-			if (curve == null) throw new ArgumentNullException("curve");
+			if (localCurve == null) throw new ArgumentNullException("localCurve");
 			if (positionTransformation == null) throw new ArgumentNullException("positionTransformation");
 
-			this.curve = curve;
+			this.localCurve = localCurve;
+			this.globalCurve = localCurve.TransformPosition(positionTransformation);
 			this.positionTransformation = positionTransformation;
 		}
 

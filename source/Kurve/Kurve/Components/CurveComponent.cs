@@ -9,6 +9,7 @@ using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
 using Gtk;
+using System.Diagnostics;
 
 namespace Kurve.Interface
 {
@@ -66,9 +67,19 @@ namespace Kurve.Interface
 
 			specification = new Specification(basicSpecification, specification.Position);
 
-			specification = optimizer.Normalize(specification);
+			Stopwatch stopwatch = new Stopwatch();
 
+			stopwatch.Restart();
+			specification = optimizer.Normalize(specification);
+			stopwatch.Stop();
+
+			Console.WriteLine("normalization: {0} s", stopwatch.Elapsed.TotalSeconds);
+
+			stopwatch.Restart();
 			DiscreteCurve newDiscreteCurve = new DiscreteCurve(optimizer.GetCurve(specification));
+			stopwatch.Stop();
+
+			Console.WriteLine("discrete curve: {0} s", stopwatch.Elapsed.TotalSeconds);
 
 			Application.Invoke
 			(
