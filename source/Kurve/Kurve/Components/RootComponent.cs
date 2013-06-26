@@ -9,7 +9,7 @@ using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
 
-namespace Kurve.Interface
+namespace Kurve.Component
 {
 	class RootComponent : Component
 	{

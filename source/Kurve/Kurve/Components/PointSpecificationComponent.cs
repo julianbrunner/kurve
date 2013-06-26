@@ -6,8 +6,9 @@ using Krach.Extensions;
 using Wrappers.Casadi;
 using Cairo;
 using Krach.Graphics;
+using Kurve.Interface;
 
-namespace Kurve.Interface
+namespace Kurve.Component
 {
 	class PointSpecificationComponent : Component
 	{

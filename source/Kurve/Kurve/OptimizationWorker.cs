@@ -10,6 +10,7 @@ using Kurve.Curves;
 using System.Threading;
 using Gtk;
 using Kurve.Interface;
+using Kurve.Component;
 
 namespace Kurve
 {

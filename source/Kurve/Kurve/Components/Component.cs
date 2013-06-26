@@ -5,8 +5,9 @@ using Krach.Basics;
 using Krach.Extensions;
 using Wrappers.Casadi;
 using Cairo;
+using Kurve.Interface;
 
-namespace Kurve.Interface
+namespace Kurve.Component
 {
 	abstract class Component
 	{

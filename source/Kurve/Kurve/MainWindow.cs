@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using Kurve.Interface;
 using Kurve.Curves.Optimization;
 using Kurve;
+using Kurve.Component;
 
 public partial class MainWindow : Gtk.Window
 {

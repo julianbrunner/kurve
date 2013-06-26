@@ -12,8 +12,9 @@ using Gtk;
 using Krach.Maps.Abstract;
 using Krach.Maps.Scalar;
 using Krach.Maps;
+using Kurve.Interface;
 
-namespace Kurve.Interface
+namespace Kurve.Component
 {
 	class CurveComponent : Component
 	{
