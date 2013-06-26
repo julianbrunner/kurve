@@ -22,7 +22,7 @@ namespace Kurve.Component
 		readonly OptimizationWorker optimizationWorker;
 
 		Specification specification;
-		DiscreteCurve discreteCurve;
+		DiscreteCurve discreteCurve;		
 
 		double curveLength;
 		int segmentCount;
