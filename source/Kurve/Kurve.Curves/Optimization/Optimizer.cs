@@ -10,6 +10,7 @@ namespace Kurve.Curves.Optimization
 {
 	public class Optimizer
 	{
+		OptimizationSegments optimizationSegments;
 		OptimizationProblem optimizationProblem;
 		OptimizationSubstitutions optimizationSubstitutions;
 		OptimizationSolver optimizationSolver;
@@ -30,32 +31,25 @@ namespace Kurve.Curves.Optimization
 		{
 			Rebuild(specification);
 
-			int segmentCount = specification.BasicSpecification.SegmentCount;
-			FunctionTermCurveTemplate segmentTemplate = specification.BasicSpecification.SegmentTemplate;
-
-			return new SegmentedCurve
-			(
-				(
-					from segmentIndex in Enumerable.Range(0, segmentCount)
-					let segment = optimizationProblem.Segments.ElementAt(segmentIndex)
-					let value = optimizationPosition.Position.Skip(segmentIndex * segmentTemplate.ParameterDimension).Take(segmentTemplate.ParameterDimension)
-					select new Segment(segmentTemplate.InstantiateParameter(Terms.Constant(value)), segment.PositionTransformation)
-				)
-				.ToArray()
-			);
+			return optimizationSegments.GetCurve(optimizationPosition.Position);
 		}
 
 		void Rebuild(Specification specification)
 		{
-			if (optimizationProblem == null || optimizationProblem.NeedsRebuild(specification))
+			if (optimizationSegments == null || optimizationSegments.NeedsRebuild(specification))
+			{
+				Console.WriteLine("Rebuilding OptimizationSegments...");
+				optimizationSegments = OptimizationSegments.Create(specification);
+			}
+			if (optimizationProblem == null || optimizationProblem.NeedsRebuild(optimizationSegments, specification))
 			{
 				Console.WriteLine("Rebuilding OptimizationProblem...");
-				optimizationProblem = OptimizationProblem.Create(specification);
+				optimizationProblem = OptimizationProblem.Create(optimizationSegments, specification);
 			}
-			if (optimizationSubstitutions == null || optimizationSubstitutions.NeedsRebuild(optimizationProblem, specification))
+			if (optimizationSubstitutions == null || optimizationSubstitutions.NeedsRebuild(optimizationSegments, optimizationProblem, specification))
 			{
 				Console.WriteLine("Rebuilding OptimizationSubstitutions...");
-				optimizationSubstitutions = OptimizationSubstitutions.Create(optimizationProblem, specification);
+				optimizationSubstitutions = OptimizationSubstitutions.Create(optimizationSegments, optimizationProblem, specification);
 			}
 			if (optimizationSolver == null || optimizationSolver.NeedsRebuild(optimizationProblem, optimizationSubstitutions))
 			{

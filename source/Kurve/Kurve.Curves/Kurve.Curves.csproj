@@ -35,7 +35,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Segment.cs" />
     <Compile Include="Specification\PointCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
     <Compile Include="Specification\AccelerationCurveSpecification.cs" />
@@ -51,6 +50,8 @@
     <Compile Include="FunctionTermCurves\FunctionTermCurveTemplate.cs" />
     <Compile Include="FunctionTermCurves\PolynomialFunctionTermCurveTemplate.cs" />
     <Compile Include="Curve.cs" />
+    <Compile Include="Optimization\OptimizationSegments.cs" />
+    <Compile Include="Segment.cs" />
     <Compile Include="SegmentedCurve.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

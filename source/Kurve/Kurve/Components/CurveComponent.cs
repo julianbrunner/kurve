@@ -10,6 +10,7 @@ using Kurve.Curves;
 using Kurve.Curves.Optimization;
 using Gtk;
 using Krach.Maps.Abstract;
+using System.Diagnostics;
 using Krach.Maps.Scalar;
 using Krach.Maps;
 using Kurve.Interface;
@@ -70,9 +71,19 @@ namespace Kurve.Component
 
 			specification = new Specification(basicSpecification, specification.Position);
 
-			specification = optimizer.Normalize(specification);
+			Stopwatch stopwatch = new Stopwatch();
 
+			stopwatch.Restart();
+			specification = optimizer.Normalize(specification);
+			stopwatch.Stop();
+
+			Console.WriteLine("normalization: {0} s", stopwatch.Elapsed.TotalSeconds);
+
+			stopwatch.Restart();
 			DiscreteCurve newDiscreteCurve = new DiscreteCurve(optimizer.GetCurve(specification));
+			stopwatch.Stop();
+
+			Console.WriteLine("discrete curve: {0} s", stopwatch.Elapsed.TotalSeconds);
 
 			Application.Invoke
 			(
@@ -91,11 +102,11 @@ namespace Kurve.Component
 
 			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
 			{
-				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2)/2).Length / specification.BasicSpecification.CurveLength;
+				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / specification.BasicSpecification.CurveLength;
 
 				Krach.Graphics.Color color = Colors.Green;
-				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, 1.0 * stretchFactor.Clamp(0, 1));
-				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, 1.0 / stretchFactor.Clamp(0, 1));
+				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, (1.0 * stretchFactor).Clamp(0, 1));
+				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, (1.0 / stretchFactor).Clamp(0, 1));
 
 				InterfaceUtility.DrawLine(context, discreteCurve.GetPoint(positions.Item1), discreteCurve.GetPoint(positions.Item2), 2, color);
 			}
