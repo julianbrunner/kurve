@@ -9,6 +9,9 @@ using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
 using Gtk;
+using Krach.Maps.Abstract;
+using Krach.Maps.Scalar;
+using Krach.Maps;
 
 namespace Kurve.Interface
 {
@@ -85,13 +88,15 @@ namespace Kurve.Interface
 		{
 			if (discreteCurve == null) return;
 
-			IEnumerable<Tuple<Vector2Double, Vector2Double>> segments = discreteCurve.Items.Select(item => item.Point).GetRanges().ToArray();
-
-			for (int index = 0; index < segments.Count(); index++)
+			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
 			{
-				Krach.Graphics.Color color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Blue, Scalars.InterpolateLinear, (double)index / (double)segments.Count());
+				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2)/2).Length / specification.BasicSpecification.CurveLength;
 
-				InterfaceUtility.DrawLine(context, segments.ElementAt(index).Item1, segments.ElementAt(index).Item2, 2, color);
+				Krach.Graphics.Color color = Colors.Green;
+				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, 1.0 * stretchFactor.Clamp(0, 1));
+				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, 1.0 / stretchFactor.Clamp(0, 1));
+
+				InterfaceUtility.DrawLine(context, discreteCurve.GetPoint(positions.Item1), discreteCurve.GetPoint(positions.Item2), 2, color);
 			}
 
 			base.Draw(context);

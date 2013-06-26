@@ -10,7 +10,7 @@ using Kurve.Curves;
 
 namespace Kurve
 {
-	class DiscreteCurve
+	class DiscreteCurve : Curve
 	{
 		readonly IEnumerable<DiscreteCurveItem> items;
 
@@ -28,15 +28,15 @@ namespace Kurve
 			.ToArray();
 		}
 
-		public Vector2Double EvaluatePoint(double position)
+		public override Vector2Double GetPoint(double position)
 		{
 			return GetItem(position).Point;
 		}
-		public Vector2Double EvaluateVelocity(double position)
+		public override Vector2Double GetVelocity(double position)
 		{
 			return GetItem(position).Velocity;
 		}
-		public Vector2Double EvaluateAcceleration(double position)
+		public override Vector2Double GetAcceleration(double position)
 		{
 			return GetItem(position).Acceleration;
 		}
