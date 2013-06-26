@@ -90,7 +90,7 @@ namespace Kurve.Interface
 
 			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
 			{
-				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2)/2).Length / specification.BasicSpecification.CurveLength;
+				double stretchFactor = discreteCurve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / specification.BasicSpecification.CurveLength;
 
 				Krach.Graphics.Color color = Colors.Green;
 				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, 1.0 * stretchFactor.Clamp(0, 1));
