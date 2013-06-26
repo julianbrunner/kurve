@@ -10,46 +10,28 @@ namespace Kurve.Curves
 	class SegmentedCurve : Curve
 	{
 		readonly IEnumerable<Segment> segments;
+		readonly Func<double, int> getSegmentIndex;
 
-		public SegmentedCurve(IEnumerable<Segment> segments)
+		public SegmentedCurve(IEnumerable<Segment> segments, Func<double, int> getSegmentIndex)
 		{
 			if (segments == null) throw new ArgumentNullException("segments");
+			if (getSegmentIndex == null) throw new ArgumentNullException("getSegmentIndex");
 
 			this.segments = segments;
+			this.getSegmentIndex = getSegmentIndex;
 		}
 
 		public override Vector2Double GetPoint(double position)
 		{
-			return 
-			(
-				from segment in segments
-				where segment.Contains(position)
-				select segment.GlobalCurve.GetPoint(position)
-			)
-			.Distinct()
-			.Single();
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetPoint(position);
 		}
 		public override Vector2Double GetVelocity(double position)
 		{
-			return 
-			(
-				from segment in segments
-				where segment.Contains(position)
-				select segment.GlobalCurve.GetVelocity(position)
-			)
-			.Distinct()
-			.Single();
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetVelocity(position);
 		}
 		public override Vector2Double GetAcceleration(double position)
 		{
-			return 
-			(
-				from segment in segments
-				where segment.Contains(position)
-				select segment.GlobalCurve.GetAcceleration(position)
-			)
-			.Distinct()
-			.Single();
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetAcceleration(position);
 		}
 	}
 }

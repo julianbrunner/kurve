@@ -9,44 +9,48 @@ namespace Kurve.Curves
 {
 	public class FunctionTermCurve : Curve
 	{
-		readonly FunctionTerm function;
+		readonly FunctionTerm point;
+		readonly FunctionTerm velocity;
+		readonly FunctionTerm acceleration;
 
-		public FunctionTerm Point { get { return function; } }
-		public FunctionTerm Velocity { get { return Point.GetDerivatives().Single(); } }
-		public FunctionTerm Acceleration { get { return Velocity.GetDerivatives().Single(); } }
+		public FunctionTerm Point { get { return point; } }
+		public FunctionTerm Velocity { get { return velocity; } }
+		public FunctionTerm Acceleration { get { return acceleration; } }
 
 		public FunctionTermCurve(FunctionTerm function)
 		{
-			if (function == null) throw new ArgumentNullException("position");
+			if (function == null) throw new ArgumentNullException("function");
 			if (function.DomainDimension != 1) throw new ArgumentException("parameter 'function' has wrong dimension.");
 
-			this.function = function;
+			this.point = function;
+			this.velocity = point.GetDerivatives().Single();
+			this.acceleration = velocity.GetDerivatives().Single();
 		}
 
 		public override Vector2Double GetPoint(double position)
 		{
-			return Evaluate(Point, position);
+			return Evaluate(point, position);
 		}
 		public override Vector2Double GetVelocity(double position)
 		{
-			return Evaluate(Velocity, position);
+			return Evaluate(velocity, position);
 		}
 		public override Vector2Double GetAcceleration(double position)
 		{
-			return Evaluate(Acceleration, position);
+			return Evaluate(acceleration, position);
 		}
 
 		public FunctionTermCurve TransformPosition(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
-			return new FunctionTermCurve(function.Apply(transformation.Apply(position)).Abstract(position));
+			return new FunctionTermCurve(point.Apply(transformation.Apply(position)).Abstract(position));
 		}
 		public FunctionTermCurve TransformPoint(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
-			return new FunctionTermCurve(transformation.Apply(function.Apply(position)).Abstract(position));
+			return new FunctionTermCurve(transformation.Apply(point.Apply(position)).Abstract(position));
 		}
 
 		static Vector2Double Evaluate(FunctionTerm function, double value)
