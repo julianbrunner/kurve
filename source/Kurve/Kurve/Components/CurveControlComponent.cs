@@ -87,10 +87,11 @@ namespace Kurve.Component
 
 			base.KeyDown(key);
 		}
-		public override void KeyUp(Key key)
+		public override void KeyUp (Key key)
 		{
-			if (key == Key.Shift) isShiftDown = false;
-
+			if (key == Key.Shift) {
+				isShiftDown = false;
+			}
 			base.KeyUp(key);
 		}
 	}

@@ -8,7 +8,7 @@ namespace Kurve.Component
 	abstract class SpecificationComponent : CurveControlComponent
 	{
 		double position;
-		public override double Position { get { return position; }}
+		public override double Position { get { return position; } }
 		public event Action SpecificationChanged;
 
 		public SpecificationComponent(Component parent, double position) : base(parent) 
@@ -41,6 +41,11 @@ namespace Kurve.Component
 		protected void OnSpecificationChanged()
 		{
 			if (SpecificationChanged != null) SpecificationChanged();
+		}
+
+		public void setPosition(double position) 
+		{
+			this.position = position;
 		}
 	}
 }

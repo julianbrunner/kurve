@@ -29,39 +29,75 @@ namespace Kurve.Component
 		int segmentCount;
 		FunctionTermCurveTemplate segmentTemplate;
 		IEnumerable<PointSpecificationComponent> pointSpecificationComponents;
+		IEnumerable<InterSpecificationComponent> interSpecificationComponents;
 
 		protected override IEnumerable<Component> SubComponents
 		{
 			get
 			{
-				return pointSpecificationComponents;
+				return Enumerables.Concatenate<CurveControlComponent>
+				(
+					pointSpecificationComponents,
+					interSpecificationComponents
+				);
 			}
 		}
 
-		public CurveComponent(Component parent, OptimizationWorker optimizationWorker) : base(parent)
+		public CurveComponent (Component parent, OptimizationWorker optimizationWorker) : base(parent)
 		{
-			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
+			if (optimizationWorker == null)
+				throw new ArgumentNullException ("optimizationWorker");
 
-			this.optimizer = new Optimizer();
+			this.optimizer = new Optimizer ();
 			this.optimizationWorker = optimizationWorker;
 
 			this.curveLength = 1000;
 			this.segmentCount = 1;
-			this.segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
+			this.segmentTemplate = new PolynomialFunctionTermCurveTemplate (10);
 			this.pointSpecificationComponents = Enumerables.Create
 			(
-				new PointSpecificationComponent(this, 0.0, new Vector2Double(100, 100)),
-				new PointSpecificationComponent(this, 0.2, new Vector2Double(200, 200)),
-				new PointSpecificationComponent(this, 0.4, new Vector2Double(300, 300)),
-				new PointSpecificationComponent(this, 0.6, new Vector2Double(400, 400)),
-				new PointSpecificationComponent(this, 0.8, new Vector2Double(500, 500)),
-				new PointSpecificationComponent(this, 1.0, new Vector2Double(600, 600))
+				new PointSpecificationComponent (this, 0.0, new Vector2Double (100, 100)),
+				new PointSpecificationComponent (this, 0.2, new Vector2Double (200, 200)),
+				new PointSpecificationComponent (this, 0.4, new Vector2Double (300, 300)),
+				new PointSpecificationComponent (this, 0.6, new Vector2Double (400, 400)),
+				new PointSpecificationComponent (this, 0.8, new Vector2Double (500, 500)),
+				new PointSpecificationComponent (this, 1.0, new Vector2Double (600, 600))
 			)
-			.ToArray();
+			.ToArray ();
 
+			this.interSpecificationComponents = pointSpecificationComponents.GetRanges().Select(specificationPair => new InterSpecificationComponent(this, specificationPair.Item1, specificationPair.Item2)).ToArray();
+			
 			foreach (PointSpecificationComponent pointSpecificationComponent in pointSpecificationComponents) pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
 
+			foreach (CurveControlComponent controlComponent in SubComponents) controlComponent.InsertLength += InsertLength;
+
 			SpecificationChanged();
+		}
+
+		void InsertLength(double position, double length)
+		{
+			double shiftFactor = curveLength / (curveLength + length);
+			curveLength += length;
+
+			foreach (SpecificationComponent component in pointSpecificationComponents) 
+			{
+
+				component.setPosition(MovePosition(component.Position, position, shiftFactor));
+				
+				Console.WriteLine ("position: {0}", component.Position);
+
+				Changed();
+				SpecificationChanged();
+			}
+		}
+
+		static double MovePosition(double position, double insertPosition, double shiftFactor)
+		{
+			if (position == insertPosition) return position;
+			if (position < insertPosition) return position * shiftFactor;
+			if (position > insertPosition) return 1 - (1 - position) * shiftFactor;
+
+			throw new InvalidOperationException();
 		}
 
 		public void Optimize(BasicSpecification basicSpecification)
@@ -90,6 +126,8 @@ namespace Kurve.Component
 				delegate (object sender, EventArgs e)
 				{
 					discreteCurve = newDiscreteCurve;
+
+					foreach (InterSpecificationComponent component in interSpecificationComponents) component.DiscreteCurve = discreteCurve;
 
 					Changed();
 				}

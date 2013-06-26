@@ -20,7 +20,7 @@ namespace Kurve.Component
 			get { 
 				if (discreteCurve == null) return Orthotope2Double.Empty;
 
-				return new Orthotope2Double(discreteCurve.GetPoint(Position) - 0.5 * size, discreteCurve.GetPoint(Position) - 0.5 * size);
+				return new Orthotope2Double(discreteCurve.GetPoint(Position) - 0.5 * size, discreteCurve.GetPoint(Position) + 0.5 * size);
 			} 
 		}
 		public DiscreteCurve DiscreteCurve { get { return discreteCurve; } set { discreteCurve = value; } }

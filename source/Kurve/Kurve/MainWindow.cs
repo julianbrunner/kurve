@@ -97,7 +97,7 @@ public partial class MainWindow : Gtk.Window
 		switch (args.Event.Key)
 		{
 			case Gdk.Key.Control_L: key = Kurve.Interface.Key.Control; break;
-			case Gdk.Key.Shift_L: key = Kurve.Interface.Key.Shift; break;
+			case Gdk.Key.Caps_Lock: key = Kurve.Interface.Key.Shift; break;
 			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
 			default: return;
 		}
