@@ -73,6 +73,34 @@ public partial class MainWindow : Gtk.Window
 
 		rootComponent.Scroll(scrollDirection);
 	}
+	protected void OnKeyPressEvent(object o, KeyPressEventArgs args)
+	{
+		Kurve.Interface.Key key;
+
+		switch (args.Event.Key)
+		{
+			case Gdk.Key.Control_L: key = Kurve.Interface.Key.Control; break;
+			case Gdk.Key.Shift_L: key = Kurve.Interface.Key.Shift; break;
+			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
+			default: return;
+		}
+
+		rootComponent.KeyDown(key);
+	}
+	protected void OnKeyReleaseEvent(object o, KeyReleaseEventArgs args)
+	{
+		Kurve.Interface.Key key;
+
+		switch (args.Event.Key)
+		{
+			case Gdk.Key.Control_L: key = Kurve.Interface.Key.Control; break;
+			case Gdk.Key.Shift_L: key = Kurve.Interface.Key.Shift; break;
+			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
+			default: return;
+		}
+
+		rootComponent.KeyUp(key);
+	}
 
 	void RootComponentChanged()
 	{

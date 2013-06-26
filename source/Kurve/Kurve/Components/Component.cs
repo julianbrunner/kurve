@@ -42,9 +42,17 @@ namespace Kurve.Interface
 		{
 			foreach (Component component in SubComponents) component.Scroll(scrollDirection);
 		}
-		public virtual void SubComponentChanged()
+		public virtual void KeyDown(Key key)
 		{
-			parent.SubComponentChanged();
+			foreach (Component component in SubComponents) component.KeyDown(key);
+		}
+		public virtual void KeyUp(Key key)
+		{
+			foreach (Component component in SubComponents) component.KeyUp(key);
+		}
+		public virtual void Changed()
+		{
+			parent.Changed();
 		}
 	}
 }

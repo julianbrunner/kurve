@@ -24,5 +24,7 @@ public partial class MainWindow
 		this.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler (this.OnButtonReleaseEvent);
 		this.MotionNotifyEvent += new global::Gtk.MotionNotifyEventHandler (this.OnMotionNotifyEvent);
 		this.ScrollEvent += new global::Gtk.ScrollEventHandler (this.OnScrollEvent);
+		this.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.OnKeyPressEvent);
+		this.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler (this.OnKeyReleaseEvent);
 	}
 }

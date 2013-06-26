@@ -21,6 +21,8 @@ namespace Kurve.Interface
 
 		Orthotope2Double Bounds { get { return new Orthotope2Double(point - 0.5 * size, point + 0.5 * size); } }
 
+		public event Action SpecificationChanged;
+
 		public double Position { get { return position; } }
 		public Vector2Double Point { get { return point; } }
 		public bool Selected { get { return selected; } }
@@ -53,23 +55,20 @@ namespace Kurve.Interface
 			{
 				mouseDown = true;
 
-				SubComponentChanged();
+				Changed();
 			}
 
 			base.MouseDown(mousePosition, mouseButton);
 		}
 		public override void MouseUp(Vector2Double mousePosition, MouseButton mouseButton)
 		{
-			if (mouseDown)
+			if (mouseDown && mouseButton == MouseButton.Left)
 			{
-				if (mouseButton == MouseButton.Left)
-				{
-					if (!dragging) selected = !selected;
-					mouseDown = false;
-					dragging = false;
-				}
-				
-				SubComponentChanged();
+				if (!dragging) selected = !selected;
+				mouseDown = false;
+				dragging = false;
+
+				Changed();
 			}
 			
 			base.MouseUp(mousePosition, mouseButton);
@@ -81,7 +80,8 @@ namespace Kurve.Interface
 				point = mousePosition;
 				dragging = true;
 				
-				SubComponentChanged();
+				OnSpecificationChanged();
+				Changed();
 			}
 			
 			base.MouseMove(mousePosition);
@@ -99,10 +99,16 @@ namespace Kurve.Interface
 
 				position = position.Clamp(0, 1);
 
-				SubComponentChanged();
+				OnSpecificationChanged();
+				Changed();
 			}
 
 			base.Scroll(scrollDirection);
+		}
+
+		void OnSpecificationChanged()
+		{
+			if (SpecificationChanged != null) SpecificationChanged();
 		}
 	}
 }

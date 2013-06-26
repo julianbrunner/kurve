@@ -80,6 +80,7 @@
     <Compile Include="Components\CurveComponent.cs" />
     <Compile Include="Components\PointSpecificationComponent.cs" />
     <Compile Include="Components\RootComponent.cs" />
+    <Compile Include="Interface\Key.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

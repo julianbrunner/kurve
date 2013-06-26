@@ -54,6 +54,8 @@ namespace Kurve.Interface
 			)
 			.ToArray();
 
+			foreach (PointSpecificationComponent pointSpecificationComponent in pointSpecificationComponents) pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
+
 			SpecificationChanged();
 		}
 
@@ -74,7 +76,7 @@ namespace Kurve.Interface
 				{
 					discreteCurve = newDiscreteCurve;
 
-					SubComponentChanged();
+					Changed();
 				}
 			);
 		}
@@ -109,12 +111,6 @@ namespace Kurve.Interface
 			}
 
 			base.Scroll(scrollDirection);
-		}
-		public override void SubComponentChanged()
-		{
-			SpecificationChanged();
-
-			base.SubComponentChanged();
 		}
 
 		void SpecificationChanged()

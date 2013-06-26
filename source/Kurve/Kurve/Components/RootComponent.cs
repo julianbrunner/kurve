@@ -34,7 +34,7 @@ namespace Kurve.Interface
 			this.curveComponents.Add(new CurveComponent(this, optimizationWorker));
 		}
 
-		public override void SubComponentChanged()
+		public override void Changed()
 		{
 			if (ComponentChanged != null) ComponentChanged();
 		}

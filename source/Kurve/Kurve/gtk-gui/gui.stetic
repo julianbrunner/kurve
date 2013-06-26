@@ -22,6 +22,8 @@
     <signal name="ButtonReleaseEvent" handler="OnButtonReleaseEvent" />
     <signal name="MotionNotifyEvent" handler="OnMotionNotifyEvent" />
     <signal name="ScrollEvent" handler="OnScrollEvent" />
+    <signal name="KeyPressEvent" handler="OnKeyPressEvent" />
+    <signal name="KeyReleaseEvent" handler="OnKeyReleaseEvent" />
     <child>
       <placeholder />
     </child>
