@@ -21,6 +21,7 @@ namespace Kurve
 		readonly Dictionary<CurveComponent, BasicSpecification> optimizationTasks;
 
 		bool disposed = false;
+		bool running = true;
 
 		public OptimizationWorker()
 		{
@@ -35,6 +36,9 @@ namespace Kurve
 			if (!disposed)
 			{
 				disposed = true;
+
+				running = false;
+				workAvailable.Set();
 
 				workerThread.Join();
 				workAvailable.Dispose();
@@ -57,6 +61,8 @@ namespace Kurve
 			while (true)
 			{
 				workAvailable.WaitOne();
+
+				if (!running) break;
 
 				KeyValuePair<CurveComponent, BasicSpecification> item;
 

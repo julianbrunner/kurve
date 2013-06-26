@@ -11,10 +11,12 @@ using Kurve.Curves.Optimization;
 
 namespace Kurve.Component
 {
-	class RootComponent : Component
+	class RootComponent : Component, IDisposable
 	{
 		readonly OptimizationWorker optimizationWorker;
 		readonly List<CurveComponent> curveComponents;
+
+		bool disposed = false;
 
 		public event Action ComponentChanged;
 
@@ -32,6 +34,16 @@ namespace Kurve.Component
 			this.curveComponents = new List<CurveComponent>();
 
 			this.curveComponents.Add(new CurveComponent(this, optimizationWorker));
+		}
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+
+				optimizationWorker.Dispose();
+			}
 		}
 
 		public override void Changed()

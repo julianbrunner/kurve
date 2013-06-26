@@ -18,7 +18,7 @@ public partial class MainWindow : Gtk.Window
 {
 	readonly RootComponent rootComponent;
 
-	public MainWindow(): base (Gtk.WindowType.Toplevel)
+	public MainWindow(): base(Gtk.WindowType.Toplevel)
 	{
 		Build();
 
@@ -28,6 +28,8 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
+		rootComponent.Dispose();
+
 		Application.Quit();
 
 		a.RetVal = true;
