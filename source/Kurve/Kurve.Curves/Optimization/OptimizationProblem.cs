@@ -10,11 +10,9 @@ namespace Kurve.Curves.Optimization
 {
 	class OptimizationProblem
 	{
-		readonly int segmentCount;
-		readonly FunctionTermCurveTemplate segmentTemplate;
+		readonly OptimizationSegments optimizationSegments;
 		readonly IEnumerable<CurveSpecification> curveSpecifications;
 
-		readonly IEnumerable<Segment> segments;
 		readonly ValueTerm curveLength;
 		readonly int pointSpecificationCount;
 		readonly IEnumerable<ValueTerm> pointSpecificationPositions;
@@ -22,7 +20,6 @@ namespace Kurve.Curves.Optimization
 		readonly IEnumerable<IEnumerable<ValueTerm>> pointSpecificationSegmentWeights;
 		readonly IpoptProblem problem;
 
-		public IEnumerable<Segment> Segments { get { return segments; } }
 		public ValueTerm CurveLength { get { return curveLength; } }
 		public int PointSpecificationCount { get { return pointSpecificationCount; } }
 		public IEnumerable<ValueTerm> PointSpecificationPositions { get { return pointSpecificationPositions; } }
@@ -30,50 +27,30 @@ namespace Kurve.Curves.Optimization
 		public IEnumerable<IEnumerable<ValueTerm>> PointSpecificationSegmentWeights { get { return pointSpecificationSegmentWeights; } }
 		public IpoptProblem Problem { get { return problem; } }
 
-		OptimizationProblem(int segmentCount, FunctionTermCurveTemplate segmentTemplate, IEnumerable<CurveSpecification> curveSpecifications)
+		OptimizationProblem(OptimizationSegments optimizationSegments, IEnumerable<CurveSpecification> curveSpecifications)
 		{
-			if (segmentCount < 0) throw new ArgumentOutOfRangeException("segmentCount");
-			if (segmentTemplate == null) throw new ArgumentNullException("segmentTemplate");
+			if (optimizationSegments == null) throw new ArgumentNullException("segmentManager");
 			if (curveSpecifications == null) throw new ArgumentNullException("curveSpecifications");
 
-			this.segmentCount = segmentCount;
-			this.segmentTemplate = segmentTemplate;
+			this.optimizationSegments = optimizationSegments;
 			this.curveSpecifications = curveSpecifications;
-
-			IEnumerable<ValueTerm> parameters =
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				select Terms.Variable(string.Format("sp_{0}", segmentIndex), segmentTemplate.ParameterDimension)
-			)
-			.ToArray();
-
-			this.segments =
-			(
-				from segmentIndex in Enumerable.Range(0, segmentCount)
-				let parameter = parameters.ElementAt(segmentIndex)
-				let curve = segmentTemplate.InstantiateParameter(parameter)
-				let position = Terms.Variable("t")
-				let positionTransformation = Terms.Difference(Terms.Product(Terms.Constant(segmentCount), position), Terms.Constant(segmentIndex)).Abstract(position)
-				select new Segment(curve, positionTransformation)
-			)
-			.ToArray();
 
 			this.curveLength = Terms.Variable("curveLength");
 
-			IEnumerable<ValueTerm> variables = parameters; 
+			IEnumerable<ValueTerm> variables = optimizationSegments.Parameters; 
 
-			ValueTerm speedError = Terms.Sum
+			ValueTerm velocityError = Terms.Sum
 			(
-				from segment in segments
+				from segment in optimizationSegments.Segments
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.LocalCurve
-				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(segmentCount))
+				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()))
 				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
 				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 			ValueTerm fairnessError = Terms.Sum
 			(
-				from segment in segments
+				from segment in optimizationSegments.Segments
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.LocalCurve
 				let segmentError = Terms.Square(Terms.Norm(segmentCurve.Acceleration.Apply(position)))
@@ -82,7 +59,7 @@ namespace Kurve.Curves.Optimization
 
 			ValueTerm objectiveValue = Terms.Sum
 			(
-				Terms.Product(Terms.Constant(1.0), speedError),
+				Terms.Product(Terms.Constant(1.0), velocityError),
 				Terms.Product(Terms.Constant(0.0001), fairnessError)
 			)
 			.Simplify();
@@ -109,7 +86,7 @@ namespace Kurve.Curves.Optimization
 				from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
 				select
 				(
-					from segmentIndex in Enumerable.Range(0, segments.Count())
+					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count())
 					select Terms.Variable(string.Format("point_{0}_segment_weight_{1}", pointSpecificationIndex, segmentIndex))
 				)
 				.ToArray()
@@ -128,34 +105,34 @@ namespace Kurve.Curves.Optimization
 					(
 						Terms.Sum
 						(
-							from segmentIndex in Enumerable.Range(0, segments.Count())
-							let segment = segments.ElementAt(segmentIndex)
+							from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count())
+							let segment = optimizationSegments.Segments.ElementAt(segmentIndex)
 							let segmentWeight = segmentWeights.ElementAt(segmentIndex)
 							select Terms.Scaling(segmentWeight, PointCurveSpecification.GetErrorTerm(segment.GlobalCurve, position, point))
 						)
 					),
 
-					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
-					let segment0CurvePoint = segments.ElementAt(segmentIndex + 0).LocalCurve.Point
-					let segment1CurvePoint = segments.ElementAt(segmentIndex + 1).LocalCurve.Point
+					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
+					let segment0CurvePoint = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Point
+					let segment1CurvePoint = optimizationSegments.Segments.ElementAt(segmentIndex + 1).LocalCurve.Point
 					select Constraints.CreateEquality
 					(
 						segment0CurvePoint.Apply(Terms.Constant(1)),
 						segment1CurvePoint.Apply(Terms.Constant(0))
 					),
 
-					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
-					let segment0CurveVelocity = segments.ElementAt(segmentIndex + 0).LocalCurve.Velocity
-					let segment1CurveVelocity = segments.ElementAt(segmentIndex + 1).LocalCurve.Velocity
+					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
+					let segment0CurveVelocity = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Velocity
+					let segment1CurveVelocity = optimizationSegments.Segments.ElementAt(segmentIndex + 1).LocalCurve.Velocity
 					select Constraints.CreateEquality
 					(
 						segment0CurveVelocity.Apply(Terms.Constant(1)),
 						segment1CurveVelocity.Apply(Terms.Constant(0))
 					),
 
-					from segmentIndex in Enumerable.Range(0, segments.Count() - 1)
-					let segment0CurveAcceleration = segments.ElementAt(segmentIndex + 0).LocalCurve.Acceleration
-					let segment1CurveAcceleration = segments.ElementAt(segmentIndex + 1).LocalCurve.Acceleration
+					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
+					let segment0CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Acceleration
+					let segment1CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 1).LocalCurve.Acceleration
 					select Constraints.CreateEquality
 					(
 						segment0CurveAcceleration.Apply(Terms.Constant(1)),
@@ -177,20 +154,18 @@ namespace Kurve.Curves.Optimization
 			this.problem = IpoptProblem.Create(objectiveFunction, constraintFunction, constraint.Ranges);
 		}
 
-		public bool NeedsRebuild(Specification newSpecification)
+		public bool NeedsRebuild(OptimizationSegments newOptimizationSegments, Specification newSpecification)
 		{
 			return
-				segmentCount != newSpecification.BasicSpecification.SegmentCount ||
-				segmentTemplate != newSpecification.BasicSpecification.SegmentTemplate ||
+				optimizationSegments != newOptimizationSegments ||
 				curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
 		}
 
-		public static OptimizationProblem Create(Specification specification)
+		public static OptimizationProblem Create(OptimizationSegments optimizationSegments, Specification specification)
 		{
 			return new OptimizationProblem
 			(
-				specification.BasicSpecification.SegmentCount,
-				specification.BasicSpecification.SegmentTemplate,
+				optimizationSegments,
 				specification.BasicSpecification.CurveSpecifications
 			);
 		}
