@@ -25,12 +25,13 @@ namespace Kurve.Component
 
 		public event Action<BasicSpecification, Kurve.Curves.Curve> CurveChanged;
 
-		public CurveOptimizer(OptimizationWorker optimizationWorker)
+		public CurveOptimizer(OptimizationWorker optimizationWorker, Specification specification)
 		{
 			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
 
 			this.optimizer = new Optimizer();
 			this.optimizationWorker = optimizationWorker;
+			this.specification = specification;
 		}
 
 		public void Submit(BasicSpecification basicSpecification)

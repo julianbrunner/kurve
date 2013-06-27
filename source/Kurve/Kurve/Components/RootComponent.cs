@@ -8,6 +8,7 @@ using Cairo;
 using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
+using Kurve.Interface;
 
 namespace Kurve.Component
 {
@@ -32,8 +33,22 @@ namespace Kurve.Component
 		{
 			this.optimizationWorker = new OptimizationWorker();
 			this.curveComponents = new List<CurveComponent>();
+		}
 
-			this.curveComponents.Add(new CurveComponent(this, optimizationWorker));
+		public void AddCurve()
+		{
+			BasicSpecification basicSpecification = new BasicSpecification
+			(
+				100,
+			    2,
+				new PolynomialFunctionTermCurveTemplate(10),
+				Enumerables.Create(
+            		new PointCurveSpecification(0.0, new Vector2Double(300, 300)),
+            		new PointCurveSpecification(1.0, new Vector2Double(400, 300))
+				)
+			);
+
+			this.curveComponents.Add(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
 		}
 
 		public void Dispose()
@@ -44,6 +59,15 @@ namespace Kurve.Component
 
 				optimizationWorker.Dispose();
 			}
+		}
+
+		public override void KeyUp(Key key)
+		{
+			if (key == Key.Alt) {
+				AddCurve();
+			}
+
+			base.KeyUp(key);
 		}
 
 		public override void Changed()

@@ -77,37 +77,32 @@ namespace Kurve.Component
 		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
 		public Curve Curve { get { return curve; } }
 
-		public CurveComponent(Component parent, OptimizationWorker optimizationWorker) : base(parent)
+		public CurveComponent (Component parent, OptimizationWorker optimizationWorker, Specification specification) : base(parent)
 		{
-			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
+			if (optimizationWorker == null)
+				throw new ArgumentNullException("optimizationWorker");
 
-			this.curveOptimizer = new CurveOptimizer(optimizationWorker);
+			this.curveOptimizer = new CurveOptimizer(optimizationWorker, specification);
 			this.curveOptimizer.CurveChanged += CurveChanged;
 			
-			this.curveLengthComponent = new CurveLengthComponent(this);
+			this.curveLengthComponent = new CurveLengthComponent (this);
 			this.curveLengthComponent.InsertLength += InsertLength;
-			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
-			this.interSpecificationComponents = new List<InterSpecificationComponent>();
+			this.pointSpecificationComponents = new List<PointSpecificationComponent> ();
+			this.interSpecificationComponents = new List<InterSpecificationComponent> ();
 
-			nextSpecification = new BasicSpecification
-			(
-				1000,
-				1,
-				new PolynomialFunctionTermCurveTemplate(10),
-				Enumerables.Create<CurveSpecification>()
-			);
+			nextSpecification = specification.BasicSpecification;
 			curve = null;
 
-			RebuildInterSpecificationComponents();
+			RebuildInterSpecificationComponents ();
 
-			curveOptimizer.Submit(nextSpecification);
+			curveOptimizer.Submit (nextSpecification);
 
-			AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.0, new Vector2Double(100, 100)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.2, new Vector2Double(200, 200)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.4, new Vector2Double(300, 300)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.6, new Vector2Double(400, 400)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.8, new Vector2Double(500, 500)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 1.0, new Vector2Double(600, 600)));
+			foreach (CurveSpecification curveSpecification in nextSpecification.CurveSpecifications) {
+				if (curveSpecification is PointCurveSpecification) {
+					PointCurveSpecification pointSpecification = (PointCurveSpecification)curveSpecification;
+					AddPointSpecificationComponent(new PointSpecificationComponent(this, this, pointSpecification.Position, pointSpecification.Point));
+				}
+			}
 		}
 
 		void CurveChanged(BasicSpecification newBasicSpecification, Curve newCurve)
