@@ -18,7 +18,7 @@ namespace Kurve
 	{
 		readonly ManualResetEvent workAvailable;
 		readonly Thread workerThread;
-		readonly Dictionary<CurveComponent, BasicSpecification> optimizationTasks;
+		readonly Dictionary<CurveOptimizer, BasicSpecification> optimizationTasks;
 
 		bool disposed = false;
 		bool running = true;
@@ -28,7 +28,7 @@ namespace Kurve
 			this.workAvailable = new ManualResetEvent(false);
 			this.workerThread = new Thread(Work);
 			this.workerThread.Start();
-			this.optimizationTasks = new Dictionary<CurveComponent, BasicSpecification>();
+			this.optimizationTasks = new Dictionary<CurveOptimizer, BasicSpecification>();
 		}
 
 		public void Dispose()
@@ -46,11 +46,11 @@ namespace Kurve
 				GC.SuppressFinalize(this);
 			}
 		}
-		public void SubmitTask(CurveComponent curveComponent, BasicSpecification basicSpecification)
+		public void SubmitTask(CurveOptimizer curveOptimizer, BasicSpecification basicSpecification)
 		{
 			lock (optimizationTasks)
 			{
-				optimizationTasks[curveComponent] = basicSpecification;
+				optimizationTasks[curveOptimizer] = basicSpecification;
 
 				workAvailable.Set();
 			}
@@ -64,7 +64,7 @@ namespace Kurve
 
 				if (!running) break;
 
-				KeyValuePair<CurveComponent, BasicSpecification> item;
+				KeyValuePair<CurveOptimizer, BasicSpecification> item;
 
 				lock (optimizationTasks)
 				{

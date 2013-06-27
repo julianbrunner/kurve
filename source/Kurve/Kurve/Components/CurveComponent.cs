@@ -12,26 +12,22 @@ using System.Diagnostics;
 using Krach.Maps.Scalar;
 using Krach.Maps;
 using Kurve.Interface;
-using Gtk;
 using Cairo;
 
 namespace Kurve.Component
 {
 	class CurveComponent : Component
 	{
-		readonly Optimizer optimizer;
-		readonly OptimizationWorker optimizationWorker;
+		readonly CurveOptimizer curveOptimizer;
 
-		Specification specification;
-		Kurve.Curves.Curve curve;		
+		readonly CurveLengthComponent curveLengthComponent;
+		readonly List<PointSpecificationComponent> pointSpecificationComponents;
+		readonly List<InterSpecificationComponent> interSpecificationComponents;
 
-		double curveLength;
-		int segmentCount;
-		FunctionTermCurveTemplate segmentTemplate;
-		IEnumerable<PointSpecificationComponent> pointSpecificationComponents;
+		BasicSpecification nextSpecification;
 
-		CurveLengthComponent curveLengthComponent;
-		IEnumerable<InterSpecificationComponent> interSpecificationComponents;
+		BasicSpecification basicSpecification;
+		Kurve.Curves.Curve curve;
 
 		IEnumerable<PositionedControlComponent> PositionedControlComponents
 		{
@@ -61,8 +57,8 @@ namespace Kurve.Component
 			{
 				return Enumerables.Concatenate<Component>
 				(
-					pointSpecificationComponents,
 					Enumerables.Create(curveLengthComponent),
+					pointSpecificationComponents,
 					interSpecificationComponents
 				);
 			}
@@ -72,97 +68,149 @@ namespace Kurve.Component
 		{
 			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
 
-			this.optimizer = new Optimizer();
-			this.optimizationWorker = optimizationWorker;
-
-			this.curveLength = 1000;
-			this.segmentCount = 1;
-			this.segmentTemplate = new PolynomialFunctionTermCurveTemplate(10);
-			this.pointSpecificationComponents = Enumerables.Create
-			(
-				new PointSpecificationComponent(this, 0.0, new Vector2Double(100, 100)),
-				new PointSpecificationComponent(this, 0.2, new Vector2Double(200, 200)),
-				new PointSpecificationComponent(this, 0.4, new Vector2Double(300, 300)),
-				new PointSpecificationComponent(this, 0.6, new Vector2Double(400, 400)),
-				new PointSpecificationComponent(this, 0.8, new Vector2Double(500, 500)),
-				new PointSpecificationComponent(this, 1.0, new Vector2Double(600, 600))
-			)
-			.ToArray();
-
+			this.curveOptimizer = new CurveOptimizer(optimizationWorker);
+			this.curveOptimizer.CurveChanged += CurveChanged;
+			
 			this.curveLengthComponent = new CurveLengthComponent(this);
-			this.interSpecificationComponents =
+			this.curveLengthComponent.InsertLength += InsertLength;
+			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
+			this.interSpecificationComponents = new List<InterSpecificationComponent>();
+
+			nextSpecification = new BasicSpecification
 			(
-				from specificationRange in pointSpecificationComponents.GetRanges()
-				select new InterSpecificationComponent(this, specificationRange.Item1, specificationRange.Item2)
-			)
-			.ToArray();
+				1000,
+				10,
+				new PolynomialFunctionTermCurveTemplate(10),
+				Enumerables.Create<CurveSpecification>()
+			);
+			curve = null;
 
-			foreach (PointSpecificationComponent pointSpecificationComponent in pointSpecificationComponents) pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
+			RebuildInterSpecificationComponents();
 
-			curveLengthComponent.InsertLength += InsertLength;
+			curveOptimizer.Submit(nextSpecification);
 
-			foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.InsertLength += InsertLength;
-
-			RebuildSpecification();
+			AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.0, new Vector2Double(100, 100)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.2, new Vector2Double(200, 200)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.4, new Vector2Double(300, 300)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.6, new Vector2Double(400, 400)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.8, new Vector2Double(500, 500)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, 1.0, new Vector2Double(600, 600)));
 		}
 
-		void SpecificationChanged()
+		void CurveChanged(BasicSpecification newBasicSpecification, Curve newCurve)
 		{
-			RebuildSpecification();
+			basicSpecification = newBasicSpecification;
+			curve = newCurve;
+
+			foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.Curve = curve;
+			
+			Changed();
 		}
+
 		void InsertLength(double length)
 		{
 			if (PositionedControlComponents.Any(positionedControlComponent => positionedControlComponent.Selected)) return;
 
-			curveLength += length;
+			double newCurveLength = nextSpecification.CurveLength + length;
 
-			RebuildSpecification();
+			ChangeCurveLength(newCurveLength);
+			
+			curveOptimizer.Submit(nextSpecification);
 		}
 		void InsertLength(double position, double length)
 		{
-			double newCurveLength = curveLength + length;
-			double lengthRatio = curveLength / newCurveLength;
+			double newCurveLength = nextSpecification.CurveLength + length;
+			double lengthRatio = nextSpecification.CurveLength / newCurveLength;
 
-			curveLength = newCurveLength;
+			ChangeCurveLength(newCurveLength);
 
 			foreach (SpecificationComponent specificationComponent in SpecificationComponents)
 				specificationComponent.CurrentPosition = ShiftPosition(specificationComponent.CurrentPosition, position, lengthRatio);
+			
+			RebuildCurveSpecification();
 
-			RebuildSpecification();
+			curveOptimizer.Submit(nextSpecification);
+		}
+		void SpecificationChanged()
+		{
+			RebuildCurveSpecification();
+
+			curveOptimizer.Submit(nextSpecification);
 		}
 
-		public void Optimize(BasicSpecification basicSpecification)
+		void ChangeCurveLength(double newCurveLength)
 		{
-			if (specification == null) specification = new Specification(basicSpecification);
-			if (basicSpecification.SegmentCount != specification.BasicSpecification.SegmentCount || basicSpecification.SegmentTemplate != specification.BasicSpecification.SegmentTemplate) specification = new Specification(basicSpecification);
-
-			specification = new Specification(basicSpecification, specification.Position);
-
-			Stopwatch stopwatch = new Stopwatch();
-
-			stopwatch.Restart();
-			specification = optimizer.Normalize(specification);
-			stopwatch.Stop();
-
-			Console.WriteLine("normalization: {0} s", stopwatch.Elapsed.TotalSeconds);
-
-			stopwatch.Restart();
-			Kurve.Curves.Curve newCurve = new DiscreteCurve(optimizer.GetCurve(specification));
-			stopwatch.Stop();
-
-			Console.WriteLine("discrete curve: {0} s", stopwatch.Elapsed.TotalSeconds);
-
-			Application.Invoke
+			nextSpecification = new BasicSpecification
 			(
-				delegate (object sender, EventArgs e)
-				{
-					curve = newCurve;
-
-					foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.Curve = curve;
-
-					Changed();
-				}
+				newCurveLength,
+				nextSpecification.SegmentCount,
+				nextSpecification.SegmentTemplate,
+				nextSpecification.CurveSpecifications
 			);
+		}
+		void RebuildCurveSpecification()
+		{
+			nextSpecification = new BasicSpecification
+			(
+				nextSpecification.CurveLength,
+				nextSpecification.SegmentCount,
+				nextSpecification.SegmentTemplate,
+				(
+					from pointSpecificationComponent in pointSpecificationComponents
+					select new PointCurveSpecification(pointSpecificationComponent.Position, pointSpecificationComponent.Point)
+				)
+				.ToArray()
+			);
+		}
+
+		void AddPointSpecificationComponent(PointSpecificationComponent pointSpecificationComponent)
+		{
+			pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
+			pointSpecificationComponent.InsertLength += InsertLength;
+
+			pointSpecificationComponents.Add(pointSpecificationComponent);
+
+			RebuildInterSpecificationComponents();
+
+			Changed();
+
+			RebuildCurveSpecification();
+
+			curveOptimizer.Submit(nextSpecification);
+		}
+		void RemovePointSpecificationComponent(PointSpecificationComponent pointSpecificationComponent)
+		{
+			pointSpecificationComponents.Remove(pointSpecificationComponent);
+
+			RebuildInterSpecificationComponents();
+
+			Changed();
+
+			RebuildCurveSpecification();
+
+			curveOptimizer.Submit(nextSpecification);
+		}
+
+		void RebuildInterSpecificationComponents()
+		{
+			IEnumerable<SpecificationComponent> orderedSpecificationComponents =
+			(
+				from specificationComponent in SpecificationComponents
+				orderby specificationComponent.Position ascending
+				select specificationComponent
+			)
+			.ToArray();
+
+			interSpecificationComponents.Clear();
+
+			foreach (Tuple<SpecificationComponent, SpecificationComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
+			{
+				InterSpecificationComponent interSpecificationComponent = new InterSpecificationComponent(this, specificationComponentRange.Item1, specificationComponentRange.Item2);
+
+				interSpecificationComponent.InsertLength += InsertLength;
+
+				interSpecificationComponents.Add(interSpecificationComponent);
+			}
 		}
 
 		public override void Draw(Context context)
@@ -171,35 +219,21 @@ namespace Kurve.Component
 
 			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
 			{
-				double stretchFactor = curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / specification.BasicSpecification.CurveLength;
+				double stretchFactor = curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / basicSpecification.CurveLength;
+
+				OrderedRange<double> source = new OrderedRange<double>(0.9, 1.0);
+				OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+
+				IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
 
 				Krach.Graphics.Color color = Colors.Green;
-				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, (1.0 * stretchFactor).Clamp(0, 1));
-				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, (1.0 / stretchFactor).Clamp(0, 1));
+				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
 
 				InterfaceUtility.DrawLine(context, curve.GetPoint(positions.Item1), curve.GetPoint(positions.Item2), 2, color);
 			}
 
 			base.Draw(context);
-		}
-
-		void RebuildSpecification()
-		{
-			optimizationWorker.SubmitTask
-			(
-				this,
-				new BasicSpecification
-				(
-					curveLength,
-					segmentCount,
-					segmentTemplate,
-					(
-						from pointSpecificationComponent in pointSpecificationComponents
-						select new PointCurveSpecification(pointSpecificationComponent.Position, pointSpecificationComponent.Point)
-					)
-					.ToArray()
-				)
-			);
 		}
 
 		static double ShiftPosition(double position, double insertionPosition, double lengthRatio)
