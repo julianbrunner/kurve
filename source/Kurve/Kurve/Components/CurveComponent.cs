@@ -77,32 +77,27 @@ namespace Kurve.Component
 		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
 		public Curve Curve { get { return curve; } }
 
-		public CurveComponent (Component parent, OptimizationWorker optimizationWorker, Specification specification) : base(parent)
+		public CurveComponent(Component parent, OptimizationWorker optimizationWorker, Specification specification) : base(parent)
 		{
-			if (optimizationWorker == null)
-				throw new ArgumentNullException("optimizationWorker");
+			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");
 
 			this.curveOptimizer = new CurveOptimizer(optimizationWorker, specification);
 			this.curveOptimizer.CurveChanged += CurveChanged;
 			
-			this.curveLengthComponent = new CurveLengthComponent (this);
+			this.curveLengthComponent = new CurveLengthComponent(this);
 			this.curveLengthComponent.InsertLength += InsertLength;
-			this.pointSpecificationComponents = new List<PointSpecificationComponent> ();
-			this.interSpecificationComponents = new List<InterSpecificationComponent> ();
+			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
+			this.interSpecificationComponents = new List<InterSpecificationComponent>();
 
 			nextSpecification = specification.BasicSpecification;
 			curve = null;
 
-			RebuildInterSpecificationComponents ();
+			RebuildInterSpecificationComponents();
 
-			curveOptimizer.Submit (nextSpecification);
+			curveOptimizer.Submit(nextSpecification);
 
-			foreach (CurveSpecification curveSpecification in nextSpecification.CurveSpecifications) {
-				if (curveSpecification is PointCurveSpecification) {
-					PointCurveSpecification pointSpecification = (PointCurveSpecification)curveSpecification;
-					AddPointSpecificationComponent(new PointSpecificationComponent(this, this, pointSpecification.Position, pointSpecification.Point));
-				}
-			}
+			foreach (PointCurveSpecification pointCurveSpecification in nextSpecification.CurveSpecifications.OfType<PointCurveSpecification>())
+				AddPointSpecificationComponent(new PointSpecificationComponent(this, this, pointCurveSpecification.Position, pointCurveSpecification.Point));
 		}
 
 		void CurveChanged(BasicSpecification newBasicSpecification, Curve newCurve)
@@ -117,7 +112,7 @@ namespace Kurve.Component
 		{
 			if (PositionedControlComponents.Any(positionedControlComponent => positionedControlComponent.Selected)) return;
 
-			double newCurveLength = nextSpecification.CurveLength + length;
+			double newCurveLength = Comparables.Maximum(1, nextSpecification.CurveLength + length);
 
 			ChangeCurveLength(newCurveLength);
 			
@@ -125,7 +120,7 @@ namespace Kurve.Component
 		}
 		void InsertLength(double position, double length)
 		{
-			double newCurveLength = nextSpecification.CurveLength + length;
+			double newCurveLength = Comparables.Maximum(1, nextSpecification.CurveLength + length);
 			double lengthRatio = nextSpecification.CurveLength / newCurveLength;
 
 			ChangeCurveLength(newCurveLength);

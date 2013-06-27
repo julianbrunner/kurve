@@ -31,6 +31,7 @@ namespace Kurve.Component
 
 			this.optimizer = new Optimizer();
 			this.optimizationWorker = optimizationWorker;
+
 			this.specification = specification;
 		}
 

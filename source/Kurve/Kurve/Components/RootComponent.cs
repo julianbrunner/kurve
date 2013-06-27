@@ -40,15 +40,16 @@ namespace Kurve.Component
 			BasicSpecification basicSpecification = new BasicSpecification
 			(
 				100,
-			    2,
+				2,
 				new PolynomialFunctionTermCurveTemplate(10),
-				Enumerables.Create(
+				Enumerables.Create
+				(
             		new PointCurveSpecification(0.0, new Vector2Double(300, 300)),
             		new PointCurveSpecification(1.0, new Vector2Double(400, 300))
 				)
 			);
 
-			this.curveComponents.Add(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
+			curveComponents.Add(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
 		}
 
 		public void Dispose()
@@ -63,9 +64,7 @@ namespace Kurve.Component
 
 		public override void KeyUp(Key key)
 		{
-			if (key == Key.Alt) {
-				AddCurve();
-			}
+			if (key == Key.Alt) AddCurve();
 
 			base.KeyUp(key);
 		}

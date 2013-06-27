@@ -9,7 +9,7 @@ namespace Kurve.Component
 
 	abstract class PositionedControlComponent : LengthControlComponent
 	{
-		const double DragThreshold = 10;
+		const double dragThreshold = 10;
 
 		readonly CurveComponent curveComponent;
 
@@ -61,7 +61,7 @@ namespace Kurve.Component
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
-			if (isMouseDown && (mousePosition - mouseDownPosition).Length >= DragThreshold)
+			if (isMouseDown && (mousePosition - mouseDownPosition).Length >= dragThreshold)
 			{
 				dragging = true;
 			
