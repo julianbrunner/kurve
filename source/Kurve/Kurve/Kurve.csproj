@@ -84,9 +84,9 @@
     <Compile Include="Components\Controls\Abstract\SpecificationComponent.cs" />
     <Compile Include="Components\Controls\PointSpecificationComponent.cs" />
     <Compile Include="Components\Controls\Abstract\LengthControlComponent.cs" />
-    <Compile Include="Components\Controls\InterSpecificationComponent %28copy%29.cs" />
     <Compile Include="Components\Controls\CurveLengthComponent.cs" />
     <Compile Include="CurveOptimizer.cs" />
+    <Compile Include="Components\Controls\InterSpecificationComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

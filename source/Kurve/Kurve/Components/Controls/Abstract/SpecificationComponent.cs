@@ -18,7 +18,7 @@ namespace Kurve.Component
 		}
 		public override double Position { get { return position; } }
 
-		public SpecificationComponent(Component parent, double position) : base(parent) 
+		public SpecificationComponent(Component parent, CurveComponent curveComponent, double position) : base(parent, curveComponent) 
 		{
 			if (!new OrderedRange<double>(0, 1).Contains(position)) throw new ArgumentOutOfRangeException();
 

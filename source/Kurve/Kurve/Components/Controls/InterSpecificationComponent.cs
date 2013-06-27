@@ -14,19 +14,12 @@ namespace Kurve.Component
 		readonly SpecificationComponent leftComponent;
 		readonly SpecificationComponent rightComponent;
 
-		Orthotope2Double Bounds 
-		{ 
-			get
-			{ 
-				if (Curve == null) return Orthotope2Double.Empty;
-
-				return new Orthotope2Double(Curve.GetPoint(Position) - 0.5 * size, Curve.GetPoint(Position) + 0.5 * size);
-			} 
-		}
+		Orthotope2Double Bounds { get { return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); } }
 
 		public override double Position { get { return (leftComponent.Position + rightComponent.Position) / 2; } }
+		public Vector2Double Point { get { return Curve == null ? Vector2Double.Origin : Curve.GetPoint(Position); } }
 
-		public InterSpecificationComponent(Component parent, SpecificationComponent leftComponent, SpecificationComponent rightComponent) : base(parent)
+		public InterSpecificationComponent(Component parent, CurveComponent curveComponent, SpecificationComponent leftComponent, SpecificationComponent rightComponent) : base(parent, curveComponent)
 		{
 			if (leftComponent == null) throw new ArgumentNullException("leftComponent");
 			if (rightComponent == null) throw new ArgumentNullException("rightComponent");
