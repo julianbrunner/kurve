@@ -105,6 +105,8 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.r: key = Kurve.Interface.Key.R; break;
 			// workaround for neo keyboard layout bug			
 			case Gdk.Key.Caps_Lock: key = Kurve.Interface.Key.Shift; break;
+			case Gdk.Key.s: Save(); return;
+			case Gdk.Key.o: Open(); return;
 			default: return;
 		}
 
@@ -114,5 +116,43 @@ public partial class MainWindow : Gtk.Window
 	void RootComponentChanged()
 	{
 		GdkWindow.InvalidateRegion(GdkWindow.VisibleRegion, true);
+	}
+
+	protected virtual void Open()
+	{
+		Gtk.FileChooserDialog fileChooser = new Gtk.FileChooserDialog
+		(
+			"Open",
+            this,
+			FileChooserAction.Open,
+			"Cancel",ResponseType.Cancel,
+			"Open",ResponseType.Accept
+		);
+
+		if (fileChooser.Run() == (int)ResponseType.Accept) 
+		{
+			Console.WriteLine ("Chosen file: {0}", fileChooser.Filename);
+		}
+
+		fileChooser.Destroy();
+	}
+
+	protected virtual void Save()
+	{
+		Gtk.FileChooserDialog fileChooser = new Gtk.FileChooserDialog
+		(
+			"Save",
+            this,
+			FileChooserAction.Save,
+			"Cancel",ResponseType.Cancel,
+			"Save",ResponseType.Accept
+		);
+
+		if (fileChooser.Run() == (int)ResponseType.Accept) 
+		{
+			Console.WriteLine("Chosen file: {0}", fileChooser.Filename);
+		}
+
+		fileChooser.Destroy();
 	}
 }
