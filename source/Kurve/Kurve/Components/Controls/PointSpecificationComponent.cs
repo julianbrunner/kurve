@@ -44,7 +44,7 @@ namespace Kurve.Component
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
-			if (IsMouseDown) 
+			if (Dragging) 
 			{
 				point = mousePosition;
 

@@ -9,11 +9,14 @@ namespace Kurve.Component
 
 	abstract class PositionedControlComponent : LengthControlComponent
 	{
+		const double DragThreshold = 10;
+
 		Curve curve = null;
 		bool selected = false;
 		bool dragging = false;
 		bool isMouseDown = false;
-		
+		Vector2Double mouseDownPosition = Vector2Double.Origin;
+
 		public event PositionedLengthInsertion InsertLength;
 
 		public Curve Curve
@@ -33,6 +36,7 @@ namespace Kurve.Component
 			if (Contains(mousePosition) && mouseButton == MouseButton.Left)
 			{
 				isMouseDown = true;
+				mouseDownPosition = mousePosition;
 
 				Changed();
 			}
@@ -54,7 +58,7 @@ namespace Kurve.Component
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
-			if (isMouseDown)
+			if (isMouseDown && (mousePosition - mouseDownPosition).Length >= DragThreshold)
 			{
 				dragging = true;
 			
