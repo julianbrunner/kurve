@@ -9,24 +9,27 @@ namespace Kurve.Component
 
 	abstract class PositionedControlComponent : LengthControlComponent
 	{
-		Curve curve = null;
+		readonly CurveComponent curveComponent;
+
 		bool selected = false;
 		bool dragging = false;
 		bool isMouseDown = false;
 		
 		public event PositionedLengthInsertion InsertLength;
 
-		public Curve Curve
-		{
-			get { return curve; }
-			set { curve = value; }
-		}
+		public BasicSpecification BasicSpecification { get { return curveComponent.BasicSpecification; } }
+		public Curve Curve { get { return curveComponent.Curve; } }
 		public abstract double Position { get; }
 		public bool Selected { get { return selected; } }
 		public bool Dragging { get { return dragging; } }
 		public bool IsMouseDown { get { return isMouseDown; } }
 
-		public PositionedControlComponent(Component parent) : base(parent) { }
+		public PositionedControlComponent(Component parent, CurveComponent curveComponent) : base(parent)
+		{
+			if (curveComponent == null) throw new ArgumentNullException("curveComponent");
+
+			this.curveComponent = curveComponent;
+		}
 
 		public override void MouseDown(Vector2Double mousePosition, MouseButton mouseButton)
 		{

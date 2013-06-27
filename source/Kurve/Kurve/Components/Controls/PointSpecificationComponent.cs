@@ -24,7 +24,7 @@ namespace Kurve.Component
 			set { point = value; }
 		}
 
-		public PointSpecificationComponent(Component parent, double position, Vector2Double point) : base(parent, position)
+		public PointSpecificationComponent(Component parent, CurveComponent curveComponent, double position, Vector2Double point) : base(parent, curveComponent, position)
 		{
 			this.point = point;
 		}

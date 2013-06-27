@@ -27,7 +27,7 @@ namespace Kurve.Component
 		BasicSpecification nextSpecification;
 
 		BasicSpecification basicSpecification;
-		Kurve.Curves.Curve curve;
+		Curve curve;
 
 		IEnumerable<PositionedControlComponent> PositionedControlComponents
 		{
@@ -50,6 +50,16 @@ namespace Kurve.Component
 				);
 			}
 		}
+		IEnumerable<InterSpecificationComponent> InterSpecificationComponents
+		{
+			get
+			{
+				return Enumerables.Concatenate<InterSpecificationComponent>
+				(
+					interSpecificationComponents
+				);
+			}
+		}
 
 		protected override IEnumerable<Component> SubComponents
 		{
@@ -63,6 +73,9 @@ namespace Kurve.Component
 				);
 			}
 		}
+
+		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
+		public Curve Curve { get { return curve; } }
 
 		public CurveComponent(Component parent, OptimizationWorker optimizationWorker) : base(parent)
 		{
@@ -79,7 +92,7 @@ namespace Kurve.Component
 			nextSpecification = new BasicSpecification
 			(
 				1000,
-				10,
+				1,
 				new PolynomialFunctionTermCurveTemplate(10),
 				Enumerables.Create<CurveSpecification>()
 			);
@@ -89,20 +102,18 @@ namespace Kurve.Component
 
 			curveOptimizer.Submit(nextSpecification);
 
-			AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.0, new Vector2Double(100, 100)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.2, new Vector2Double(200, 200)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.4, new Vector2Double(300, 300)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.6, new Vector2Double(400, 400)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, 0.8, new Vector2Double(500, 500)));
-            AddPointSpecificationComponent(new PointSpecificationComponent(this, 1.0, new Vector2Double(600, 600)));
+			AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.0, new Vector2Double(100, 100)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.2, new Vector2Double(200, 200)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.4, new Vector2Double(300, 300)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.6, new Vector2Double(400, 400)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 0.8, new Vector2Double(500, 500)));
+            AddPointSpecificationComponent(new PointSpecificationComponent(this, this, 1.0, new Vector2Double(600, 600)));
 		}
 
 		void CurveChanged(BasicSpecification newBasicSpecification, Curve newCurve)
 		{
 			basicSpecification = newBasicSpecification;
 			curve = newCurve;
-
-			foreach (PositionedControlComponent positionedControlComponent in PositionedControlComponents) positionedControlComponent.Curve = curve;
 			
 			Changed();
 		}
@@ -191,6 +202,39 @@ namespace Kurve.Component
 			curveOptimizer.Submit(nextSpecification);
 		}
 
+		void AddPointSpecificationComponent()
+		{
+			IEnumerable<InterSpecificationComponent> selectedInterSpecificationComponents =
+			(
+				from interSpecificationComponent in InterSpecificationComponents
+				where interSpecificationComponent.Selected
+				select interSpecificationComponent
+			)
+			.ToArray();
+
+			foreach (InterSpecificationComponent interSpecificationComponent in selectedInterSpecificationComponents)
+			{
+				PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, interSpecificationComponent.Position, interSpecificationComponent.Point);
+
+				AddPointSpecificationComponent(pointSpecificationComponent);
+			}
+		}
+		void RemovePointSpecificationComponent()
+		{
+			IEnumerable<SpecificationComponent> selectedSpecificationComponents =
+			(
+				from specificationComponent in SpecificationComponents
+				where specificationComponent.Selected
+				select specificationComponent
+			)
+			.ToArray();
+
+			foreach (SpecificationComponent specificationComponent in selectedSpecificationComponents)
+			{
+				RemovePointSpecificationComponent((PointSpecificationComponent)specificationComponent);
+			}
+		}
+
 		void RebuildInterSpecificationComponents()
 		{
 			IEnumerable<SpecificationComponent> orderedSpecificationComponents =
@@ -205,7 +249,7 @@ namespace Kurve.Component
 
 			foreach (Tuple<SpecificationComponent, SpecificationComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
 			{
-				InterSpecificationComponent interSpecificationComponent = new InterSpecificationComponent(this, specificationComponentRange.Item1, specificationComponentRange.Item2);
+				InterSpecificationComponent interSpecificationComponent = new InterSpecificationComponent(this, this, specificationComponentRange.Item1, specificationComponentRange.Item2);
 
 				interSpecificationComponent.InsertLength += InsertLength;
 
@@ -221,7 +265,7 @@ namespace Kurve.Component
 			{
 				double stretchFactor = curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / basicSpecification.CurveLength;
 
-				OrderedRange<double> source = new OrderedRange<double>(0.9, 1.0);
+				OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
 				OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
 
 				IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
@@ -234,6 +278,20 @@ namespace Kurve.Component
 			}
 
 			base.Draw(context);
+		}
+		public override void KeyDown(Key key)
+		{
+			base.KeyDown(key);
+		}
+		public override void KeyUp(Key key)
+		{
+			switch (key)
+			{
+				case Key.A: AddPointSpecificationComponent(); break;
+				case Key.R: RemovePointSpecificationComponent(); break;
+			}
+
+			base.KeyUp(key);
 		}
 
 		static double ShiftPosition(double position, double insertionPosition, double lengthRatio)
