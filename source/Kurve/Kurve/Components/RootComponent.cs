@@ -76,9 +76,9 @@ namespace Kurve.Component
 		{
 			switch (key)
 			{
-				case Kurve.Interface.Key.O: Open(); break;
-				case Kurve.Interface.Key.S: Save(); break;
 				case Kurve.Interface.Key.N: AddCurve(); break;
+				case Kurve.Interface.Key.L: Load(); break;
+				case Kurve.Interface.Key.S: Save(); break;
 			}
 
 			base.KeyUp(key);
@@ -89,14 +89,12 @@ namespace Kurve.Component
 			if (ComponentChanged != null) ComponentChanged();
 		}
 
-		void Open()
+		void Load()
 		{
 			using (FileChooserDialog fileChooser = new FileChooserDialog("Open", parentWindow, FileChooserAction.Open, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept))
 			{
 				if ((ResponseType)fileChooser.Run() == ResponseType.Accept)
 				{
-					Console.WriteLine("Chosen file: {0}", fileChooser.Filename);
-
 					curveComponents.Replace
 					(
 						from element in XElement.Load(fileChooser.Filename).Elements()
@@ -113,8 +111,6 @@ namespace Kurve.Component
 			{
 				if ((ResponseType)fileChooser.Run() == ResponseType.Accept) 
 				{
-					Console.WriteLine("Chosen file: {0}", fileChooser.Filename);
-
 					new XElement
 					(
 						"curves",
