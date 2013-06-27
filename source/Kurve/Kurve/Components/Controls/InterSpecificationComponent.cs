@@ -60,8 +60,8 @@ namespace Kurve.Component
 
 		public override bool Contains(Vector2Double position)
 		{
-			if ((leftComponent.CurrentPoint - position).Length < 15) return false;
-			if ((rightComponent.CurrentPoint - position).Length < 15) return false;
+			if ((Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
+			if ((Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
 			foreach (double testedPosition in Scalars.GetIntermediateValues(leftComponent.Position, rightComponent.Position, 100)) 
 				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true; 
