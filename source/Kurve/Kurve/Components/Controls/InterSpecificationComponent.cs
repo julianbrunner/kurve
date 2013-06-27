@@ -4,6 +4,10 @@ using Cairo;
 using Krach.Basics;
 using Krach.Graphics;
 using Kurve.Curves;
+using Krach.Extensions;
+using Krach.Maps.Scalar;
+using Krach.Maps.Abstract;
+using Krach.Maps;
 
 namespace Kurve.Component
 {
@@ -30,21 +34,39 @@ namespace Kurve.Component
 
 		public override void Draw(Context context)
 		{
-			context.Rectangle(Bounds.Start.X + 0.5, Bounds.Start.Y + 0.5, Bounds.Size.X - 1, Bounds.Size.Y - 1);
-			
-			context.LineWidth = 1;
-			context.LineCap = LineCap.Butt;
-			context.Color = InterfaceUtility.ToCairoColor(Colors.Red);
+			if (Curve == null) return;
+			if (!Selected) return;
 
-			if (Selected) context.Fill();
-			else context.Stroke();
+			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(leftComponent.Position, rightComponent.Position, 100).GetRanges()) 
+			{
+				double stretchFactor = Curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / BasicSpecification.CurveLength;
+
+				OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
+				OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+
+				IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
+
+				Krach.Graphics.Color color = Colors.Green;
+				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
+
+				color = Krach.Graphics.Color.FromRgba(color.Red, color.Green, color.Blue, 0.3);
+
+				InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, color);
+			}
 
 			base.Draw(context);
 		}
 
 		public override bool Contains(Vector2Double position)
 		{
-			return Bounds.Contains(position);
+			if ((leftComponent.CurrentPoint - position).Length < 15) return false;
+			if ((rightComponent.CurrentPoint - position).Length < 15) return false;
+
+			foreach (double testedPosition in Scalars.GetIntermediateValues(leftComponent.Position, rightComponent.Position, 100)) 
+				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true; 
+
+			return false;
 		}
 	}
 }
