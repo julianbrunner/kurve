@@ -25,6 +25,8 @@ namespace Kurve.Component
 
 		public event Action<BasicSpecification, Kurve.Curves.Curve> CurveChanged;
 
+		public Specification Specification { get { return specification; } }
+
 		public CurveOptimizer(OptimizationWorker optimizationWorker, Specification specification)
 		{
 			if (optimizationWorker == null) throw new ArgumentNullException("optimizationWorker");

@@ -9,17 +9,20 @@ using Krach.Graphics;
 using Kurve.Curves;
 using Kurve.Curves.Optimization;
 using Kurve.Interface;
+using Gtk;
+using System.Xml.Linq;
 
 namespace Kurve.Component
 {
 	class RootComponent : Component, IDisposable
 	{
+		readonly Window parentWindow;
 		readonly OptimizationWorker optimizationWorker;
 		readonly List<CurveComponent> curveComponents;
 
 		bool disposed = false;
 
-		public event Action ComponentChanged;
+		public event System.Action ComponentChanged;
 
 		protected override IEnumerable<Component> SubComponents
 		{
@@ -29,8 +32,11 @@ namespace Kurve.Component
 			}
 		}
 
-		public RootComponent()
+		public RootComponent(Window parentWindow)
 		{
+			if (parentWindow == null) throw new ArgumentNullException("parentWindow");
+
+			this.parentWindow = parentWindow;
 			this.optimizationWorker = new OptimizationWorker();
 			this.curveComponents = new List<CurveComponent>();
 		}
@@ -62,9 +68,18 @@ namespace Kurve.Component
 			}
 		}
 
-		public override void KeyUp(Key key)
+		public override void KeyDown(Kurve.Interface.Key key)
 		{
-			if (key == Key.Alt) AddCurve();
+			base.KeyDown(key);
+		}
+		public override void KeyUp(Kurve.Interface.Key key)
+		{
+			switch (key)
+			{
+				case Kurve.Interface.Key.N: AddCurve(); break;
+				case Kurve.Interface.Key.L: Load(); break;
+				case Kurve.Interface.Key.S: Save(); break;
+			}
 
 			base.KeyUp(key);
 		}
@@ -72,6 +87,41 @@ namespace Kurve.Component
 		public override void Changed()
 		{
 			if (ComponentChanged != null) ComponentChanged();
+		}
+
+		void Load()
+		{
+			using (FileChooserDialog fileChooser = new FileChooserDialog("Open", parentWindow, FileChooserAction.Open, "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept))
+			{
+				if ((ResponseType)fileChooser.Run() == ResponseType.Accept)
+				{
+					curveComponents.Replace
+					(
+						from element in XElement.Load(fileChooser.Filename).Elements()
+						select new CurveComponent(this, optimizationWorker, new Specification(element))
+					);
+				}
+
+				fileChooser.Destroy();
+			}
+		}
+		void Save()
+		{
+			using (FileChooserDialog fileChooser = new FileChooserDialog("Save", parentWindow, FileChooserAction.Save, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept))
+			{
+				if ((ResponseType)fileChooser.Run() == ResponseType.Accept) 
+				{
+					new XElement
+					(
+						"curves",
+						from curveComponent in curveComponents
+						select curveComponent.Specification.XElement
+					)
+					.Save(fileChooser.Filename);
+				}
+				
+				fileChooser.Destroy();
+			}
 		}
 	}
 }

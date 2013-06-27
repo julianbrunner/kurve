@@ -76,6 +76,7 @@ namespace Kurve.Component
 
 		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
 		public Curve Curve { get { return curve; } }
+		public Specification Specification { get { return curveOptimizer.Specification; } }
 
 		public CurveComponent(Component parent, OptimizationWorker optimizationWorker, Specification specification) : base(parent)
 		{

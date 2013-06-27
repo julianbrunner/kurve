@@ -22,7 +22,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		Build();
 
-		this.rootComponent = new RootComponent();
+		this.rootComponent = new RootComponent(this);
 		this.rootComponent.ComponentChanged += RootComponentChanged;
 	}
 
@@ -87,6 +87,9 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
 			case Gdk.Key.a: key = Kurve.Interface.Key.A; break;
 			case Gdk.Key.r: key = Kurve.Interface.Key.R; break;
+			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;
+			case Gdk.Key.l: key = Kurve.Interface.Key.L; break;
+			case Gdk.Key.s: key = Kurve.Interface.Key.S; break;
 			default: return;
 		}
 
@@ -103,10 +106,11 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
 			case Gdk.Key.a: key = Kurve.Interface.Key.A; break;
 			case Gdk.Key.r: key = Kurve.Interface.Key.R; break;
+			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;
+			case Gdk.Key.l: key = Kurve.Interface.Key.L; break;
+			case Gdk.Key.s: key = Kurve.Interface.Key.S; break;
 			// workaround for neo keyboard layout bug			
 			case Gdk.Key.Caps_Lock: key = Kurve.Interface.Key.Shift; break;
-			case Gdk.Key.s: Save(); return;
-			case Gdk.Key.o: Open(); return;
 			default: return;
 		}
 
@@ -116,43 +120,5 @@ public partial class MainWindow : Gtk.Window
 	void RootComponentChanged()
 	{
 		GdkWindow.InvalidateRegion(GdkWindow.VisibleRegion, true);
-	}
-
-	protected virtual void Open()
-	{
-		Gtk.FileChooserDialog fileChooser = new Gtk.FileChooserDialog
-		(
-			"Open",
-            this,
-			FileChooserAction.Open,
-			"Cancel",ResponseType.Cancel,
-			"Open",ResponseType.Accept
-		);
-
-		if (fileChooser.Run() == (int)ResponseType.Accept) 
-		{
-			Console.WriteLine ("Chosen file: {0}", fileChooser.Filename);
-		}
-
-		fileChooser.Destroy();
-	}
-
-	protected virtual void Save()
-	{
-		Gtk.FileChooserDialog fileChooser = new Gtk.FileChooserDialog
-		(
-			"Save",
-            this,
-			FileChooserAction.Save,
-			"Cancel",ResponseType.Cancel,
-			"Save",ResponseType.Accept
-		);
-
-		if (fileChooser.Run() == (int)ResponseType.Accept) 
-		{
-			Console.WriteLine("Chosen file: {0}", fileChooser.Filename);
-		}
-
-		fileChooser.Destroy();
 	}
 }
