@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve", "Kurve\Kurve.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve.Curves", "Kurve.Curves\Kurve.Curves.csproj", "{7AC660D7-ED47-4DDB-A10F-DD480AC99286}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wrappers.Casadi", "Wrappers.Casadi\Wrappers.Casadi.csproj", "{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wrappers.Casadi", "..\..\libraries\krach\Source\Wrappers.Casadi\Wrappers.Casadi.csproj", "{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -43,13 +43,13 @@
       <Project>{132A3E13-29BF-4322-B17F-E5E5D86C22EF}</Project>
       <Name>Krach</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Wrappers.Casadi\Wrappers.Casadi.csproj">
-      <Project>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</Project>
-      <Name>Wrappers.Casadi</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Kurve.Curves\Kurve.Curves.csproj">
       <Project>{7AC660D7-ED47-4DDB-A10F-DD480AC99286}</Project>
       <Name>Kurve.Curves</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\libraries\krach\Source\Wrappers.Casadi\Wrappers.Casadi.csproj">
+      <Project>{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}</Project>
+      <Name>Wrappers.Casadi</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
