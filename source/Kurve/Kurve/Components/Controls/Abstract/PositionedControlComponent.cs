@@ -22,11 +22,12 @@ namespace Kurve.Component
 		Vector2Double dragVector = Vector2Double.Origin;
 
 		public event PositionedLengthInsertion InsertLength;
+		public event Action<PositionedControlComponent> SelectionChanged;
 
 		public BasicSpecification BasicSpecification { get { return curveComponent.BasicSpecification; } }
 		public Curve Curve { get { return curveComponent.Curve; } }
 		public abstract double Position { get; }
-		public bool Selected { get { return selected; } }
+		public bool Selected { get { return selected; } set { selected = value; } }
 		public bool Dragging { get { return dragging; } }
 		public Vector2Double DragVector { get { return dragVector; } }
 		public bool IsLeftMouseDown { get { return isLeftMouseDown; } }
@@ -57,7 +58,10 @@ namespace Kurve.Component
 		{
 			if ((isLeftMouseDown || isRightMouseDown) && (mouseButton == MouseButton.Left || mouseButton == MouseButton.Right))
 			{
-				if ((mousePosition - mouseDownPosition).Length <= dragThreshold) selected = !selected;
+				if ((mousePosition - mouseDownPosition).Length <= dragThreshold) {
+					selected = !selected;
+					OnSelectionChanged();
+				}
 				if (mouseButton == MouseButton.Left) isLeftMouseDown = false;
 				if (mouseButton == MouseButton.Right) isRightMouseDown = false;
 				dragging = false;
@@ -90,6 +94,10 @@ namespace Kurve.Component
 			if (!selected) return;
 
 			if (InsertLength != null) InsertLength(Position, length);
+		}
+		protected void OnSelectionChanged() 
+		{
+			if (SelectionChanged != null) SelectionChanged(this);
 		}
 	}
 }

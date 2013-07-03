@@ -38,10 +38,26 @@ namespace Kurve.Component
 		{
 			if (Dragging) 
 			{
-				point = mousePosition;
+				if (IsShiftDown) 
+				{
+					double closestPosition = 
+					(
+						from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
+						let distance = (Curve.GetPoint(position) - mousePosition).Length
+						orderby distance ascending
+						select position
+					)
+					.First();
+
+					CurrentPosition = closestPosition;
+					point = Curve.GetPoint(closestPosition);
+				}
+				else 
+				{
+					point = mousePosition;
+				}
 
 				OnSpecificationChanged();
-
 				Changed();
 			}
 			

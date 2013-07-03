@@ -17,10 +17,12 @@ namespace Kurve.Component
 {
 	class CurveComponent : Component
 	{
+		bool isShiftDown = false;
+
 		readonly CurveOptimizer curveOptimizer;
 
 		readonly List<PointSpecificationComponent> pointSpecificationComponents;
-		readonly List<SegmentComponent> interSpecificationComponents;
+		readonly List<SegmentComponent> segmentComponents;
 		readonly FixedPositionComponent curveStartComponent;
 		readonly FixedPositionComponent curveEndComponent;
 
@@ -36,7 +38,7 @@ namespace Kurve.Component
 				return Enumerables.Concatenate<PositionedControlComponent>
 				(
 					pointSpecificationComponents,
-					interSpecificationComponents
+					segmentComponents
 				);
 			}
 		}
@@ -61,13 +63,13 @@ namespace Kurve.Component
 				);
 			}
 		}
-		IEnumerable<SegmentComponent> InterSpecificationComponents
+		IEnumerable<SegmentComponent> SegmentComponents
 		{
 			get
 			{
 				return Enumerables.Concatenate<SegmentComponent>
 				(
-					interSpecificationComponents
+					segmentComponents
 				);
 			}
 		}
@@ -78,7 +80,7 @@ namespace Kurve.Component
 			{
 				return Enumerables.Concatenate<Component>
 				(
-					interSpecificationComponents,
+					segmentComponents,
 					pointSpecificationComponents
 				);
 			}
@@ -98,12 +100,12 @@ namespace Kurve.Component
 			this.curveStartComponent = new FixedPositionComponent(this, this, 0);
 			this.curveEndComponent = new FixedPositionComponent(this, this, 1);
 			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
-			this.interSpecificationComponents = new List<SegmentComponent>();
+			this.segmentComponents = new List<SegmentComponent>();
 
 			nextSpecification = specification.BasicSpecification;
 			curve = null;
 
-			RebuildInterSpecificationComponents();
+			RebuildSegmentComponents();
 
 			curveOptimizer.Submit(nextSpecification);
 
@@ -179,10 +181,10 @@ namespace Kurve.Component
 		{
 			pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
 			pointSpecificationComponent.InsertLength += InsertLength;
-
+			pointSpecificationComponent.SelectionChanged += SelectionChanged;
 			pointSpecificationComponents.Add(pointSpecificationComponent);
 
-			RebuildInterSpecificationComponents();
+			RebuildSegmentComponents();
 
 			Changed();
 
@@ -194,7 +196,7 @@ namespace Kurve.Component
 		{
 			pointSpecificationComponents.Remove(pointSpecificationComponent);
 
-			RebuildInterSpecificationComponents();
+			RebuildSegmentComponents();
 
 			Changed();
 
@@ -211,17 +213,17 @@ namespace Kurve.Component
 		}
 		void AddPointSpecificationComponent()
 		{
-			IEnumerable<SegmentComponent> selectedInterSpecificationComponents =
+			IEnumerable<SegmentComponent> selectedSegmentComponents =
 			(
-				from interSpecificationComponent in InterSpecificationComponents
-				where interSpecificationComponent.Selected
-				select interSpecificationComponent
+				from segmentComponent in SegmentComponents
+				where segmentComponent.Selected
+				select segmentComponent
 			)
 			.ToArray();
 
-			foreach (SegmentComponent interSpecificationComponent in selectedInterSpecificationComponents)
+			foreach (SegmentComponent segmentComponent in selectedSegmentComponents)
 			{
-				PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, interSpecificationComponent.Position, interSpecificationComponent.Point);
+				PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, segmentComponent.Position, segmentComponent.Point);
 
 				AddPointSpecificationComponent(pointSpecificationComponent);
 			}
@@ -242,31 +244,52 @@ namespace Kurve.Component
 			}
 		}
 
-		void RebuildInterSpecificationComponents()
+		void RebuildSegmentComponents()
 		{
 			IEnumerable<PositionedControlComponent> orderedSpecificationComponents =
 			(
-				from specificationComponent in SegmentDelimitingComponents
+				from specificationComponent in SpecificationComponents
 				orderby specificationComponent.Position ascending
 				select specificationComponent
 			)
 			.ToArray();
 
-			interSpecificationComponents.Clear();
+			segmentComponents.Clear();
 
-			foreach (Tuple<PositionedControlComponent, PositionedControlComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
+			IEnumerable<PositionedControlComponent> segmentDelimitingComponents = Enumerables.Concatenate
+			(
+				Enumerables.Create(curveStartComponent),
+				orderedSpecificationComponents,
+				Enumerables.Create(curveEndComponent)
+			);
+
+			foreach (Tuple<PositionedControlComponent, PositionedControlComponent> segmentDelimitingComponentRange in segmentDelimitingComponents.GetRanges())
 			{
-				SegmentComponent interSpecificationComponent = new SegmentComponent(this, this, specificationComponentRange.Item1, specificationComponentRange.Item2);
+				SegmentComponent segmentComponent = new SegmentComponent(this, this, segmentDelimitingComponentRange.Item1, segmentDelimitingComponentRange.Item2);
 
-				interSpecificationComponent.InsertLength += InsertLength;
-				interSpecificationComponent.SpecificationChanged += SpecificationChanged;
-				interSpecificationComponent.AddSpecification += AddSpecification;
-				interSpecificationComponents.Add(interSpecificationComponent);
+				segmentComponent.InsertLength += InsertLength;
+				segmentComponent.SpecificationChanged += SpecificationChanged;
+				segmentComponent.AddSpecification += AddSpecification;
+				segmentComponent.SelectionChanged += SelectionChanged;
+				segmentComponents.Add(segmentComponent);
+			}
+		}
+
+		public void SelectionChanged(PositionedControlComponent selectedComponent)
+		{
+			if (selectedComponent.Selected && !isShiftDown)
+			{
+				foreach (PositionedControlComponent component in PositionedControlComponents.Except(Enumerables.Create(selectedComponent))) 
+					component.Selected = false;
+
+				Changed();
 			}
 		}
 
 		public override void KeyDown(Key key)
 		{
+			if (key == Key.Shift) isShiftDown = true;
+
 			base.KeyDown(key);
 		}
 		public override void KeyUp(Key key)
@@ -275,6 +298,7 @@ namespace Kurve.Component
 			{
 				case Key.A: AddPointSpecificationComponent(); break;
 				case Key.R: RemovePointSpecificationComponent(); break;
+				case Key.Shift: isShiftDown = false; break;
 			}
 
 			base.KeyUp(key);
