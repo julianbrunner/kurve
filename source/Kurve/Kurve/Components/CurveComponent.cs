@@ -19,7 +19,6 @@ namespace Kurve.Component
 	{
 		readonly CurveOptimizer curveOptimizer;
 
-		readonly CurveLengthComponent curveLengthComponent;
 		readonly List<PointSpecificationComponent> pointSpecificationComponents;
 		readonly List<InterSpecificationComponent> interSpecificationComponents;
 
@@ -66,9 +65,8 @@ namespace Kurve.Component
 			{
 				return Enumerables.Concatenate<Component>
 				(
-					Enumerables.Create(curveLengthComponent),
-					pointSpecificationComponents,
-					interSpecificationComponents
+					interSpecificationComponents,
+					pointSpecificationComponents
 				);
 			}
 		}
@@ -84,8 +82,6 @@ namespace Kurve.Component
 			this.curveOptimizer = new CurveOptimizer(optimizationWorker, specification);
 			this.curveOptimizer.CurveChanged += CurveChanged;
 			
-			this.curveLengthComponent = new CurveLengthComponent(this);
-			this.curveLengthComponent.InsertLength += InsertLength;
 			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
 			this.interSpecificationComponents = new List<InterSpecificationComponent>();
 
@@ -247,28 +243,6 @@ namespace Kurve.Component
 			}
 		}
 
-		public override void Draw(Context context)
-		{
-			if (curve == null) return;
-
-			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(0, 1, 100).GetRanges()) 
-			{
-				double stretchFactor = curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / basicSpecification.CurveLength;
-
-				OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
-				OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
-
-				IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
-
-				Krach.Graphics.Color color = Colors.Green;
-				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
-				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
-
-				InterfaceUtility.DrawLine(context, curve.GetPoint(positions.Item1), curve.GetPoint(positions.Item2), 2, color);
-			}
-
-			base.Draw(context);
-		}
 		public override void KeyDown(Key key)
 		{
 			base.KeyDown(key);

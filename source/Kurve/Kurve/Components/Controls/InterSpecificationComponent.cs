@@ -35,27 +35,32 @@ namespace Kurve.Component
 		public override void Draw(Context context)
 		{
 			if (Curve == null) return;
-			if (!Selected) return;
 
-			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValues(leftComponent.Position, rightComponent.Position, 100).GetRanges()) 
+			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100).GetRanges()) 
 			{
 				double stretchFactor = Curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / BasicSpecification.CurveLength;
 
-				OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
-				OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+				if (Selected) {
+					Krach.Graphics.Color selectionColor = Colors.Green.ReplaceAlpha(0.3);
+					InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, selectionColor);
+				}
 
-				IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
-
-				Krach.Graphics.Color color = Colors.Green;
-				if (stretchFactor < 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Blue, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
-				if (stretchFactor > 1) color = Krach.Graphics.Color.InterpolateHsv(Colors.Red, Colors.Green, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
-
-				color = Krach.Graphics.Color.FromRgba(color.Red, color.Green, color.Blue, 0.3);
-
-				InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, color);
+				Krach.Graphics.Color color = StretchedColor(Krach.Graphics.Colors.Black, stretchFactor);
+				InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, color);
 			}
 
 			base.Draw(context);
+		}
+		static Krach.Graphics.Color StretchedColor(Krach.Graphics.Color baseColor, double stretchFactor)
+		{
+			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
+			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+		
+			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
+		
+			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
+			return baseColor;
 		}
 
 		public override bool Contains(Vector2Double position)
@@ -63,8 +68,9 @@ namespace Kurve.Component
 			if ((Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
 			if ((Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
-			foreach (double testedPosition in Scalars.GetIntermediateValues(leftComponent.Position, rightComponent.Position, 100)) 
+			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100)) {
 				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true; 
+			}
 
 			return false;
 		}

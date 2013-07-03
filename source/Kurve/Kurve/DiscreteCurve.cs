@@ -21,7 +21,7 @@ namespace Kurve
 
 			this.items =
 			(
-				from position in Scalars.GetIntermediateValues(0, 1, 100)
+				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
 				select new DiscreteCurveItem(curve.GetPoint(position), curve.GetVelocity(position), curve.GetAcceleration(position))
 			)
 			.ToArray();
@@ -42,9 +42,7 @@ namespace Kurve
 
 		DiscreteCurveItem GetItem(double position)
 		{
-			if (position == 1) return items.Last();
-
-			return items.ElementAt((int)(position * items.Count()));
+			return items.ElementAt(((int)(position * items.Count()).Round()).Clamp(0, items.Count() - 1));
 		}
 	}
 }

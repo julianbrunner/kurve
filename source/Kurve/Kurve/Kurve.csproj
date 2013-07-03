@@ -84,7 +84,6 @@
     <Compile Include="Components\Controls\Abstract\SpecificationComponent.cs" />
     <Compile Include="Components\Controls\PointSpecificationComponent.cs" />
     <Compile Include="Components\Controls\Abstract\LengthControlComponent.cs" />
-    <Compile Include="Components\Controls\CurveLengthComponent.cs" />
     <Compile Include="CurveOptimizer.cs" />
     <Compile Include="Components\Controls\InterSpecificationComponent.cs" />
   </ItemGroup>
