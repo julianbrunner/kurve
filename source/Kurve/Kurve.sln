@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve.Test", "Kurve.Test\Kurve.Test.csproj", "{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve", "Kurve\Kurve.csproj", "{352049A9-B046-4C53-AE87-974F166A8109}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kurve.Curves", "Kurve.Curves\Kurve.Curves.csproj", "{7AC660D7-ED47-4DDB-A10F-DD480AC99286}"
@@ -27,10 +25,6 @@ Global
 		{352049A9-B046-4C53-AE87-974F166A8109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{352049A9-B046-4C53-AE87-974F166A8109}.Release|Any CPU.Build.0 = Release|Any CPU
-		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40FAA97C-182F-4E4F-B44B-34DA0E04C93B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A82DCF3-7D64-4BB7-B500-CD72788AAA14}.Release|Any CPU.ActiveCfg = Release|Any CPU
