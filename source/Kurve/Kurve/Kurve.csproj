@@ -84,7 +84,7 @@
     <Compile Include="Components\Controls\PointSpecificationComponent.cs" />
     <Compile Include="Components\Controls\Abstract\LengthControlComponent.cs" />
     <Compile Include="CurveOptimizer.cs" />
-    <Compile Include="Components\Controls\InterSpecificationComponent.cs" />
+    <Compile Include="Components\Controls\SegmentComponent.cs" />
     <Compile Include="Components\BackgroundComponent.cs" />
     <Compile Include="Drawing.cs" />
   </ItemGroup>

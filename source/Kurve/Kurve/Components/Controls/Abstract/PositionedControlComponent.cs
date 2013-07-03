@@ -15,8 +15,11 @@ namespace Kurve.Component
 
 		bool selected = false;
 		bool dragging = false;
-		bool isMouseDown = false;
+		bool isLeftMouseDown = false;
+		bool isRightMouseDown = false;
 		Vector2Double mouseDownPosition = Vector2Double.Origin;
+		Vector2Double lastMousePosition = Vector2Double.Origin;
+		Vector2Double dragVector = Vector2Double.Origin;
 
 		public event PositionedLengthInsertion InsertLength;
 
@@ -25,7 +28,9 @@ namespace Kurve.Component
 		public abstract double Position { get; }
 		public bool Selected { get { return selected; } }
 		public bool Dragging { get { return dragging; } }
-		public bool IsMouseDown { get { return isMouseDown; } }
+		public Vector2Double DragVector { get { return dragVector; } }
+		public bool IsLeftMouseDown { get { return isLeftMouseDown; } }
+		public bool IsRightMouseDown { get { return isRightMouseDown; } }
 
 		public PositionedControlComponent(Component parent, CurveComponent curveComponent) : base(parent)
 		{
@@ -36,9 +41,11 @@ namespace Kurve.Component
 
 		public override void MouseDown(Vector2Double mousePosition, MouseButton mouseButton)
 		{
-			if (Contains(mousePosition) && mouseButton == MouseButton.Left)
+			if (Contains(mousePosition) && (mouseButton == MouseButton.Left || mouseButton == MouseButton.Right))
 			{
-				isMouseDown = true;
+				if (mouseButton == MouseButton.Left) isLeftMouseDown = true;
+				if (mouseButton == MouseButton.Right) isRightMouseDown = true;
+				
 				mouseDownPosition = mousePosition;
 
 				Changed();
@@ -48,11 +55,13 @@ namespace Kurve.Component
 		}
 		public override void MouseUp(Vector2Double mousePosition, MouseButton mouseButton)
 		{
-			if (isMouseDown && mouseButton == MouseButton.Left)
+			if ((isLeftMouseDown || isRightMouseDown) && (mouseButton == MouseButton.Left || mouseButton == MouseButton.Right))
 			{
 				if (!dragging) selected = !selected;
-				isMouseDown = false;
+				if (mouseButton == MouseButton.Left) isLeftMouseDown = false;
+				if (mouseButton == MouseButton.Right) isRightMouseDown = false;
 				dragging = false;
+				dragVector = Vector2Double.Origin;
 
 				Changed();
 			}
@@ -61,12 +70,15 @@ namespace Kurve.Component
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
-			if (isMouseDown && (mousePosition - mouseDownPosition).Length >= dragThreshold)
+			if (isLeftMouseDown && (mousePosition - mouseDownPosition).Length >= dragThreshold)
 			{
 				dragging = true;
-			
+				dragVector = mousePosition - lastMousePosition;
+
 				Changed();
 			}
+
+			lastMousePosition = mousePosition;
 
 			base.MouseMove(mousePosition);
 		}

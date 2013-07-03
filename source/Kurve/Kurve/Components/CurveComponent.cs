@@ -20,7 +20,7 @@ namespace Kurve.Component
 		readonly CurveOptimizer curveOptimizer;
 
 		readonly List<PointSpecificationComponent> pointSpecificationComponents;
-		readonly List<InterSpecificationComponent> interSpecificationComponents;
+		readonly List<SegmentComponent> interSpecificationComponents;
 
 		BasicSpecification nextSpecification;
 
@@ -48,11 +48,11 @@ namespace Kurve.Component
 				);
 			}
 		}
-		IEnumerable<InterSpecificationComponent> InterSpecificationComponents
+		IEnumerable<SegmentComponent> InterSpecificationComponents
 		{
 			get
 			{
-				return Enumerables.Concatenate<InterSpecificationComponent>
+				return Enumerables.Concatenate<SegmentComponent>
 				(
 					interSpecificationComponents
 				);
@@ -83,7 +83,7 @@ namespace Kurve.Component
 			this.curveOptimizer.CurveChanged += CurveChanged;
 			
 			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
-			this.interSpecificationComponents = new List<InterSpecificationComponent>();
+			this.interSpecificationComponents = new List<SegmentComponent>();
 
 			nextSpecification = specification.BasicSpecification;
 			curve = null;
@@ -188,9 +188,15 @@ namespace Kurve.Component
 			curveOptimizer.Submit(nextSpecification);
 		}
 
+		void AddSpecification(double position)
+		{
+			PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, position, Curve.GetPoint(position));
+
+			AddPointSpecificationComponent(pointSpecificationComponent);
+		}
 		void AddPointSpecificationComponent()
 		{
-			IEnumerable<InterSpecificationComponent> selectedInterSpecificationComponents =
+			IEnumerable<SegmentComponent> selectedInterSpecificationComponents =
 			(
 				from interSpecificationComponent in InterSpecificationComponents
 				where interSpecificationComponent.Selected
@@ -198,7 +204,7 @@ namespace Kurve.Component
 			)
 			.ToArray();
 
-			foreach (InterSpecificationComponent interSpecificationComponent in selectedInterSpecificationComponents)
+			foreach (SegmentComponent interSpecificationComponent in selectedInterSpecificationComponents)
 			{
 				PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, interSpecificationComponent.Position, interSpecificationComponent.Point);
 
@@ -235,10 +241,11 @@ namespace Kurve.Component
 
 			foreach (Tuple<SpecificationComponent, SpecificationComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
 			{
-				InterSpecificationComponent interSpecificationComponent = new InterSpecificationComponent(this, this, specificationComponentRange.Item1, specificationComponentRange.Item2);
+				SegmentComponent interSpecificationComponent = new SegmentComponent(this, this, specificationComponentRange.Item1, specificationComponentRange.Item2);
 
 				interSpecificationComponent.InsertLength += InsertLength;
-
+				interSpecificationComponent.SpecificationChanged += SpecificationChanged;
+				interSpecificationComponent.AddSpecification += AddSpecification;
 				interSpecificationComponents.Add(interSpecificationComponent);
 			}
 		}
