@@ -43,13 +43,7 @@ namespace Kurve.Curves
 			if (basicSpecification == null) throw new ArgumentNullException("basicSpecification");
 
 			this.basicSpecification = basicSpecification;
-			this.position =
-			(
-				from segmentIndex in Enumerable.Range(0, basicSpecification.SegmentCount)
-				from parameterIndex in Enumerable.Range(0, basicSpecification.SegmentTemplate.ParameterDimension)
-				select 1.0
-			)
-			.ToArray();
+			this.position = GetDefaultPosition(basicSpecification);
 		}
 		public Specification() : this(new BasicSpecification()) { }
 		public Specification(XElement source)
@@ -57,12 +51,16 @@ namespace Kurve.Curves
 			if (source == null) throw new ArgumentNullException("source");
 
 			this.basicSpecification = new BasicSpecification(source.Element("basic_specification").Elements().Single());
-			this.position =
-			(
-				from element in source.Element("position").Elements("parameter")
-				select (double)element
-			)
-			.ToArray();
+			if (source.Element("position") == null) this.position = GetDefaultPosition(basicSpecification);
+			else
+			{
+				this.position =
+				(
+					from element in source.Element("position").Elements("parameter")
+					select (double)element
+				)
+				.ToArray();
+			}
 		}
 
 		public override bool Equals(object obj)
@@ -86,7 +84,18 @@ namespace Kurve.Curves
 		{
 			return !object.Equals(specification1, specification2);
 		}
-		
+
+		static IEnumerable<double> GetDefaultPosition(BasicSpecification basicSpecification)
+		{
+			return
+			(
+				from segmentIndex in Enumerable.Range(0, basicSpecification.SegmentCount)
+				from parameterIndex in Enumerable.Range(0, basicSpecification.SegmentTemplate.ParameterDimension)
+				select 1.0
+			)
+			.ToArray();
+		}
+
 		static bool Equals(Specification specification1, Specification specification2) 
 		{
 			if (object.ReferenceEquals(specification1, specification2)) return true;
