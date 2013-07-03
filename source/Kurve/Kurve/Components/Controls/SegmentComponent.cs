@@ -73,8 +73,6 @@ namespace Kurve.Component
 			if (leftComponent is SpecificationComponent && (Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
 			if (rightComponent is SpecificationComponent && (Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
-			Console.WriteLine ("not close to either");
-
 			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100)) {
 				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true; 
 			}
