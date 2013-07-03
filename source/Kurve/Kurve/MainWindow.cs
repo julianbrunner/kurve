@@ -7,7 +7,6 @@ using Krach.Basics;
 using System.Linq;
 using Krach.Extensions;
 using System.Collections.Generic;
-using Wrappers.Casadi;
 using System.Xml.Linq;
 using Kurve.Interface;
 using Kurve.Curves.Optimization;
