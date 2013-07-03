@@ -21,6 +21,8 @@ namespace Kurve.Component
 
 		readonly List<PointSpecificationComponent> pointSpecificationComponents;
 		readonly List<SegmentComponent> interSpecificationComponents;
+		readonly FixedPositionComponent curveStartComponent;
+		readonly FixedPositionComponent curveEndComponent;
 
 		BasicSpecification nextSpecification;
 
@@ -45,6 +47,17 @@ namespace Kurve.Component
 				return Enumerables.Concatenate<SpecificationComponent>
 				(
 					pointSpecificationComponents
+				);
+			}
+		}
+		IEnumerable<PositionedControlComponent> SegmentDelimitingComponents 
+		{
+			get 
+			{
+				return Enumerables.Concatenate<PositionedControlComponent>
+				(
+					SpecificationComponents,
+					Enumerables.Create(curveStartComponent, curveEndComponent)
 				);
 			}
 		}
@@ -81,7 +94,9 @@ namespace Kurve.Component
 
 			this.curveOptimizer = new CurveOptimizer(optimizationWorker, specification);
 			this.curveOptimizer.CurveChanged += CurveChanged;
-			
+
+			this.curveStartComponent = new FixedPositionComponent(this, this, 0);
+			this.curveEndComponent = new FixedPositionComponent(this, this, 1);
 			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
 			this.interSpecificationComponents = new List<SegmentComponent>();
 
@@ -229,9 +244,9 @@ namespace Kurve.Component
 
 		void RebuildInterSpecificationComponents()
 		{
-			IEnumerable<SpecificationComponent> orderedSpecificationComponents =
+			IEnumerable<PositionedControlComponent> orderedSpecificationComponents =
 			(
-				from specificationComponent in SpecificationComponents
+				from specificationComponent in SegmentDelimitingComponents
 				orderby specificationComponent.Position ascending
 				select specificationComponent
 			)
@@ -239,7 +254,7 @@ namespace Kurve.Component
 
 			interSpecificationComponents.Clear();
 
-			foreach (Tuple<SpecificationComponent, SpecificationComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
+			foreach (Tuple<PositionedControlComponent, PositionedControlComponent> specificationComponentRange in orderedSpecificationComponents.GetRanges())
 			{
 				SegmentComponent interSpecificationComponent = new SegmentComponent(this, this, specificationComponentRange.Item1, specificationComponentRange.Item2);
 

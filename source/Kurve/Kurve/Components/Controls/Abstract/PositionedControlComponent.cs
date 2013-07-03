@@ -57,7 +57,7 @@ namespace Kurve.Component
 		{
 			if ((isLeftMouseDown || isRightMouseDown) && (mouseButton == MouseButton.Left || mouseButton == MouseButton.Right))
 			{
-				if (!dragging) selected = !selected;
+				if ((mousePosition - mouseDownPosition).Length <= dragThreshold) selected = !selected;
 				if (mouseButton == MouseButton.Left) isLeftMouseDown = false;
 				if (mouseButton == MouseButton.Right) isRightMouseDown = false;
 				dragging = false;
@@ -70,7 +70,7 @@ namespace Kurve.Component
 		}
 		public override void MouseMove(Vector2Double mousePosition)
 		{
-			if (isLeftMouseDown && (mousePosition - mouseDownPosition).Length >= dragThreshold)
+			if (isLeftMouseDown)
 			{
 				dragging = true;
 				dragVector = mousePosition - lastMousePosition;

@@ -87,6 +87,7 @@
     <Compile Include="Components\Controls\SegmentComponent.cs" />
     <Compile Include="Components\BackgroundComponent.cs" />
     <Compile Include="Drawing.cs" />
+    <Compile Include="Components\Controls\FixedPositionComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -21,14 +21,14 @@ namespace Kurve.Component
 		public event Action<double> AddSpecification;
 
 		readonly PositionedControlComponent leftComponent;
-		readonly SpecificationComponent rightComponent;
+		readonly PositionedControlComponent rightComponent;
 
 		Orthotope2Double Bounds { get { return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); } }
 
 		public override double Position { get { return (leftComponent.Position + rightComponent.Position) / 2; } }
 		public Vector2Double Point { get { return Curve == null ? Vector2Double.Origin : Curve.GetPoint(Position); } }
 
-		public SegmentComponent(Component parent, CurveComponent curveComponent, SpecificationComponent leftComponent, SpecificationComponent rightComponent) : base(parent, curveComponent)
+		public SegmentComponent(Component parent, CurveComponent curveComponent, PositionedControlComponent leftComponent, PositionedControlComponent rightComponent) : base(parent, curveComponent)
 		{
 			if (leftComponent == null) throw new ArgumentNullException("leftComponent");
 			if (rightComponent == null) throw new ArgumentNullException("rightComponent");
