@@ -12,6 +12,7 @@ using Krach.Maps.Scalar;
 using Krach.Maps;
 using Kurve.Interface;
 using Cairo;
+using System.IO;
 
 namespace Kurve.Component
 {
@@ -30,6 +31,7 @@ namespace Kurve.Component
 		public BackgroundComponent(Component parent, string fileName) : base(parent)
 		{
 			if (fileName == null) throw new ArgumentNullException("fileName");
+			if (!File.Exists(fileName)) throw new ArgumentException("parameter 'fileName', points to a file that does not exist");
 
 			this.background = new ImageSurface(fileName);
 		}

@@ -28,11 +28,9 @@ namespace Kurve.Component
 		{
 			get
 			{
-				return Enumerables.Concatenate<Component>
-				(
-					Enumerables.Create(backgroundComponent),
-					curveComponents
-				);
+				if (backgroundComponent != null) yield return backgroundComponent;
+
+				foreach (CurveComponent curveComponent in curveComponents) yield return curveComponent;
 			}
 		}
 
@@ -40,14 +38,11 @@ namespace Kurve.Component
 		{
 			if (parentWindow == null) throw new ArgumentNullException("parentWindow");
 
-			string fileName = null;
-			if (parameters.Count() == 0) fileName = string.Empty;
-			if (parameters.Count() == 1) fileName = parameters.Single();
 			if (parameters.Count() > 1) throw new ArgumentException("parameter 'parameters' contained more than one item.");
 
 			this.parentWindow = parentWindow;
 			this.optimizationWorker = new OptimizationWorker();
-			this.backgroundComponent = new BackgroundComponent(this, fileName);
+			if (parameters.Count() == 1) this.backgroundComponent = new BackgroundComponent(this, parameters.Single());
 			this.curveComponents = new List<CurveComponent>();
 		}
 
