@@ -84,6 +84,7 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.Control_L: key = Kurve.Interface.Key.Control; break;
 			case Gdk.Key.Shift_L: key = Kurve.Interface.Key.Shift; break;
 			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
+			case Gdk.Key.Meta_L: key = Kurve.Interface.Key.Alt; break;
 			case Gdk.Key.a: key = Kurve.Interface.Key.A; break;
 			case Gdk.Key.r: key = Kurve.Interface.Key.R; break;
 			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;
@@ -103,6 +104,7 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.Control_L: key = Kurve.Interface.Key.Control; break;
 			case Gdk.Key.Shift_L: key = Kurve.Interface.Key.Shift; break;
 			case Gdk.Key.Alt_L: key = Kurve.Interface.Key.Alt; break;
+			case Gdk.Key.Meta_L: key = Kurve.Interface.Key.Alt; break;
 			case Gdk.Key.a: key = Kurve.Interface.Key.A; break;
 			case Gdk.Key.r: key = Kurve.Interface.Key.R; break;
 			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;

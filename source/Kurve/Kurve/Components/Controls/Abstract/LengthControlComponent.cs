@@ -8,6 +8,7 @@ namespace Kurve.Component
 	abstract class LengthControlComponent : Component
 	{
 		bool isShiftDown = false;
+		bool isFineGrained = false;
 
 		public bool IsShiftDown { get { return isShiftDown; } }
 
@@ -17,12 +18,14 @@ namespace Kurve.Component
 		{
 			if (isShiftDown)
 			{
+				double stepSize = isFineGrained ? 1 : 10;
+
 				double length;
 
 				switch (scrollDirection)
 				{
-					case ScrollDirection.Up: length = -10; break;
-					case ScrollDirection.Down: length = +10; break;
+					case ScrollDirection.Up: length = -stepSize; break;
+					case ScrollDirection.Down: length = +stepSize; break;
 					default: throw new ArgumentException();
 				}
 
@@ -41,6 +44,12 @@ namespace Kurve.Component
 			
 				Changed();
 			}
+			if (key == Key.Alt)
+			{
+				isFineGrained = true;
+
+				Changed();
+			}
 
 			base.KeyDown(key);
 		}
@@ -52,11 +61,17 @@ namespace Kurve.Component
 
 				Changed();
 			}
+			if (key == Key.Alt)
+			{
+				isFineGrained = false;
+
+				Changed();
+			}
 
 			base.KeyUp(key);
 		}
 
-		public abstract void OnInsertLength(double length);
+		protected abstract void OnInsertLength(double length);
 	}
 }
 

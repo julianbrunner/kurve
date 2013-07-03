@@ -71,14 +71,14 @@ namespace Kurve.Component
 			base.MouseMove(mousePosition);
 		}
 
-		public override void OnInsertLength(double length)
+		public abstract bool Contains(Vector2Double point);
+
+		protected override void OnInsertLength(double length)
 		{
 			if (!selected) return;
 
 			if (InsertLength != null) InsertLength(Position, length);
 		}
-
-		public abstract bool Contains(Vector2Double point);
 	}
 }
 
