@@ -17,6 +17,7 @@ namespace Kurve.Component
 	{
 		readonly Window parentWindow;
 		readonly OptimizationWorker optimizationWorker;
+		readonly BackgroundComponent backgroundComponent;
 		readonly List<CurveComponent> curveComponents;
 
 		bool disposed = false;
@@ -27,17 +28,37 @@ namespace Kurve.Component
 		{
 			get
 			{
-				return curveComponents;
+				return Enumerables.Concatenate<Component>
+				(
+					Enumerables.Create(backgroundComponent),
+					curveComponents
+				);
 			}
 		}
 
-		public RootComponent(Window parentWindow)
+		public RootComponent(Window parentWindow, IEnumerable<string> parameters)
 		{
 			if (parentWindow == null) throw new ArgumentNullException("parentWindow");
 
+			string fileName = null;
+			if (parameters.Count() == 0) fileName = string.Empty;
+			if (parameters.Count() == 1) fileName = parameters.Single();
+			if (parameters.Count() > 1) throw new ArgumentException("parameter 'parameters' contained more than one item.");
+
 			this.parentWindow = parentWindow;
 			this.optimizationWorker = new OptimizationWorker();
+			this.backgroundComponent = new BackgroundComponent(this, fileName);
 			this.curveComponents = new List<CurveComponent>();
+		}
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+
+				optimizationWorker.Dispose();
+			}
 		}
 
 		public void AddCurve()
@@ -55,16 +76,6 @@ namespace Kurve.Component
 			);
 
 			curveComponents.Add(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
-		}
-
-		public void Dispose()
-		{
-			if (!disposed)
-			{
-				disposed = true;
-
-				optimizationWorker.Dispose();
-			}
 		}
 
 		public override void KeyDown(Kurve.Interface.Key key)

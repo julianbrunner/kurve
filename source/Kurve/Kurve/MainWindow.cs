@@ -17,11 +17,11 @@ public partial class MainWindow : Gtk.Window
 {
 	readonly RootComponent rootComponent;
 
-	public MainWindow(): base(Gtk.WindowType.Toplevel)
+	public MainWindow(IEnumerable<string> parameters): base(Gtk.WindowType.Toplevel)
 	{
 		Build();
 
-		this.rootComponent = new RootComponent(this);
+		this.rootComponent = new RootComponent(this, parameters);
 		this.rootComponent.ComponentChanged += RootComponentChanged;
 	}
 

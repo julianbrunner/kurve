@@ -30,14 +30,7 @@ namespace Kurve.Component
 
 		public override void Draw(Context context)
 		{
-			context.Rectangle(Bounds.Start.X + 0.5, Bounds.Start.Y + 0.5, Bounds.Size.X - 1, Bounds.Size.Y - 1);
-			
-			context.LineWidth = 1;
-			context.LineCap = LineCap.Butt;
-			context.Color = InterfaceUtility.ToCairoColor(Colors.Black);
-
-			if (Selected) context.Fill();
-			else context.Stroke();
+			Drawing.DrawRectangle(context, Bounds, Colors.Black, Selected);
 
 			base.Draw(context);
 		}

@@ -5,11 +5,12 @@ namespace Kurve
 {
 	class MainClass
 	{
-		public static void Main(string[] args)
+		public static void Main(string[] parameters)
 		{
 			Application.Init();
-			MainWindow win = new MainWindow();
-			win.Show();
+
+			new MainWindow(parameters).Show();
+
 			Application.Run();
 		}
 	}

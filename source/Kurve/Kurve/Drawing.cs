@@ -7,7 +7,7 @@ using Cairo;
 
 namespace Kurve
 {
-	static class InterfaceUtility
+	static class Drawing
 	{
 		public static Cairo.Color ToCairoColor(Krach.Graphics.Color color)
 		{
@@ -22,6 +22,21 @@ namespace Kurve
 			context.LineCap = LineCap.Butt;
 			context.Color = ToCairoColor(color);
 			context.Stroke();
+		}
+		public static void DrawRectangle(Context context, Orthotope2Double bounds, Krach.Graphics.Color color, bool fill)
+		{
+			context.Rectangle(bounds.Start.X + 0.5, bounds.Start.Y + 0.5, bounds.Size.X - 1, bounds.Size.Y - 1);
+			
+			context.LineWidth = 1;
+			context.LineCap = LineCap.Butt;
+			context.Color = Drawing.ToCairoColor(color);
+
+			if (fill) context.Fill();
+			else context.Stroke();
+		}
+		public static void DrawSurface(Context context, Surface surface)
+		{
+			surface.Show(context, 0, 0);
 		}
 	}
 }

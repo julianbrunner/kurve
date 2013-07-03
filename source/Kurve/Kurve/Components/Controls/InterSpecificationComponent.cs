@@ -40,39 +40,35 @@ namespace Kurve.Component
 			{
 				double stretchFactor = Curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / BasicSpecification.CurveLength;
 
-				if (Selected) {
-					Krach.Graphics.Color selectionColor = Colors.Green.ReplaceAlpha(0.3);
-					InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, selectionColor);
-				}
+				if (Selected) Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
 
-				Krach.Graphics.Color color = StretchedColor(Krach.Graphics.Colors.Black, stretchFactor);
-				InterfaceUtility.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, color);
+				Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, StretchedColor(Krach.Graphics.Colors.Black, stretchFactor));
 			}
 
 			base.Draw(context);
 		}
-		static Krach.Graphics.Color StretchedColor(Krach.Graphics.Color baseColor, double stretchFactor)
-		{
-			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
-			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
-		
-			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
-		
-			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
-			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
-			return baseColor;
-		}
-
 		public override bool Contains(Vector2Double position)
 		{
 			if ((Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
 			if ((Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
-			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100)) {
-				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true; 
-			}
+			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100))
+				if ((Curve.GetPoint(testedPosition) - position).Length < 10) return true;
 
 			return false;
+		}
+		
+		static Krach.Graphics.Color StretchedColor(Krach.Graphics.Color baseColor, double stretchFactor)
+		{
+			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
+			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+			
+			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
+			
+			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateHsv(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
+
+			return baseColor;
 		}
 	}
 }

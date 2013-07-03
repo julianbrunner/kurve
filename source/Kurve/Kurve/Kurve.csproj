@@ -71,7 +71,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="Interface\MouseButton.cs" />
     <Compile Include="Interface\ScrollDirection.cs" />
-    <Compile Include="InterfaceUtility.cs" />
     <Compile Include="OptimizationWorker.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="DiscreteCurveItem.cs" />
@@ -86,6 +85,8 @@
     <Compile Include="Components\Controls\Abstract\LengthControlComponent.cs" />
     <Compile Include="CurveOptimizer.cs" />
     <Compile Include="Components\Controls\InterSpecificationComponent.cs" />
+    <Compile Include="Components\BackgroundComponent.cs" />
+    <Compile Include="Drawing.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
