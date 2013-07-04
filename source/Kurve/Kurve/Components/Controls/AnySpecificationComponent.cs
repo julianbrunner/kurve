@@ -125,7 +125,7 @@ namespace Kurve.Component
 				}
 				else 
 				{
-					point += DragVector * SlowDownFactor;
+					Point += DragVector * SlowDownFactor;
 				}
 
 				OnSpecificationChanged();
