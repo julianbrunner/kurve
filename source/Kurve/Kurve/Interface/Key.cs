@@ -7,6 +7,6 @@ using Cairo;
 
 namespace Kurve.Interface
 {
-	enum Key { Control, Shift, Alt, A, R, N, L, S }
+	enum Key { Control, Shift, Alt, R, N, L, S, P, D, C }
 }
 

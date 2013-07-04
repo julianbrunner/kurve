@@ -81,13 +81,13 @@
     <Compile Include="Components\Abstract\Component.cs" />
     <Compile Include="Components\Controls\Abstract\PositionedControlComponent.cs" />
     <Compile Include="Components\Controls\Abstract\SpecificationComponent.cs" />
-    <Compile Include="Components\Controls\PointSpecificationComponent.cs" />
     <Compile Include="Components\Controls\Abstract\LengthControlComponent.cs" />
     <Compile Include="CurveOptimizer.cs" />
-    <Compile Include="Components\Controls\SegmentComponent.cs" />
     <Compile Include="Components\BackgroundComponent.cs" />
     <Compile Include="Drawing.cs" />
     <Compile Include="Components\Controls\FixedPositionComponent.cs" />
+    <Compile Include="Components\Controls\AnySpecificationComponent.cs" />
+    <Compile Include="Components\Controls\SegmentComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

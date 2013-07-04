@@ -84,7 +84,7 @@ namespace Kurve.Component
 
 			if (Dragging) 
 			{
-				foreach (PointSpecificationComponent component in Enumerables.Create(leftComponent, rightComponent).OfType<PointSpecificationComponent>())
+				foreach (AnySpecificationComponent component in Enumerables.Create(leftComponent, rightComponent))
 					component.Point += DragVector;
 
 				OnSpecificationChanged();

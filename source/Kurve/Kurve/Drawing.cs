@@ -26,7 +26,7 @@ namespace Kurve
 		public static void DrawRectangle(Context context, Orthotope2Double bounds, Krach.Graphics.Color color, bool fill)
 		{
 			context.Rectangle(bounds.Start.X + 0.5, bounds.Start.Y + 0.5, bounds.Size.X - 1, bounds.Size.Y - 1);
-			
+
 			context.LineWidth = 1;
 			context.LineCap = LineCap.Butt;
 			context.Color = Drawing.ToCairoColor(color);
@@ -34,6 +34,16 @@ namespace Kurve
 			if (fill) context.Fill();
 			else context.Stroke();
 		}
+		public static void DrawText(Context context, string text, Vector2Double position, Krach.Graphics.Color color)
+		{
+			//context.SelectFontFace("Helvetica", FontSlant.Normal, FontWeight.Bold);
+       	 	context.SetFontSize(13);
+			context.Color = Drawing.ToCairoColor(color);
+       
+      	  	context.MoveTo(position.X, position.Y);
+       	 	context.ShowText(text);
+		}
+
 		public static void DrawSurface(Context context, Surface surface)
 		{
 			surface.Show(context, 0, 0);

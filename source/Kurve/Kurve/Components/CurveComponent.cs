@@ -21,7 +21,7 @@ namespace Kurve.Component
 
 		readonly CurveOptimizer curveOptimizer;
 
-		readonly List<PointSpecificationComponent> pointSpecificationComponents;
+		readonly List<AnySpecificationComponent> pointSpecificationComponents;
 		readonly List<SegmentComponent> segmentComponents;
 		readonly FixedPositionComponent curveStartComponent;
 		readonly FixedPositionComponent curveEndComponent;
@@ -42,11 +42,11 @@ namespace Kurve.Component
 				);
 			}
 		}
-		IEnumerable<SpecificationComponent> SpecificationComponents
+		IEnumerable<AnySpecificationComponent> SpecificationComponents
 		{
 			get
 			{
-				return Enumerables.Concatenate<SpecificationComponent>
+				return Enumerables.Concatenate<AnySpecificationComponent>
 				(
 					pointSpecificationComponents
 				);
@@ -99,7 +99,7 @@ namespace Kurve.Component
 
 			this.curveStartComponent = new FixedPositionComponent(this, this, 0);
 			this.curveEndComponent = new FixedPositionComponent(this, this, 1);
-			this.pointSpecificationComponents = new List<PointSpecificationComponent>();
+			this.pointSpecificationComponents = new List<AnySpecificationComponent>();
 			this.segmentComponents = new List<SegmentComponent>();
 
 			nextSpecification = specification.BasicSpecification;
@@ -109,8 +109,13 @@ namespace Kurve.Component
 
 			curveOptimizer.Submit(nextSpecification);
 
-			foreach (PointCurveSpecification pointCurveSpecification in nextSpecification.CurveSpecifications.OfType<PointCurveSpecification>())
-				AddPointSpecificationComponent(new PointSpecificationComponent(this, this, pointCurveSpecification.Position, pointCurveSpecification.Point));
+			IEnumerable<AnySpecificationComponent> specificationComponents = 
+				from spec in nextSpecification.CurveSpecifications
+				orderby spec.Position ascending
+				group spec by spec.Position into specificationGroup
+				select new AnySpecificationComponent(this, this, specificationGroup.Key, specificationGroup);
+
+			foreach (AnySpecificationComponent component in specificationComponents) AddSpecificationComponent(component);
 		}
 
 		void CurveChanged(BasicSpecification newBasicSpecification, Curve newCurve)
@@ -170,19 +175,20 @@ namespace Kurve.Component
 				nextSpecification.SegmentCount,
 				nextSpecification.SegmentTemplate,
 				(
-					from pointSpecificationComponent in pointSpecificationComponents
-					select new PointCurveSpecification(pointSpecificationComponent.Position, pointSpecificationComponent.Point)
+					from specificationComponent in SpecificationComponents
+					from specification in specificationComponent.Specifications
+					select specification
 				)
 				.ToArray()
 			);
 		}
 
-		void AddPointSpecificationComponent(PointSpecificationComponent pointSpecificationComponent)
+		void AddSpecificationComponent(AnySpecificationComponent specificationComponent)
 		{
-			pointSpecificationComponent.SpecificationChanged += SpecificationChanged;
-			pointSpecificationComponent.InsertLength += InsertLength;
-			pointSpecificationComponent.SelectionChanged += SelectionChanged;
-			pointSpecificationComponents.Add(pointSpecificationComponent);
+			specificationComponent.SpecificationChanged += SpecificationChanged;
+			specificationComponent.InsertLength += InsertLength;
+			specificationComponent.SelectionChanged += SelectionChanged;
+			pointSpecificationComponents.Add(specificationComponent);
 
 			RebuildSegmentComponents();
 
@@ -192,7 +198,7 @@ namespace Kurve.Component
 
 			curveOptimizer.Submit(nextSpecification);
 		}
-		void RemovePointSpecificationComponent(PointSpecificationComponent pointSpecificationComponent)
+		void RemoveSelectedSpecificationComponent(AnySpecificationComponent pointSpecificationComponent)
 		{
 			pointSpecificationComponents.Remove(pointSpecificationComponent);
 
@@ -207,30 +213,14 @@ namespace Kurve.Component
 
 		void AddSpecification(double position)
 		{
-			PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, position, Curve.GetPoint(position));
+			AnySpecificationComponent pointSpecificationComponent = new AnySpecificationComponent(this, this, position, Enumerables.Create<CurveSpecification>());
 
-			AddPointSpecificationComponent(pointSpecificationComponent);
+			AddSpecificationComponent(pointSpecificationComponent);
 		}
-		void AddPointSpecificationComponent()
-		{
-			IEnumerable<SegmentComponent> selectedSegmentComponents =
-			(
-				from segmentComponent in SegmentComponents
-				where segmentComponent.Selected
-				select segmentComponent
-			)
-			.ToArray();
 
-			foreach (SegmentComponent segmentComponent in selectedSegmentComponents)
-			{
-				PointSpecificationComponent pointSpecificationComponent = new PointSpecificationComponent(this, this, segmentComponent.Position, segmentComponent.Point);
-
-				AddPointSpecificationComponent(pointSpecificationComponent);
-			}
-		}
-		void RemovePointSpecificationComponent()
+		void RemoveSelectedSpecificationComponent()
 		{
-			IEnumerable<SpecificationComponent> selectedSpecificationComponents =
+			IEnumerable<AnySpecificationComponent> selectedSpecificationComponents =
 			(
 				from specificationComponent in SpecificationComponents
 				where specificationComponent.Selected
@@ -238,9 +228,9 @@ namespace Kurve.Component
 			)
 			.ToArray();
 
-			foreach (SpecificationComponent specificationComponent in selectedSpecificationComponents)
+			foreach (AnySpecificationComponent specificationComponent in selectedSpecificationComponents)
 			{
-				RemovePointSpecificationComponent((PointSpecificationComponent)specificationComponent);
+				RemoveSelectedSpecificationComponent(specificationComponent);
 			}
 		}
 
@@ -296,8 +286,7 @@ namespace Kurve.Component
 		{
 			switch (key)
 			{
-				case Key.A: AddPointSpecificationComponent(); break;
-				case Key.R: RemovePointSpecificationComponent(); break;
+				case Key.R: RemoveSelectedSpecificationComponent(); break;
 				case Key.Shift: isShiftDown = false; break;
 			}
 

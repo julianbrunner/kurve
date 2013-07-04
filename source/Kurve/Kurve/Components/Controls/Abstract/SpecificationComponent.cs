@@ -8,7 +8,6 @@ namespace Kurve.Component
 	abstract class SpecificationComponent : PositionedControlComponent
 	{
 		double position = 0;
-		bool isFineGrained = false;
 
 		public event Action SpecificationChanged;
 
@@ -30,7 +29,7 @@ namespace Kurve.Component
 		{
 			if (Selected && !IsShiftDown)
 			{
-				double stepSize = isFineGrained ? 0.001 : 0.01;
+				double stepSize = 0.01 * SlowDownFactor;
 
 				switch (scrollDirection)
 				{
@@ -47,28 +46,6 @@ namespace Kurve.Component
 			}
 
 			base.Scroll(scrollDirection);
-		}
-		public override void KeyDown(Key key)
-		{
-			if (key == Key.Alt)
-			{
-				isFineGrained = true;
-
-				Changed();
-			}
-
-			base.KeyDown(key);
-		}
-		public override void KeyUp(Key key)
-		{
-			if (key == Key.Alt)
-			{
-				isFineGrained = false;
-
-				Changed();
-			}
-
-			base.KeyUp(key);
 		}
 
 		protected void OnSpecificationChanged()
