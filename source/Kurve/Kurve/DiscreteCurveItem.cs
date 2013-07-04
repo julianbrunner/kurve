@@ -21,9 +21,9 @@ namespace Kurve
 		public Vector2Double Point { get { return point; } }
 		public Vector2Double Velocity { get { return velocity; } }
 		public Vector2Double Acceleration { get { return acceleration; } }
-		public Vector2Double Speed { get { return speed; } }
+		public double Speed { get { return speed; } }
 		public Vector2Double Direction { get { return direction; } }
-		public Vector2Double Curvature { get { return curvature; } }
+		public double Curvature { get { return curvature; } }
 
 		public DiscreteCurveItem(Vector2Double point, Vector2Double velocity, Vector2Double acceleration, double speed, Vector2Double direction, double curvature)
 		{
