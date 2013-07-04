@@ -53,6 +53,7 @@
     <Compile Include="SegmentedCurve.cs" />
     <Compile Include="Specification\DirectionCurveSpecification.cs" />
     <Compile Include="Specification\CurvatureCurveSpecification.cs" />
+    <Compile Include="Specification\SpecificationTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -56,11 +56,6 @@ namespace Kurve.Curves
 			return object.Equals(this, other);
 		}
 
-//		public override ValueTerm GetErrorTerm(Curve curve)
-//		{
-//			return Terms.Difference(curve.Velocity.Apply(Terms.Constant(position)), Terms.Constant(velocity.X, velocity.Y));
-//		}
-
 		public static bool operator ==(DirectionCurveSpecification curveSpecification1, DirectionCurveSpecification curveSpecification2)
 		{
 			return object.Equals(curveSpecification1, curveSpecification2);

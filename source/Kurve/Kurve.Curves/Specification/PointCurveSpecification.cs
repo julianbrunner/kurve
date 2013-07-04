@@ -3,6 +3,7 @@ using Krach.Basics;
 using Wrappers.Casadi;
 using System.Xml.Linq;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Kurve.Curves
 {
@@ -54,12 +55,6 @@ namespace Kurve.Curves
 		public bool Equals(PointCurveSpecification other)
 		{
 			return object.Equals(this, other);
-		}
-
-		// TODO: clean up
-		public static ValueTerm GetErrorTerm(FunctionTermCurve curve, ValueTerm position, ValueTerm point)
-		{
-			return Terms.Difference(curve.Point.Apply(position), point);
 		}
 
 		public static bool operator ==(PointCurveSpecification curveSpecification1, PointCurveSpecification curveSpecification2)

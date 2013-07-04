@@ -58,33 +58,65 @@ namespace Kurve.Curves.Optimization
 		{
 			yield return new Substitution(optimizationProblem.CurveLength, Terms.Constant(curveLength));
 
-			foreach (int pointSpecificationIndex in Enumerable.Range(0, optimizationProblem.PointSpecificationCount))
+			IEnumerable<PointCurveSpecification> pointCurveSpecifications = curveSpecifications.OfType<PointCurveSpecification>();
+			IEnumerable<DirectionCurveSpecification> directionCurveSpecifications = curveSpecifications.OfType<DirectionCurveSpecification>();
+			IEnumerable<CurvatureCurveSpecification> curvatureCurveSpecifications = curveSpecifications.OfType<CurvatureCurveSpecification>();
+
+			foreach (int pointSpecificationTemplateIndex in Enumerable.Range(0, optimizationProblem.PointSpecificationTemplates.Count()))
 			{
-				ValueTerm position = optimizationProblem.PointSpecificationPositions.ElementAt(pointSpecificationIndex);
-				ValueTerm point = optimizationProblem.PointSpecificationPoints.ElementAt(pointSpecificationIndex);
-				IEnumerable<ValueTerm> segmentWeights = optimizationProblem.PointSpecificationSegmentWeights.ElementAt(pointSpecificationIndex);
+				SpecificationTemplate pointSpecificationTemplate = optimizationProblem.PointSpecificationTemplates.ElementAt(pointSpecificationTemplateIndex);
 
-				if (pointSpecificationIndex < curveSpecifications.Count())
+				if (pointSpecificationTemplateIndex < pointCurveSpecifications.Count())
 				{
-					PointCurveSpecification pointCurveSpecification = (PointCurveSpecification)curveSpecifications.ElementAt(pointSpecificationIndex);
-					
-					yield return new Substitution(position, Terms.Constant(pointCurveSpecification.Position));
-					yield return new Substitution(point, Terms.Constant(pointCurveSpecification.Point.X, pointCurveSpecification.Point.Y));
-					foreach (int segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count()))
-					{
-						Segment segment = optimizationSegments.Segments.ElementAt(segmentIndex);
-						double segmentWeight = segment.Contains(pointCurveSpecification.Position) ? 1 : 0;
+					PointCurveSpecification pointCurveSpecification = pointCurveSpecifications.ElementAt(pointSpecificationTemplateIndex);
 
-						yield return new Substitution(segmentWeights.ElementAt(segmentIndex), Terms.Constant(segmentWeight));
-					}
+					ValueTerm position = Terms.Constant(pointCurveSpecification.Position);
+					ValueTerm value = Terms.Constant(pointCurveSpecification.Point.X, pointCurveSpecification.Point.Y);
+
+					foreach (Substitution substitution in pointSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments, pointCurveSpecification.Position, position, value))
+						yield return substitution;
 				}
 				else
+					foreach (Substitution substitution in pointSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments))
+						yield return substitution;
+			}
+
+			foreach (int directionSpecificationTemplateIndex in Enumerable.Range(0, optimizationProblem.DirectionSpecificationTemplates.Count()))
+			{
+				SpecificationTemplate directionSpecificationTemplate = optimizationProblem.DirectionSpecificationTemplates.ElementAt(directionSpecificationTemplateIndex);
+
+				if (directionSpecificationTemplateIndex < directionCurveSpecifications.Count())
 				{
-					yield return new Substitution(position, Terms.Constant(0));
-					yield return new Substitution(point, Terms.Constant(0, 0));
-					foreach (int segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count()))
-						yield return new Substitution(segmentWeights.ElementAt(segmentIndex), Terms.Constant(0));
+					DirectionCurveSpecification directionCurveSpecification = directionCurveSpecifications.ElementAt(directionSpecificationTemplateIndex);
+
+					ValueTerm position = Terms.Constant(directionCurveSpecification.Position);
+					ValueTerm value = Terms.Constant(directionCurveSpecification.Direction.X, directionCurveSpecification.Direction.Y);
+
+					foreach (Substitution substitution in directionSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments, directionCurveSpecification.Position, position, value))
+						yield return substitution;
 				}
+				else
+					foreach (Substitution substitution in directionSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments))
+						yield return substitution;
+			}
+
+			foreach (int curvatureSpecificationTemplateIndex in Enumerable.Range(0, optimizationProblem.CurvatureSpecificationTemplates.Count()))
+			{
+				SpecificationTemplate curvatureSpecificationTemplate = optimizationProblem.CurvatureSpecificationTemplates.ElementAt(curvatureSpecificationTemplateIndex);
+
+				if (curvatureSpecificationTemplateIndex < curvatureCurveSpecifications.Count())
+				{
+					CurvatureCurveSpecification curvatureCurveSpecification = curvatureCurveSpecifications.ElementAt(curvatureSpecificationTemplateIndex);
+
+					ValueTerm position = Terms.Constant(curvatureCurveSpecification.Position);
+					ValueTerm value = Terms.Constant(curvatureCurveSpecification.Curvature);
+
+					foreach (Substitution substitution in curvatureSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments, curvatureCurveSpecification.Position, position, value))
+						yield return substitution;
+				}
+				else
+					foreach (Substitution substitution in curvatureSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments))
+						yield return substitution;
 			}
 		}
 	}

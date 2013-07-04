@@ -14,17 +14,15 @@ namespace Kurve.Curves.Optimization
 		readonly IEnumerable<CurveSpecification> curveSpecifications;
 
 		readonly ValueTerm curveLength;
-		readonly int pointSpecificationCount;
-		readonly IEnumerable<ValueTerm> pointSpecificationPositions;
-		readonly IEnumerable<ValueTerm> pointSpecificationPoints;
-		readonly IEnumerable<IEnumerable<ValueTerm>> pointSpecificationSegmentWeights;
+		readonly IEnumerable<SpecificationTemplate> pointSpecificationTemplates;
+		readonly IEnumerable<SpecificationTemplate> directionSpecificationTemplates;
+		readonly IEnumerable<SpecificationTemplate> curvatureSpecificationTemplates;
 		readonly IpoptProblem problem;
 
 		public ValueTerm CurveLength { get { return curveLength; } }
-		public int PointSpecificationCount { get { return pointSpecificationCount; } }
-		public IEnumerable<ValueTerm> PointSpecificationPositions { get { return pointSpecificationPositions; } }
-		public IEnumerable<ValueTerm> PointSpecificationPoints { get { return pointSpecificationPoints; } }
-		public IEnumerable<IEnumerable<ValueTerm>> PointSpecificationSegmentWeights { get { return pointSpecificationSegmentWeights; } }
+		public IEnumerable<SpecificationTemplate> PointSpecificationTemplates { get { return pointSpecificationTemplates; } }
+		public IEnumerable<SpecificationTemplate> DirectionSpecificationTemplates { get { return directionSpecificationTemplates; } }
+		public IEnumerable<SpecificationTemplate> CurvatureSpecificationTemplates { get { return curvatureSpecificationTemplates; } }
 		public IpoptProblem Problem { get { return problem; } }
 
 		OptimizationProblem(OptimizationSegments optimizationSegments, IEnumerable<CurveSpecification> curveSpecifications)
@@ -45,7 +43,7 @@ namespace Kurve.Curves.Optimization
 				let position = Terms.Variable("t")
 				let segmentCurve = segment.LocalCurve
 				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()))
-				let segmentError = Terms.Square(Terms.Difference(Terms.Norm(segmentCurve.Velocity.Apply(position)), segmentLength))
+				let segmentError = Terms.Square(Terms.Difference(segmentCurve.Speed.Apply(position), segmentLength))
 				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 			ValueTerm fairnessError = Terms.Sum
@@ -64,32 +62,23 @@ namespace Kurve.Curves.Optimization
 			)
 			.Simplify();
 
-//			Console.WriteLine("objective value");
-//			Console.WriteLine(objectiveValue);
-//			Console.WriteLine();
 
-			this.pointSpecificationCount = curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
-			this.pointSpecificationPositions =
+			this.pointSpecificationTemplates =
 			(
-				from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
-				select Terms.Variable(string.Format("position_{0}", pointSpecificationIndex))
+				from pointSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification))
+				select SpecificationTemplate.CreatePointSpecificationTemplate(optimizationSegments.Segments, pointSpecificationIndex)
 			)
 			.ToArray();
-			this.pointSpecificationPoints =
+			this.directionSpecificationTemplates =
 			(
-				from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
-				select Terms.Variable(string.Format("point_{0}", pointSpecificationIndex), 2)
+				from directionSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is DirectionCurveSpecification))
+				select SpecificationTemplate.CreateDirectionSpecificationTemplate(optimizationSegments.Segments, directionSpecificationIndex)
 			)
 			.ToArray();
-			this.pointSpecificationSegmentWeights =
+			this.curvatureSpecificationTemplates =
 			(
-				from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
-				select
-				(
-					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count())
-					select Terms.Variable(string.Format("point_{0}_segment_weight_{1}", pointSpecificationIndex, segmentIndex))
-				)
-				.ToArray()
+				from curvatureSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is CurvatureCurveSpecification))
+				select SpecificationTemplate.CreateCurvatureSpecificationTemplate(optimizationSegments.Segments, curvatureSpecificationIndex)
 			)
 			.ToArray();
 
@@ -97,20 +86,12 @@ namespace Kurve.Curves.Optimization
 			(
 				Enumerables.Concatenate
 				(
-					from pointSpecificationIndex in Enumerable.Range(0, pointSpecificationCount)
-					let position = pointSpecificationPositions.ElementAt(pointSpecificationIndex)
-					let point = pointSpecificationPoints.ElementAt(pointSpecificationIndex)
-					let segmentWeights = pointSpecificationSegmentWeights.ElementAt(pointSpecificationIndex)
-					select Constraints.CreateZero
-					(
-						Terms.Sum
-						(
-							from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count())
-							let segment = optimizationSegments.Segments.ElementAt(segmentIndex)
-							let segmentWeight = segmentWeights.ElementAt(segmentIndex)
-							select Terms.Scaling(segmentWeight, PointCurveSpecification.GetErrorTerm(segment.GlobalCurve, position, point))
-						)
-					),
+					from pointSpecificationTemplate in pointSpecificationTemplates
+					select pointSpecificationTemplate.Constraint,
+					from directionSpecificationTemplate in directionSpecificationTemplates
+					select directionSpecificationTemplate.Constraint,
+					from curvatureSpecificationTemplate in curvatureSpecificationTemplates
+					select curvatureSpecificationTemplate.Constraint,
 
 					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
 					let segment0CurvePoint = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Point
@@ -141,10 +122,6 @@ namespace Kurve.Curves.Optimization
 				)
 			)
 			.ToArray();
-
-//			Console.WriteLine("constraint values");
-//			foreach (Constraint<ValueTerm> constraintValue in constraintValues) Console.WriteLine(constraintValue);
-//			Console.WriteLine();
 
 			Constraint<ValueTerm> constraint = Constraints.Merge(constraintValues);
 
