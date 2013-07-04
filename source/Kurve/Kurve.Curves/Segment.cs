@@ -23,7 +23,7 @@ namespace Kurve.Curves
 			if (positionTransformation == null) throw new ArgumentNullException("positionTransformation");
 
 			this.localCurve = localCurve;
-			this.globalCurve = localCurve.TransformPosition(positionTransformation);
+			this.globalCurve = localCurve.TransformInput(positionTransformation);
 			this.positionTransformation = positionTransformation;
 		}
 

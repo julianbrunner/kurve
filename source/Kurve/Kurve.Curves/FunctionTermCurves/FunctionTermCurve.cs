@@ -12,19 +12,41 @@ namespace Kurve.Curves
 		readonly FunctionTerm point;
 		readonly FunctionTerm velocity;
 		readonly FunctionTerm acceleration;
+		readonly FunctionTerm speed;
+		readonly FunctionTerm direction;
+		readonly FunctionTerm curvature;
 
 		public FunctionTerm Point { get { return point; } }
 		public FunctionTerm Velocity { get { return velocity; } }
 		public FunctionTerm Acceleration { get { return acceleration; } }
+		public FunctionTerm Speed { get { return speed; } }
+		public FunctionTerm Direction { get { return direction; } }
+		public FunctionTerm Curvature { get { return curvature; } }
 
 		public FunctionTermCurve(FunctionTerm function)
 		{
 			if (function == null) throw new ArgumentNullException("function");
 			if (function.DomainDimension != 1) throw new ArgumentException("parameter 'function' has wrong dimension.");
 
-			this.point = function;
-			this.velocity = point.GetDerivatives().Single();
-			this.acceleration = velocity.GetDerivatives().Single();
+			ValueTerm position = Terms.Variable("t");
+
+			ValueTerm point = function.Apply(position);
+			ValueTerm velocity = function.GetDerivatives().Single().Apply(position);
+			ValueTerm acceleration = function.GetDerivatives().Single().GetDerivatives().Single().Apply(position);
+			ValueTerm speed = Terms.Norm(velocity);
+			ValueTerm direction = Terms.Scaling(Terms.Invert(speed), velocity);
+
+			// TODO: maybe we can get rid of some normalizations here (seems like angularDirection uses the normalized direction just to divide it by the square of the speed later)
+			ValueTerm angularDirection = Terms.Vector(direction.Select(1), Terms.Negate(direction.Select(0)));
+			ValueTerm angularAcceleration = Terms.DotProduct(acceleration, angularDirection);
+			ValueTerm curvature = Terms.Scaling(Terms.Invert(Terms.Square(speed)), angularAcceleration);
+
+			this.point = point.Abstract(position);
+			this.velocity = velocity.Abstract(position);
+			this.acceleration = acceleration.Abstract(position);
+			this.speed = speed.Abstract(position);
+			this.direction = direction.Abstract(position);
+			this.curvature = curvature.Abstract(position);
 		}
 
 		public override Vector2Double GetPoint(double position)
@@ -40,13 +62,13 @@ namespace Kurve.Curves
 			return Evaluate(acceleration, position);
 		}
 
-		public FunctionTermCurve TransformPosition(FunctionTerm transformation)
+		public FunctionTermCurve TransformInput(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
 			return new FunctionTermCurve(point.Apply(transformation.Apply(position)).Abstract(position));
 		}
-		public FunctionTermCurve TransformPoint(FunctionTerm transformation)
+		public FunctionTermCurve TransformOutput(FunctionTerm transformation)
 		{
 			ValueTerm position = Terms.Variable("t");
 
