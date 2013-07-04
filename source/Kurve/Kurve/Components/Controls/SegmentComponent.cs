@@ -68,6 +68,8 @@ namespace Kurve.Component
 
 		public override bool Contains(Vector2Double position)
 		{
+			if (Curve == null) return false;
+
 			if (leftComponent is SpecificationComponent && (Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
 			if (rightComponent is SpecificationComponent && (Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
