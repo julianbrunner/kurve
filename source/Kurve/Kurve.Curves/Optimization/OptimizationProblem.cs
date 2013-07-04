@@ -135,7 +135,9 @@ namespace Kurve.Curves.Optimization
 		{
 			return
 				optimizationSegments != newOptimizationSegments ||
-				curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification);
+				curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification) ||
+				curveSpecifications.Count(curveSpecification => curveSpecification is DirectionCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is DirectionCurveSpecification) ||
+				curveSpecifications.Count(curveSpecification => curveSpecification is CurvatureCurveSpecification) < newSpecification.BasicSpecification.CurveSpecifications.Count(curveSpecification => curveSpecification is CurvatureCurveSpecification);
 		}
 
 		public static OptimizationProblem Create(OptimizationSegments optimizationSegments, Specification specification)
