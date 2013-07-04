@@ -30,7 +30,7 @@ namespace Kurve.Component
 		{ 
 			get 
 			{ 
-				return specifiesPoint ? point : Curve.GetPoint(Position); 
+				return point; 
 			}
 			set 
 			{
@@ -41,7 +41,7 @@ namespace Kurve.Component
 		{ 
 			get 
 			{ 
-				return specifiesDirection ? direction : Curve.GetDirection(Position); 
+				return direction; 
 			}
 			set 
 			{
@@ -52,7 +52,7 @@ namespace Kurve.Component
 		{ 
 			get 
 			{ 
-				return specifiesCurvature ? curvature : Curve.GetCurvature(Position); 
+				return curvature; 
 			}
 			set 
 			{
