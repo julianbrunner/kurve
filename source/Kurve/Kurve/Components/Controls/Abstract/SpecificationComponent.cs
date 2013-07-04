@@ -27,7 +27,7 @@ namespace Kurve.Component
 	
 		public override void Scroll(ScrollDirection scrollDirection)
 		{
-			if (Selected && !IsShiftDown)
+			if (Selected && !IsShiftDown && IsControlDown)
 			{
 				double stepSize = 0.01 * SlowDownFactor;
 

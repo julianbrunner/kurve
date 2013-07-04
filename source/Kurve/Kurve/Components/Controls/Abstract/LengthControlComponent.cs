@@ -8,10 +8,13 @@ namespace Kurve.Component
 	abstract class LengthControlComponent : Component
 	{
 		bool isShiftDown = false;
-		bool isFineGrained = false;
+		bool isWindowsDown = false;
+		bool isControlDown = false;
+		bool isFineGrained = false; // TODO replace fineGrained with SlowdownFactor
 
 		public bool IsShiftDown { get { return isShiftDown; } }
-
+		public bool IsWindowsDown { get { return isWindowsDown; } }
+		public bool IsControlDown { get { return isControlDown; } }
 		public LengthControlComponent(Component parent) : base(parent) { }
 
 		public override void Scroll(ScrollDirection scrollDirection)
@@ -50,6 +53,18 @@ namespace Kurve.Component
 
 				Changed();
 			}
+			if (key == Key.Windows) 
+			{
+				isWindowsDown = true;
+
+				Changed();
+			}
+			if (key == Key.Control) 
+			{
+				isControlDown = true;
+
+				Changed();
+			}
 
 			base.KeyDown(key);
 		}
@@ -64,6 +79,18 @@ namespace Kurve.Component
 			if (key == Key.Alt)
 			{
 				isFineGrained = false;
+
+				Changed();
+			}
+			if (key == Key.Windows) 
+			{
+				isWindowsDown = false;
+
+				Changed();
+			}
+			if (key == Key.Control) 
+			{
+				isControlDown = false;
 
 				Changed();
 			}

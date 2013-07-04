@@ -146,6 +146,24 @@ namespace Kurve.Component
 			base.MouseMove(mousePosition);
 		}
 
+		public override void Scroll(ScrollDirection scrollDirection)
+		{
+			if (!IsControlDown) {
+				if (!IsWindowsDown) 
+				{
+					double angle = (Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1));
+					Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
+				}
+				else 
+				{
+					Curvature += 0.01 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
+				}
+
+				OnSpecificationChanged();
+			}
+			base.Scroll(scrollDirection);
+		}
+
 		public override void KeyDown(Key key)
 		{
 			base.KeyDown(key);

@@ -85,7 +85,7 @@ namespace Kurve.Component
 			if (Dragging) 
 			{
 				foreach (AnySpecificationComponent component in Enumerables.Create(leftComponent, rightComponent))
-					component.Point += DragVector;
+					component.Point += DragVector * SlowDownFactor;
 
 				OnSpecificationChanged();
 			}
