@@ -22,7 +22,15 @@ namespace Kurve
 			this.items =
 			(
 				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
-				select new DiscreteCurveItem(curve.GetPoint(position), curve.GetVelocity(position), curve.GetAcceleration(position))
+				select new DiscreteCurveItem
+				(
+					curve.GetPoint(position),
+					curve.GetVelocity(position),
+					curve.GetAcceleration(position),
+					curve.GetSpeed(position),
+					curve.GetDirection(position),
+					curve.GetCurvature(position)
+				)
 			)
 			.ToArray();
 		}
@@ -38,6 +46,18 @@ namespace Kurve
 		public override Vector2Double GetAcceleration(double position)
 		{
 			return GetItem(position).Acceleration;
+		}
+		public override double GetSpeed(double position)
+		{
+			return GetItem(position).Speed;
+		}
+		public override Vector2Double GetDirection(double position)
+		{
+			return GetItem(position).Direction;
+		}
+		public override double GetCurvature(double position)
+		{
+			return GetItem(position).Curvature;
 		}
 
 		DiscreteCurveItem GetItem(double position)

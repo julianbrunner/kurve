@@ -33,6 +33,18 @@ namespace Kurve.Curves
 		{
 			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetAcceleration(position);
 		}
+		public override double GetSpeed(double position)
+		{
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetSpeed(position);
+		}
+		public override Vector2Double GetDirection(double position)
+		{
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetDirection(position);
+		}
+		public override double GetCurvature(double position)
+		{
+			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetCurvature(position);
+		}
 	}
 }
 

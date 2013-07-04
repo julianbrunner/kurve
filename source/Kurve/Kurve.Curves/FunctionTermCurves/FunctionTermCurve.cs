@@ -51,15 +51,27 @@ namespace Kurve.Curves
 
 		public override Vector2Double GetPoint(double position)
 		{
-			return Evaluate(point, position);
+			return EvaluateVector(point, position);
 		}
 		public override Vector2Double GetVelocity(double position)
 		{
-			return Evaluate(velocity, position);
+			return EvaluateVector(velocity, position);
 		}
 		public override Vector2Double GetAcceleration(double position)
 		{
-			return Evaluate(acceleration, position);
+			return EvaluateVector(acceleration, position);
+		}
+		public override double GetSpeed(double position)
+		{
+			return EvaluateScalar(speed, position);
+		}
+		public override Vector2Double GetDirection(double position)
+		{
+			return EvaluateVector(direction, position);
+		}
+		public override double GetCurvature(double position)
+		{
+			return EvaluateScalar(curvature, position);
 		}
 
 		public FunctionTermCurve TransformInput(FunctionTerm transformation)
@@ -75,7 +87,13 @@ namespace Kurve.Curves
 			return new FunctionTermCurve(transformation.Apply(point.Apply(position)).Abstract(position));
 		}
 
-		static Vector2Double Evaluate(FunctionTerm function, double value)
+		static double EvaluateScalar(FunctionTerm function, double value)
+		{
+			IEnumerable<double> result = function.Apply(Terms.Constant(value)).Evaluate();
+
+			return result.Single();
+		}
+		static Vector2Double EvaluateVector(FunctionTerm function, double value)
 		{
 			IEnumerable<double> result = function.Apply(Terms.Constant(value)).Evaluate();
 
