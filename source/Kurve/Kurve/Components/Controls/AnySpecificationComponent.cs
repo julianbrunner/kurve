@@ -60,7 +60,8 @@ namespace Kurve.Component
 				if (specifiesCurvature) curvature = value;
 			}
 		}
-		public IEnumerable<CurveSpecification> Specifications {
+		public IEnumerable<CurveSpecification> Specifications 
+		{
 			get
 			{
 				List<CurveSpecification> specifications = new List<CurveSpecification>();
@@ -72,7 +73,8 @@ namespace Kurve.Component
 				return specifications;
 			}
 		}
-		Orthotope2Double Bounds { 
+		Orthotope2Double Bounds 
+		{ 
 			get 
 			{ 
 				return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); 
@@ -87,15 +89,18 @@ namespace Kurve.Component
 			if (specifications.OfType<DirectionCurveSpecification>().Count() > 1) throw new ArgumentException("There may not be more than one DirectionCurveSpecification at one position.");
 			if (specifications.OfType<CurvatureCurveSpecification>().Count() > 1) throw new ArgumentException("There may not be more than one CurvatureCurveSpecification at one position.");
 
-			if (specifications.OfType<PointCurveSpecification>().Count() == 1) {
+			if (specifications.OfType<PointCurveSpecification>().Count() == 1)
+			{
 				this.specifiesPoint = true;
 				this.point = specifications.OfType<PointCurveSpecification>().Single().Point;
 			}
-			if (specifications.OfType<DirectionCurveSpecification>().Count() == 1) {
+			if (specifications.OfType<DirectionCurveSpecification>().Count() == 1) 
+			{
 				this.specifiesDirection = true;
 				this.direction = specifications.OfType<DirectionCurveSpecification>().Single().Direction;
 			}
-			if (specifications.OfType<CurvatureCurveSpecification>().Count() == 1) {
+			if (specifications.OfType<CurvatureCurveSpecification>().Count() == 1) 
+			{
 				this.specifiesCurvature = true;
 				this.curvature = specifications.OfType<CurvatureCurveSpecification>().Single().Curvature;
 			}
@@ -173,6 +178,7 @@ namespace Kurve.Component
 
 				if (needsSpecificationChangedEvent) OnSpecificationChanged();
 			}
+
 			base.KeyUp(key);
 		}
 
