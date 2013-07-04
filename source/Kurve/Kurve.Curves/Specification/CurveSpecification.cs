@@ -25,13 +25,11 @@ namespace Kurve.Curves
 
 		public static CurveSpecification Parse(XElement element)
 		{
-			switch (element.Name.ToString()) 
-			{
-				case "point_curve_specification": return new PointCurveSpecification(element);
-				case "velocity_curve_specification": return new VelocityCurveSpecification(element);
-				case "acceleration_curve_specification": return new AccelerationCurveSpecification(element);
-				default: throw new ArgumentException("Parameter 'element' is not a CurveSpecification.");
-			}
+			if (element.Name == PointCurveSpecification.XElementName) return new PointCurveSpecification(element);
+			if (element.Name == DirectionCurveSpecification.XElementName) return new DirectionCurveSpecification(element);
+			if (element.Name == CurvatureCurveSpecification.XElementName) return new CurvatureCurveSpecification(element);
+
+			throw new ArgumentException("Parameter 'element' is not a CurveSpecification.");
 		}
 		
 		public static bool operator ==(CurveSpecification curveSpecification1, CurveSpecification curveSpecification2)

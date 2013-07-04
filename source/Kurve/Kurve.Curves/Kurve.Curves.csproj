@@ -37,8 +37,6 @@
   <ItemGroup>
     <Compile Include="Specification\PointCurveSpecification.cs" />
     <Compile Include="Specification\CurveSpecification.cs" />
-    <Compile Include="Specification\AccelerationCurveSpecification.cs" />
-    <Compile Include="Specification\VelocityCurveSpecification.cs" />
     <Compile Include="Specification\Specification.cs" />
     <Compile Include="Specification\BasicSpecification.cs" />
     <Compile Include="Optimization\Optimizer.cs" />
@@ -53,6 +51,8 @@
     <Compile Include="Optimization\OptimizationSegments.cs" />
     <Compile Include="Segment.cs" />
     <Compile Include="SegmentedCurve.cs" />
+    <Compile Include="Specification\DirectionCurveSpecification.cs" />
+    <Compile Include="Specification\CurvatureCurveSpecification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

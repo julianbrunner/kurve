@@ -49,11 +49,9 @@ namespace Kurve.Curves
 
 		public static FunctionTermCurveTemplate Parse(XElement element)
 		{
-			switch (element.Name.ToString()) 
-			{
-				case "polynomial_curve_template": return new PolynomialFunctionTermCurveTemplate(element);
-				default: throw new ArgumentException("Parameter 'element' is not a CurveTemplate.");
-			}
+			if (element.Name == PolynomialFunctionTermCurveTemplate.XElementName) return new PolynomialFunctionTermCurveTemplate(element);
+
+			throw new ArgumentException("Parameter 'element' is not a CurveTemplate.");
 		}
 
 		public static bool operator ==(FunctionTermCurveTemplate curveTemplate1, FunctionTermCurveTemplate curveTemplate2)
