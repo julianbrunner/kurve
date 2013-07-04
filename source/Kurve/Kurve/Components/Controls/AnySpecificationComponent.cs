@@ -30,8 +30,9 @@ namespace Kurve.Component
 		{ 
 			get 
 			{ 
-				return point; 
-			}
+				if (specifiesPoint) return point;
+				else if (Curve != null) return Curve.GetPoint(Position);
+				else return Vector2Double.Origin;			}
 			set 
 			{
 				if (specifiesPoint) point = value;
@@ -71,7 +72,12 @@ namespace Kurve.Component
 				return specifications;
 			}
 		}
-		Orthotope2Double Bounds { get { return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); } }
+		Orthotope2Double Bounds { 
+			get 
+			{ 
+				return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); 
+			} 
+		}
 
 
 		public AnySpecificationComponent(Component parent, CurveComponent curveComponent, double position, IEnumerable<CurveSpecification> specifications) : base(parent, curveComponent, position)
@@ -101,7 +107,7 @@ namespace Kurve.Component
 
 			string text = (specifiesPoint ? "P" : "") + (specifiesDirection ? "D" : "") + (specifiesCurvature ? "C" : "");
 			if (!(specifiesPoint || specifiesDirection || SpecifiesCurvature)) text = "n/a";
-			Drawing.DrawText(context, text, Bounds.Size + new Vector2Double(-10, Bounds.Size.Y + 15), Colors.Black);
+			Drawing.DrawText(context, text, Bounds.Start + new Vector2Double(-10, Bounds.Size.Y + 15), Colors.Black);
 			base.Draw(context);
 		}
 
