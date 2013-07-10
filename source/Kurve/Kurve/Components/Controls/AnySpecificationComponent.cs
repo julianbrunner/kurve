@@ -148,19 +148,24 @@ namespace Kurve.Component
 
 		public override void Scroll(ScrollDirection scrollDirection)
 		{
-			if (!IsControlDown) {
-				if (!IsWindowsDown) 
+			if (Selected)
+			{
+				if (!IsControlDown)
 				{
-					double angle = (Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1));
-					Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
-				}
-				else 
-				{
-					Curvature += 0.01 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
-				}
+					if (!IsWindowsDown) 
+					{
+						double angle = (Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1));
+						Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
+					}
+					else 
+					{
+						Curvature += 0.001 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
+					}
 
-				OnSpecificationChanged();
+					OnSpecificationChanged();
+				}
 			}
+
 			base.Scroll(scrollDirection);
 		}
 

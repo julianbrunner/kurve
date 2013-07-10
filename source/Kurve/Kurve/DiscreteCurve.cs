@@ -25,8 +25,6 @@ namespace Kurve
 				select new DiscreteCurveItem
 				(
 					curve.GetPoint(position),
-					curve.GetVelocity(position),
-					curve.GetAcceleration(position),
 					curve.GetSpeed(position),
 					curve.GetDirection(position),
 					curve.GetCurvature(position)
@@ -38,14 +36,6 @@ namespace Kurve
 		public override Vector2Double GetPoint(double position)
 		{
 			return GetItem(position).Point;
-		}
-		public override Vector2Double GetVelocity(double position)
-		{
-			return GetItem(position).Velocity;
-		}
-		public override Vector2Double GetAcceleration(double position)
-		{
-			return GetItem(position).Acceleration;
 		}
 		public override double GetSpeed(double position)
 		{

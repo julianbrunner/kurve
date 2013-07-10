@@ -43,7 +43,7 @@ namespace Kurve.Component
 
 			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100).GetRanges()) 
 			{
-				double stretchFactor = Curve.GetVelocity((positions.Item1 + positions.Item2) / 2).Length / BasicSpecification.CurveLength;
+				double stretchFactor = Curve.GetSpeed((positions.Item1 + positions.Item2) / 2) / BasicSpecification.CurveLength;
 
 				if (Selected) Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
 
@@ -86,7 +86,7 @@ namespace Kurve.Component
 
 			if (Dragging) 
 			{
-				foreach (AnySpecificationComponent component in Enumerables.Create(leftComponent, rightComponent))
+				foreach (AnySpecificationComponent component in Enumerables.Create(leftComponent, rightComponent).OfType<AnySpecificationComponent>())
 					component.Point += DragVector * SlowDownFactor;
 
 				OnSpecificationChanged();
