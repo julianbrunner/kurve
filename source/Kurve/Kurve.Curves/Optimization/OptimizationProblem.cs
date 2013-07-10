@@ -41,27 +41,29 @@ namespace Kurve.Curves.Optimization
 			(
 				from segment in optimizationSegments.Segments
 				let position = Terms.Variable("t")
-				let segmentCurve = segment.LocalCurve
-				let segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()))
-				let segmentError = Terms.Square(Terms.Difference(segmentCurve.Speed.Apply(position), segmentLength))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				let curve = segment.LocalCurve
+				let speed = curve.Speed.Apply(position)
+				let length = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()))
+				let error = Terms.Square(Terms.Difference(speed, length))
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 			ValueTerm fairnessError = Terms.Sum
 			(
 				from segment in optimizationSegments.Segments
 				let position = Terms.Variable("t")
-				let segmentCurve = segment.LocalCurve
-				let segmentError = Terms.Square(Terms.Norm(segmentCurve.Acceleration.Apply(position)))
-				select Terms.IntegrateTrapezoid(segmentError.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				let curve = segment.LocalCurve
+				let jerk = curve.Jerk.Apply(position)
+				let acceleration = curve.Acceleration.Apply(position)
+				let error = Terms.Square(Terms.DotProduct(jerk, Terms.Normalize(acceleration)))
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 
 			ValueTerm objectiveValue = Terms.Sum
 			(
 				Terms.Product(Terms.Constant(1.0), velocityError),
-				Terms.Product(Terms.Constant(0.0001), fairnessError)
+				Terms.Product(Terms.Constant(0.000005), fairnessError)
 			)
 			.Simplify();
-
 
 			this.pointSpecificationTemplates =
 			(

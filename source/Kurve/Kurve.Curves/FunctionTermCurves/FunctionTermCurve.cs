@@ -12,6 +12,7 @@ namespace Kurve.Curves
 		readonly FunctionTerm point;
 		readonly FunctionTerm velocity;
 		readonly FunctionTerm acceleration;
+		readonly FunctionTerm jerk;
 		readonly FunctionTerm speed;
 		readonly FunctionTerm direction;
 		readonly FunctionTerm curvature;
@@ -19,6 +20,7 @@ namespace Kurve.Curves
 		public FunctionTerm Point { get { return point; } }
 		public FunctionTerm Velocity { get { return velocity; } }
 		public FunctionTerm Acceleration { get { return acceleration; } }
+		public FunctionTerm Jerk { get { return jerk; } }
 		public FunctionTerm Speed { get { return speed; } }
 		public FunctionTerm Direction { get { return direction; } }
 		public FunctionTerm Curvature { get { return curvature; } }
@@ -33,9 +35,10 @@ namespace Kurve.Curves
 			ValueTerm point = function.Apply(position);
 			ValueTerm velocity = function.GetDerivatives().Single().Apply(position);
 			ValueTerm acceleration = function.GetDerivatives().Single().GetDerivatives().Single().Apply(position);
-			ValueTerm speed = Terms.Norm(velocity);
-			ValueTerm direction = Terms.Scaling(Terms.Invert(speed), velocity);
+			ValueTerm jerk = function.GetDerivatives().Single().GetDerivatives().Single().GetDerivatives().Single().Apply(position);
 
+			ValueTerm speed = Terms.Norm(velocity);
+			ValueTerm direction = Terms.Normalize(velocity);
 			// TODO: maybe we can get rid of some normalizations here (seems like angularDirection uses the normalized direction just to divide it by the square of the speed later)
 			ValueTerm angularDirection = Terms.Vector(direction.Select(1), Terms.Negate(direction.Select(0)));
 			ValueTerm angularAcceleration = Terms.DotProduct(acceleration, angularDirection);
@@ -44,6 +47,7 @@ namespace Kurve.Curves
 			this.point = point.Abstract(position);
 			this.velocity = velocity.Abstract(position);
 			this.acceleration = acceleration.Abstract(position);
+			this.jerk = jerk.Abstract(position);
 			this.speed = speed.Abstract(position);
 			this.direction = direction.Abstract(position);
 			this.curvature = curvature.Abstract(position);
@@ -52,14 +56,6 @@ namespace Kurve.Curves
 		public override Vector2Double GetPoint(double position)
 		{
 			return EvaluateVector(point, position);
-		}
-		public override Vector2Double GetVelocity(double position)
-		{
-			return EvaluateVector(velocity, position);
-		}
-		public override Vector2Double GetAcceleration(double position)
-		{
-			return EvaluateVector(acceleration, position);
 		}
 		public override double GetSpeed(double position)
 		{

@@ -25,14 +25,6 @@ namespace Kurve.Curves
 		{
 			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetPoint(position);
 		}
-		public override Vector2Double GetVelocity(double position)
-		{
-			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetVelocity(position);
-		}
-		public override Vector2Double GetAcceleration(double position)
-		{
-			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetAcceleration(position);
-		}
 		public override double GetSpeed(double position)
 		{
 			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetSpeed(position);
