@@ -67,7 +67,7 @@ namespace Kurve.Curves
 		{
 			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
 
-			return Terms.Polynomial(2, degree);
+			return Terms.Polynomial(Terms.StandardPolynomialBasis(degree), 2);
 		}
 		static int Create(XElement source)
 		{
