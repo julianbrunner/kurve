@@ -18,7 +18,6 @@ namespace Kurve.Component
 		bool isLeftMouseDown = false;
 		bool isRightMouseDown = false;
 		Vector2Double dragVector = Vector2Double.Origin;
-		double slowDownFactor = 1;
 		Vector2Double mouseDownPosition = Vector2Double.Origin;
 		Vector2Double lastMousePosition = Vector2Double.Origin;
 
@@ -33,7 +32,6 @@ namespace Kurve.Component
 		public Vector2Double DragVector { get { return dragVector; } }
 		public bool IsLeftMouseDown { get { return isLeftMouseDown; } }
 		public bool IsRightMouseDown { get { return isRightMouseDown; } }
-		public double SlowDownFactor { get { return slowDownFactor; } }
 
 		public PositionedControlComponent(Component parent, CurveComponent curveComponent) : base(parent)
 		{
@@ -87,29 +85,6 @@ namespace Kurve.Component
 			lastMousePosition = mousePosition;
 
 			base.MouseMove(mousePosition);
-		}
-
-		public override void KeyDown(Key key)
-		{
-			if (key == Key.Alt) 
-			{
-				slowDownFactor = 0.1;
-
-				Changed();
-			}
-
-			base.KeyDown(key);
-		}
-		public override void KeyUp(Key key)
-		{
-			if (key == Key.Alt)
-			{
-				slowDownFactor = 1;
-
-				Changed();
-			}
-
-			base.KeyUp(key);
 		}
 
 		public abstract bool Contains(Vector2Double point);
