@@ -13,8 +13,8 @@ namespace Kurve.Component
 
 		readonly CurveComponent curveComponent;
 
-		bool selected = false;
-		bool dragging = false;
+		bool isSelected = false;
+		bool isDragging = false;
 		bool isLeftMouseDown = false;
 		bool isRightMouseDown = false;
 		Vector2Double dragVector = Vector2Double.Origin;
@@ -28,8 +28,8 @@ namespace Kurve.Component
 		public BasicSpecification BasicSpecification { get { return curveComponent.BasicSpecification; } }
 		public Curve Curve { get { return curveComponent.Curve; } }
 		public abstract double Position { get; }
-		public bool Selected { get { return selected; } set { selected = value; } }
-		public bool Dragging { get { return dragging; } }
+		public bool IsSelected { get { return isSelected; } set { isSelected = value; } }
+		public bool IsDragging { get { return isDragging; } }
 		public Vector2Double DragVector { get { return dragVector; } }
 		public bool IsLeftMouseDown { get { return isLeftMouseDown; } }
 		public bool IsRightMouseDown { get { return isRightMouseDown; } }
@@ -61,12 +61,12 @@ namespace Kurve.Component
 			if ((isLeftMouseDown || isRightMouseDown) && (mouseButton == MouseButton.Left || mouseButton == MouseButton.Right))
 			{
 				if ((mousePosition - mouseDownPosition).Length <= dragThreshold) {
-					selected = !selected;
+					isSelected = !isSelected;
 					OnSelectionChanged();
 				}
 				if (mouseButton == MouseButton.Left) isLeftMouseDown = false;
 				if (mouseButton == MouseButton.Right) isRightMouseDown = false;
-				dragging = false;
+				isDragging = false;
 				dragVector = Vector2Double.Origin;
 
 				Changed();
@@ -78,7 +78,7 @@ namespace Kurve.Component
 		{
 			if (isLeftMouseDown)
 			{
-				dragging = true;
+				isDragging = true;
 				dragVector = mousePosition - lastMousePosition;
 
 				Changed();
@@ -116,7 +116,7 @@ namespace Kurve.Component
 
 		protected override void OnInsertLength(double length)
 		{
-			if (!selected) return;
+			if (!isSelected) return;
 
 			if (InsertLength != null) InsertLength(Position, length);
 		}

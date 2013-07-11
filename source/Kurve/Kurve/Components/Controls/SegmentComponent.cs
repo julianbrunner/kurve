@@ -45,7 +45,7 @@ namespace Kurve.Component
 			{
 				double stretchFactor = Curve.GetSpeed((positions.Item1 + positions.Item2) / 2) / BasicSpecification.CurveLength;
 
-				if (Selected) Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
+				if (IsSelected) Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
 
 				Krach.Graphics.Color color = StretchedColor(stretchFactor);
 				Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, color);
@@ -84,9 +84,9 @@ namespace Kurve.Component
 		{
 			base.MouseMove(mousePosition);
 
-			if (Dragging) 
+			if (IsDragging) 
 			{
-				foreach (AnySpecificationComponent component in Enumerables.Create(leftComponent, rightComponent).OfType<AnySpecificationComponent>())
+				foreach (SpecificationComponent component in Enumerables.Create(leftComponent, rightComponent).OfType<SpecificationComponent>())
 					component.Point += DragVector * SlowDownFactor;
 
 				OnSpecificationChanged();
