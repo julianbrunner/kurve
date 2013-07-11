@@ -150,7 +150,7 @@ namespace Kurve.Component
 		{
 			if (Selected)
 			{
-				if (!IsControlDown)
+				if (!IsControlDown && !IsShiftDown)
 				{
 					if (!IsWindowsDown) 
 					{
