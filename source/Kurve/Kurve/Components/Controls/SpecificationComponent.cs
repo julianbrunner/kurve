@@ -10,6 +10,12 @@ using Kurve.Interface;
 
 namespace Kurve.Component
 {
+	enum MouseModificationMode {
+		None,
+		Point,
+		Direction
+	}
+
 	class SpecificationComponent : PositionedControlComponent
 	{		
 		static readonly Vector2Double size = new Vector2Double(10, 10);
@@ -23,6 +29,8 @@ namespace Kurve.Component
 		Vector2Double direction;
 		double curvature;
 	
+		MouseModificationMode modificationMode = MouseModificationMode.None;
+
 		public event Action SpecificationChanged;
 
 		public override double Position { get { return position; } }
@@ -128,6 +136,21 @@ namespace Kurve.Component
 			base.Draw(context);
 		}
 
+		public override void MouseDown (Vector2Double mousePosition, MouseButton mouseButton)
+		{
+			if (IsControlDown) modificationMode = MouseModificationMode.Direction;
+			else modificationMode = MouseModificationMode.Point;
+
+			base.MouseDown (mousePosition, mouseButton);
+		}
+
+		public override void MouseUp (Vector2Double mousePosition, MouseButton mouseButton)
+		{
+			modificationMode = MouseModificationMode.None;
+
+			base.MouseUp(mousePosition, mouseButton);
+		}
+
 		public override void MouseMove(Vector2Double mousePosition)
 		{
 			if (IsDragging) 
@@ -148,7 +171,15 @@ namespace Kurve.Component
 				}
 				else 
 				{
-					Point += DragVector * SlowDownFactor;
+					switch (modificationMode) {
+						case MouseModificationMode.Point: Point += DragVector * SlowDownFactor; break;
+						case MouseModificationMode.Direction: 
+							if (AccumulatedDragVector.Length > 10) {
+								Direction = AccumulatedDragVector.NormalizedVector;
+							}
+							break;
+						default: break;
+					}
 				}
 
 				OnSpecificationChanged();

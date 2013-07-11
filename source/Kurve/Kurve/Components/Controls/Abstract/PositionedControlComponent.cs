@@ -18,6 +18,7 @@ namespace Kurve.Component
 		bool isLeftMouseDown = false;
 		bool isRightMouseDown = false;
 		Vector2Double dragVector = Vector2Double.Origin;
+		Vector2Double accumulatedDragVector = Vector2Double.Origin;
 		Vector2Double mouseDownPosition = Vector2Double.Origin;
 		Vector2Double lastMousePosition = Vector2Double.Origin;
 
@@ -30,6 +31,7 @@ namespace Kurve.Component
 		public bool IsSelected { get { return isSelected; } set { isSelected = value; } }
 		public bool IsDragging { get { return isDragging; } }
 		public Vector2Double DragVector { get { return dragVector; } }
+		public Vector2Double AccumulatedDragVector { get { return accumulatedDragVector; } }
 		public bool IsLeftMouseDown { get { return isLeftMouseDown; } }
 		public bool IsRightMouseDown { get { return isRightMouseDown; } }
 
@@ -66,6 +68,7 @@ namespace Kurve.Component
 				if (mouseButton == MouseButton.Right) isRightMouseDown = false;
 				isDragging = false;
 				dragVector = Vector2Double.Origin;
+				accumulatedDragVector = Vector2Double.Origin;
 
 				Changed();
 			}
@@ -78,6 +81,7 @@ namespace Kurve.Component
 			{
 				isDragging = true;
 				dragVector = mousePosition - lastMousePosition;
+				accumulatedDragVector += dragVector;
 
 				Changed();
 			}
