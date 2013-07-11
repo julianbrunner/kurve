@@ -56,7 +56,18 @@ namespace Kurve.Component
 			}
 		}
 
-		public void AddCurve()
+		void AddCurve(CurveComponent curveComponent)
+		{
+			curveComponent.RemoveCurve += delegate()
+			{
+				curveComponents.Remove(curveComponent);
+
+				Changed();
+			};
+
+			curveComponents.Add(curveComponent);
+		}
+		void AddCurve()
 		{
 			BasicSpecification basicSpecification = new BasicSpecification
 			(
@@ -70,7 +81,7 @@ namespace Kurve.Component
 				)
 			);
 
-			curveComponents.Add(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
+			AddCurve(new CurveComponent(this, optimizationWorker, new Specification(basicSpecification)));
 		}
 
 		public override void KeyDown(Kurve.Interface.Key key)
@@ -100,11 +111,10 @@ namespace Kurve.Component
 			{
 				if ((ResponseType)fileChooser.Run() == ResponseType.Accept)
 				{
-					curveComponents.Replace
-					(
-						from element in XElement.Load(fileChooser.Filename).Elements()
-						select new CurveComponent(this, optimizationWorker, new Specification(element))
-					);
+					curveComponents.Clear();
+
+					foreach (XElement element in XElement.Load(fileChooser.Filename).Elements())
+						AddCurve(new CurveComponent(this, optimizationWorker, new Specification(element)));
 				}
 
 				fileChooser.Destroy();
