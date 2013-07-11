@@ -30,6 +30,7 @@ namespace Kurve.Component
 		Curve curve;
 
 		bool isShiftDown = false;
+		bool isAltDown = false;
 
 		IEnumerable<PositionedControlComponent> PositionedControlComponents
 		{
@@ -248,9 +249,9 @@ namespace Kurve.Component
 		{
 			if (Selected)
 			{
-				if (newSegmentCount == 0)
+				if (newSegmentCount < 1)
 				{
-					Console.WriteLine("segment count cannot be zero!");
+					Console.WriteLine("segment count cannot be smaller than one!");
 
 					return;
 				}
@@ -270,6 +271,33 @@ namespace Kurve.Component
 				curveOptimizer.Submit(nextSpecification);
 			}
 		}
+		void ChangePolynomialtemplateDegree(int newDegree)
+		{
+			if (Selected)
+			{
+				if (newDegree < 4)
+				{
+					Console.WriteLine("polynomial template degree cannot be less than 4");
+
+					return;
+				}
+
+				Console.WriteLine("changing polynomial template degree to {0}", newDegree);
+
+				nextSpecification = new BasicSpecification
+				(
+					nextSpecification.CurveLength,
+					nextSpecification.SegmentCount,
+					new PolynomialFunctionTermCurveTemplate(newDegree),
+					nextSpecification.CurveSpecifications
+				);
+				
+				RebuildCurveSpecification();
+
+				curveOptimizer.Submit(nextSpecification);
+			}
+		}
+
 
 		void RebuildSegmentComponents()
 		{
@@ -317,6 +345,7 @@ namespace Kurve.Component
 		public override void KeyDown(Key key)
 		{
 			if (key == Key.Shift) isShiftDown = true;
+			if (key == Key.Alt) isAltDown = true;
 
 			base.KeyDown(key);
 		}
@@ -325,9 +354,16 @@ namespace Kurve.Component
 			switch (key)
 			{
 				case Key.Shift: isShiftDown = false; break;
+				case Key.Alt: isAltDown = false; break;
 				case Key.R: RemoveSelectedSpecificationComponent(); break;
-				case Key.Minus: ChangeCurveSegmentCount(nextSpecification.SegmentCount - 1); break;
-				case Key.Plus: ChangeCurveSegmentCount(nextSpecification.SegmentCount + 1); break;
+				case Key.One:
+					if (isAltDown) ChangePolynomialtemplateDegree(((PolynomialFunctionTermCurveTemplate)nextSpecification.SegmentTemplate).Degree - 1);
+					else ChangeCurveSegmentCount(nextSpecification.SegmentCount - 1);
+					break;
+				case Key.Two:
+					if (isAltDown) ChangePolynomialtemplateDegree(((PolynomialFunctionTermCurveTemplate)nextSpecification.SegmentTemplate).Degree + 1);
+					else ChangeCurveSegmentCount(nextSpecification.SegmentCount + 1);
+					break;
 			}
 
 			base.KeyUp(key);

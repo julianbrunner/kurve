@@ -14,6 +14,7 @@ namespace Kurve.Curves
 
 		public static string XElementName { get { return "polynomial_curve_template"; } }
 
+		public int Degree { get { return degree; } }
 		public override XElement XElement
 		{
 			get

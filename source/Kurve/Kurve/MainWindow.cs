@@ -93,8 +93,8 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.p: key = Kurve.Interface.Key.P; break;
 			case Gdk.Key.d: key = Kurve.Interface.Key.D; break;
 			case Gdk.Key.c: key = Kurve.Interface.Key.C; break;
-			case Gdk.Key.minus: key = Kurve.Interface.Key.Minus; break;
-			case Gdk.Key.plus: key = Kurve.Interface.Key.Plus; break;
+			case Gdk.Key.Key_1: key = Kurve.Interface.Key.One; break;
+			case Gdk.Key.Key_2: key = Kurve.Interface.Key.Two; break;
 			default: return;
 		}
 
@@ -120,8 +120,8 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.p: key = Kurve.Interface.Key.P; break;
 			case Gdk.Key.d: key = Kurve.Interface.Key.D; break;
 			case Gdk.Key.c: key = Kurve.Interface.Key.C; break;
-			case Gdk.Key.minus: key = Kurve.Interface.Key.Minus; break;
-			case Gdk.Key.plus: key = Kurve.Interface.Key.Plus; break;
+			case Gdk.Key.Key_1: key = Kurve.Interface.Key.One; break;
+			case Gdk.Key.Key_2: key = Kurve.Interface.Key.Two; break;
 			// workaround for neo keyboard layout bug			
 			case Gdk.Key.Caps_Lock: key = Kurve.Interface.Key.Shift; break;
 			default: return;
