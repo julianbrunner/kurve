@@ -74,6 +74,16 @@ namespace Kurve.Component
 			}
 		}
 
+		bool Selected
+		{
+			get
+			{
+				return
+					pointSpecificationComponents.Any(specificationComponent => specificationComponent.Selected) ||
+					segmentComponents.Any(segmentComponent => segmentComponent.Selected);
+			}
+		}
+
 		protected override IEnumerable<Component> SubComponents
 		{
 			get
@@ -234,6 +244,33 @@ namespace Kurve.Component
 			}
 		}
 
+		void ChangeCurveSegmentCount(int newSegmentCount)
+		{
+			if (Selected)
+			{
+				if (newSegmentCount == 0)
+				{
+					Console.WriteLine("segment count cannot be zero!");
+
+					return;
+				}
+
+				Console.WriteLine("changing segment count to {0}", newSegmentCount);
+
+				nextSpecification = new BasicSpecification
+				(
+					nextSpecification.CurveLength,
+					newSegmentCount,
+					nextSpecification.SegmentTemplate,
+					nextSpecification.CurveSpecifications
+				);
+				
+				RebuildCurveSpecification();
+
+				curveOptimizer.Submit(nextSpecification);
+			}
+		}
+
 		void RebuildSegmentComponents()
 		{
 			IEnumerable<PositionedControlComponent> orderedSpecificationComponents =
@@ -287,8 +324,10 @@ namespace Kurve.Component
 		{
 			switch (key)
 			{
-				case Key.R: RemoveSelectedSpecificationComponent(); break;
 				case Key.Shift: isShiftDown = false; break;
+				case Key.R: RemoveSelectedSpecificationComponent(); break;
+				case Key.Minus: ChangeCurveSegmentCount(nextSpecification.SegmentCount - 1); break;
+				case Key.Plus: ChangeCurveSegmentCount(nextSpecification.SegmentCount + 1); break;
 			}
 
 			base.KeyUp(key);
