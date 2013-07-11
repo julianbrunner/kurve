@@ -10,18 +10,20 @@ namespace Kurve.Component
 		bool isShiftDown = false;
 		bool isWindowsDown = false;
 		bool isControlDown = false;
-		bool isFineGrained = false; // TODO replace fineGrained with SlowdownFactor
+		double slowDownFactor = 1;
 
 		public bool IsShiftDown { get { return isShiftDown; } }
 		public bool IsWindowsDown { get { return isWindowsDown; } }
 		public bool IsControlDown { get { return isControlDown; } }
+		public double SlowDownFactor { get { return slowDownFactor; } }
+
 		public LengthControlComponent(Component parent) : base(parent) { }
 
 		public override void Scroll(ScrollDirection scrollDirection)
 		{
 			if (isShiftDown)
 			{
-				double stepSize = isFineGrained ? 1 : 10;
+				double stepSize = 10 * slowDownFactor;
 
 				double length;
 
@@ -39,6 +41,7 @@ namespace Kurve.Component
 
 			base.Scroll(scrollDirection);
 		}
+
 		public override void KeyDown(Key key)
 		{
 			if (key == Key.Shift)
@@ -49,7 +52,7 @@ namespace Kurve.Component
 			}
 			if (key == Key.Alt)
 			{
-				isFineGrained = true;
+				slowDownFactor = 0.1;
 
 				Changed();
 			}
@@ -78,7 +81,7 @@ namespace Kurve.Component
 			}
 			if (key == Key.Alt)
 			{
-				isFineGrained = false;
+				slowDownFactor = 1.0;
 
 				Changed();
 			}
