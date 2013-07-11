@@ -97,6 +97,8 @@ namespace Kurve.Component
 			}
 		}
 
+		public event Action RemoveCurve;
+
 		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
 		public Curve Curve { get { return curve; } }
 		public Specification Specification { get { return curveOptimizer.Specification; } }
@@ -213,13 +215,17 @@ namespace Kurve.Component
 		{
 			specificationComponents.Remove(pointSpecificationComponent);
 
-			RebuildSegmentComponents();
+			if (!specificationComponents.Any() && RemoveCurve != null) RemoveCurve();
+			else
+			{
+				RebuildSegmentComponents();
 
-			Changed();
+				Changed();
 
-			RebuildCurveSpecification();
+				RebuildCurveSpecification();
 
-			curveOptimizer.Submit(nextSpecification);
+				curveOptimizer.Submit(nextSpecification);
+			}
 		}
 
 		void AddSpecification(double position)
