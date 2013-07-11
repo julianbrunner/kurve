@@ -61,7 +61,7 @@ namespace Kurve.Component
 			BasicSpecification basicSpecification = new BasicSpecification
 			(
 				100,
-				2,
+				1,
 				new PolynomialFunctionTermCurveTemplate(10),
 				Enumerables.Create
 				(

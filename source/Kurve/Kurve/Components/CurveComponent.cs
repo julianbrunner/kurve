@@ -17,8 +17,6 @@ namespace Kurve.Component
 {
 	class CurveComponent : Component
 	{
-		bool isShiftDown = false;
-
 		readonly CurveOptimizer curveOptimizer;
 
 		readonly List<AnySpecificationComponent> pointSpecificationComponents;
@@ -30,6 +28,8 @@ namespace Kurve.Component
 
 		BasicSpecification basicSpecification;
 		Curve curve;
+
+		bool isShiftDown = false;
 
 		IEnumerable<PositionedControlComponent> PositionedControlComponents
 		{
@@ -261,6 +261,7 @@ namespace Kurve.Component
 				segmentComponent.SpecificationChanged += SpecificationChanged;
 				segmentComponent.AddSpecification += AddSpecification;
 				segmentComponent.SelectionChanged += SelectionChanged;
+
 				segmentComponents.Add(segmentComponent);
 			}
 		}
