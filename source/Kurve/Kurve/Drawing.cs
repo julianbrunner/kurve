@@ -37,11 +37,11 @@ namespace Kurve
 		public static void DrawText(Context context, string text, Vector2Double position, Krach.Graphics.Color color)
 		{
 			//context.SelectFontFace("Helvetica", FontSlant.Normal, FontWeight.Bold);
-       	 	context.SetFontSize(13);
+			context.SetFontSize(13);
 			context.Color = Drawing.ToCairoColor(color);
-       
-      	  	context.MoveTo(position.X, position.Y);
-       	 	context.ShowText(text);
+
+			context.MoveTo(position.X, position.Y);
+			context.ShowText(text);
 		}
 
 		public static void DrawSurface(Context context, Surface surface)

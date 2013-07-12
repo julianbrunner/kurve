@@ -55,15 +55,17 @@ namespace Kurve.Component
 		}
 		static Krach.Graphics.Color StretchedColor(double stretchFactor)
 		{
+			Krach.Graphics.Color baseColor = Krach.Graphics.Color.FromHsv(0, 0, 0);
+
 			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
 			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
 		
 			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
 		
-			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Blue, Colors.Black, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
-			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Red, Colors.Black, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
+			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
 
-			return Colors.Black;
+			return baseColor;
 		}
 
 		public override bool Contains(Vector2Double position)

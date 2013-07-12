@@ -58,6 +58,7 @@ namespace Kurve.Curves.Optimization
 				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 
+			// TODO: figure out a more mathematically sound way to do the weighting, maybe dependent on curve length
 			ValueTerm objectiveValue = Terms.Sum
 			(
 				Terms.Product(Terms.Constant(1.0), velocityError),

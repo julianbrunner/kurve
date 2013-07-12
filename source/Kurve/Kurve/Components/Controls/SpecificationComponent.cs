@@ -162,7 +162,8 @@ namespace Kurve.Component
 		{
 			if (IsSelected && !IsShiftDown)
 			{
-				if (IsControlDown) {
+				if (IsControlDown)
+				{
 					double stepSize = 0.01 * SlowDownFactor;
 
 					switch (scrollDirection)
@@ -174,12 +175,15 @@ namespace Kurve.Component
 
 					position = position.Clamp(0, 1);
 				}
-				if (!IsControlDown) {
-					double angle = (Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1));
-						Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
-				}
-				if (IsWindowsDown) {
+				else if (IsWindowsDown)
+				{
 					Curvature += 0.001 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
+				}
+				else
+				{
+					double angle = Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
+
+					Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
 				}
 
 				OnSpecificationChanged();

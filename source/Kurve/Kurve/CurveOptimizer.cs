@@ -43,6 +43,8 @@ namespace Kurve.Component
 		public void Optimize(BasicSpecification basicSpecification)
 		{
 			if (specification == null) specification = new Specification(basicSpecification);
+
+			// TODO: make sure the new curve resembles the old one, even when SegmentCount and/or SegmentTemplate are changed
 			if (basicSpecification.SegmentCount != specification.BasicSpecification.SegmentCount || basicSpecification.SegmentTemplate != specification.BasicSpecification.SegmentTemplate) specification = new Specification(basicSpecification);
 
 			specification = new Specification(basicSpecification, specification.Position);
