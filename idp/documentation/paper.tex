@@ -1,0 +1,63 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{parskip}
+\usepackage{times}
+\usepackage{multirow}
+
+\clubpenalty = 10000
+\widowpenalty = 10000
+
+\title{Optimal Fitting of Curves for Given Specifications}
+\author{Julian Asamer, Julian Brunner}
+\date{\today}
+
+\begin{document}
+
+	\maketitle
+
+	\begin{abstract}
+
+		\noindent TODO
+
+	\end{abstract}
+
+	\section{Introduction}
+
+	\section{Goals}
+
+	\section{Proposed Solution}
+
+	\section{Implementation}
+
+	\section{Evaluation}
+
+	\section{Conclusion}
+
+		\begin{table}[htbp]
+			\centering
+			\begin{tabular}{c|c|r|r|}
+				\multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Actual Choice} \\
+				\cline{2-4}
+				& Payout & \multicolumn{1}{|c|}{A and B} & \multicolumn{1}{|c|}{B only} \\
+				\cline{2-4}
+				\multirow{2}{*}{Predicted Choice} & A and B & 1 000 \$ & 0 \$ \\
+				\cline{2-4}
+				& B only & 1 001 000 \$ & 1 000 000 \$ \\
+				\cline{2-4}
+			\end{tabular}
+			\caption{Possible payouts for Newcomb's paradox}
+			\label{table:NewcombParadoxPayouts}
+		\end{table}
+
+	\begin{thebibliography}{}
+
+		\bibitem{CranePatterson2000}
+			\emph{History of the mind-body problem}\\
+			Tim Crane, Sarah Patterson\\
+			Routledge, 2000
+
+	\end{thebibliography}
+
+\end{document}

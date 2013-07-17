@@ -1,0 +1,84 @@
+abstract
+
+introduction
+  introduction to vector graphics, use in artistic design, industrial design
+  shortcomings of existing solutions (bézier, spiro (link to spiro promotion), NURBS)
+    TODO: maybe correspond these shortcomings and their illustrations to the stuff in the evalution section
+    TODO: research shortcomings that spiro splines do not solve, maybe we can have illustrations for that, too
+    illustration: it's easy to create parabolas instead of circle arcs
+    illustration: spirals need many control points and it's easy to include small bumps
+    illustration: curvature continuity is not guaranteed
+goals (B)
+  https://code.google.com/p/kurve/wiki/Foundation
+  illustration: visually introduce point, direction, curvature with tangents and osculating circles
+proposed solution (B) (first is the part of the solution that we are fairly confident in, second is the proposed solution embodied by the IDP)
+  overall structure (TODO: find name for 'overall structure')
+    illustration: diagram
+    moving from implementation detail to differential geometric specification
+    implementation section of https://code.google.com/p/kurve/wiki/Foundation
+  mathematical model, specific implementation of overall structure in IDP
+    segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
+    disambiguation
+    specifications
+      position, direction and curvature
+    continuity connections
+    constant velocity
+    fairness
+      derivative of projected acceleration is equal to projected jerk
+implementation (A)
+  choice of platform
+    C#: platform independent, high-level, possibility to interface with native code, familarity, good UI frameworks (GTK#)
+    ipopt
+    casadi
+    link to googlecode page
+  numeric optimization
+    formalization of model using symbolic functions in casadi
+    optimization using ipopt
+    caching
+    keeping track of disambiguation information
+    input is a set of specifications, disambiguation, etc.
+    result is a curve whose segmentation is no longer visible
+  user interface (include screenshots)
+    goal: proof of concept
+    interacts with numeric optimizer
+    specify any combination of point, direction and curvature at positions on the curve
+    change position of a specification
+      in case of pointspecifications optionally moving the point along the curve accordingly
+    insert/remove curve length at or between specifications
+    displays deviation from set velocity, such that the user knows when a segment is over-stretched, or where the curve degree/segment count is too low
+    loading/saving of documents
+      specification can be serialized from/to XML
+evaluation
+  were the goals met? (TODO: systematic approach for describing expressiveness and new features)
+    controlling length is actually a very nice thing to have
+      a good way to control circle arcs in terms of radius (fluttershy's ear, mouth)
+      a good way to pull curves in place when they don't have direction specifications
+    fluttershy's mane
+      spirals done this way are guaranteed to be smooth and not have any unintentional bumps
+      comparison with bézier
+        source image is in flash, already made of bézier splines, easy to trace
+        still many more nodes needed
+        hard to get actual, perfect spirals right
+        curvature incontinuities, small bumps
+      somewhat hampered by poor performance and optimization stability issues, concept seems very powerful though
+    some curves are more easily described in terms of curvature than points and/or direction
+  problems
+    local optima
+    bad stability, infeasible for numeric optimization
+    performance
+      possible improvements
+        make sure substitutions only happen where and when necessary
+        cache partially instantiated IpoptProblem? such that fewer substitutions have to happen when changing a single specification
+        use better linear solver with ipopt
+        properly configure ipopt options
+        adaptive segment density
+        adaptive velocity/fairness trapezoid sum
+conclusion (distinguish between further research work and turning the project into practical software)
+  further possibilities to instantiate overall structure (different and/or combined spline primitives, constructive instead of optimization approach)
+  adaptive line segments, adaptive bézier approximation
+  steps that are necessary to turn this project into a useful application
+    make absolutely sure the concept works by testing it with actual users
+    performance improvements
+    inkscape plugin
+
+TODO: extract topical project progress from Log
