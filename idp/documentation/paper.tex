@@ -9,7 +9,7 @@
 \clubpenalty = 10000
 \widowpenalty = 10000
 
-\title{Optimal Fitting of Curves for Given Specifications}
+\title{Optimal Fitting of Planar Curves to Prescribed Constraints}
 \author{Julian Asamer, Julian Brunner}
 \date{\today}
 
@@ -25,9 +25,45 @@
 
 	\section{Introduction}
 
+		These days, vector graphics are widely used in both artistic and industrial design. Artists create illustrations, character designs and even fully animated cartoons using vector graphics software. Vector graphics are also used in industrial design, allowing for the smooth, aerodynamic shapes observed in modern cars and airplanes.
+
+		Raster graphics images (for instance, digital photos and most digitally painted artworks) consist of a finite number of pixels (picture elements) which discretely specify the colors at each point of the image. In contrast, vector graphics designs consist of primitives like curves and surfaces, which describe the shapes present in the design using continuous mathematical functions. This has various advantages over the raster approach, since designs do not suffer from discretization artifacts and can, for instance, be arbitrarily scaled without any loss of quality.
+
+		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available through current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software. Thus, the objective of this project is to identify the exact nature and cause of these inadequacies and then specify and implement curve design tools that do not exhibit them.
+
 	\section{Goals}
 
+		\subsection{Shortcomings of Existing Curve Design Software}
+
+			% shortcomings of existing solutions (bézier, spiro (link to spiro promotion), NURBS)
+			%   TODO: maybe correspond these shortcomings and their illustrations to the stuff in the evalution section
+			%   TODO: research shortcomings that spiro splines do not solve, maybe we can have illustrations for that, too
+			%   illustration: it's easy to create parabolas instead of circle arcs
+			%   illustration: spirals need many control points and it's easy to include small bumps
+			%   illustration: curvature continuity is not guaranteed
+
+		\subsection{Properties of Good Curve Design Software}
+
+			% https://code.google.com/p/kurve/wiki/Foundation
+			% TODO - illustration: visually introduce point, direction, curvature with tangents and osculating circles
+
 	\section{Proposed Solution}
+
+		\subsection{Specification-Based Curves}
+
+			% moving from implementation detail to differential geometric specification
+			% implementation section of https://code.google.com/p/kurve/wiki/Foundation
+
+		\subsection{Nonlinear Optimization on Polynomial Curves}
+
+			% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
+			% disambiguation
+			% specifications
+			%   position, direction and curvature
+			% continuity connections
+			% constant velocity
+			% fairness
+			%   derivative of projected acceleration is equal to projected jerk
 
 	\section{Implementation}
 
