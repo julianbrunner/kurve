@@ -4,6 +4,8 @@
 \usepackage[T1]{fontenc}
 \usepackage{parskip}
 \usepackage{times}
+\usepackage{mathtools}
+\usepackage{amssymb}
 \usepackage{multirow}
 
 \clubpenalty = 10000
@@ -35,7 +37,7 @@
 
 	\section{Usability of Curve Design Tools}
 
-		When trying to improve something, it seems advisable to take a step back and thoroughly research the causes of its shortcomings so as to find a way to improve it without making the same or similar mistakes. In the context of curve design tools, this can be achieved by analyzing and modelling the process that people use when designing curves. Once such a model has been obtained, it can be used to understand the issues with current software as well as to propose criteria for good curve design tools.
+		When trying to improve something, it seems advisable to take a step back and thoroughly research the causes of its perceived shortcomings so as to find a way to improve it without making the same or similar mistakes. In the context of curve design tools, this can be achieved by analyzing and modelling the process that people use when designing curves. Once such a model has been obtained, it can be used to propose criteria for good curve design software as well as to analyze potential issues with existing tools.
 
 		\subsection{Curve Design Process}
 
@@ -63,17 +65,19 @@
 
 			At this point it seems obvious that the choice of language is the single most influential one when it comes to the usability of curve design software. Thus, usability analysis in the subsequent sections will focus almost exclusively on this concept of language and the key points made in the list above.
 
-		\subsection{Shortcomings of Existing Curve Design Tools}
+		\subsection{Existing Curve Design Tools}
 
-			Using the model of the curve design process established in the previous section, various tools available in current vector graphics software can be analyzed 
+			Using the model of the curve design process as well as the criteria for good curve design software that were established in the previous section, the usability of various tools available in current vector graphics software can be analyzed.
 
-			\subsubsection{Free-Hand Curves}
+			\subsubsection{Free-Hand Curve Design}
 
-			\subsubsection{Bézier Splines}
+			\subsubsection{Common Design Tools for Bézier Splines}
 
-				
+				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\left[0,1\right] \rightarrow \mathbb{R}^2\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(B\) of degree \(n\) consists of \(n + 1\) coefficients \(P_i \in \mathbb{R}^2\). The curve will always go through the first and the last coefficient point (\(B\left(0\right) = P_0, B\left(1\right) = P_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together in such a way as to make the tangent direction along the curve a continuous function.
 
-			\subsubsection{Spiro Splines}
+				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. Most vector graphics tools have functions that allow preserving the continuity of the tangent direction by automatically modifying adjacent coefficient points accordingly. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
+
+			\subsubsection{Common Design Tools for Spiro Splines}
 
 			% shortcomings of existing solutions (bézier, spiro (link to spiro promotion), NURBS)
 			%   TODO: maybe correspond these shortcomings and their illustrations to the stuff in the evalution section
@@ -82,20 +86,14 @@
 			%   illustration: spirals need many control points and it's easy to include small bumps
 			%   illustration: curvature continuity is not guaranteed
 
-		\subsection{Criteria for Good Cruve Design Tools}
-
-			% https://code.google.com/p/kurve/wiki/Foundation
-			% TODO - illustration: visually introduce point, direction, curvature with tangents and osculating circles
-
-	\section{Proposed Solution}
-
 		\subsection{Specification-Based Curves}
 
 			% with language being this important, it seems irresponsible to simply choose to use the mathematical parameters of the model as the language
 			% moving from implementation detail to differential geometric specification
 			% implementation section of https://code.google.com/p/kurve/wiki/Foundation
+			% TODO - illustration: visually introduce point, direction, curvature with tangents and osculating circles
 
-		\subsection{Nonlinear Optimization on Polynomial Curves}
+	\section{Proposed Solution: Nonlinear Optimization on Polynomial Curves}
 
 			% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
 			% disambiguation
