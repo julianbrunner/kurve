@@ -31,11 +31,27 @@
 
 		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available through current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software. Thus, the objective of this project is to identify the exact nature and cause of these inadequacies and then specify and implement curve design tools that do not exhibit them.
 
-	\section{Usability of Curve Design Software}
+		% TODO: make sure introduction does not overlap with start of next section regarding both content and wording
 
-		When trying to improve something, it seems advisable to take a step back and thoroughly research the causes of its shortcomings so as to find a way to improve it without making the same or similar mistakes. In the context of curve design tools, this can be achieved by analyzing and modelling the process that people use when designing curves. Once such a model has been obtained, it can be used to understand the issues with current tools as well as to propose criteria for good curve design tools.
+	\section{Usability of Curve Design Tools}
 
-		\subsection{Shortcomings of Existing Curve Design Software}
+		When trying to improve something, it seems advisable to take a step back and thoroughly research the causes of its shortcomings so as to find a way to improve it without making the same or similar mistakes. In the context of curve design tools, this can be achieved by analyzing and modelling the process that people use when designing curves. Once such a model has been obtained, it can be used to understand the issues with current software as well as to propose criteria for good curve design tools.
+
+		\subsection{Curve Design Process}
+
+			By observing the process that most people seem to go through when designing curves using vector graphics software, the following model appears plausible.
+
+			\begin{enumerate}
+				\item obtain the source curve as either a real or a mental image of the curve
+				\item extract a set of properties that uniquely identify the source curve from it
+				\item provide these properties to the software to obtain the result curve
+			\end{enumerate}
+
+			Steps 2 and 3 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
+
+			The crucial point here is that the set of properties that is used to communicate the perceived source curve in step 2 to the software in step 3 has to be formulated in the `language' the software uses to describe curves. Different languages may differ in their well-suitedness to be `read' from the source curve by humans, to be `spoken' by humans to the software and in their ability to `describe' curves succinctly and uniquely.
+
+		\subsection{Shortcomings of Existing Curve Design Tools}
 
 			% shortcomings of existing solutions (bézier, spiro (link to spiro promotion), NURBS)
 			%   TODO: maybe correspond these shortcomings and their illustrations to the stuff in the evalution section
@@ -44,9 +60,17 @@
 			%   illustration: spirals need many control points and it's easy to include small bumps
 			%   illustration: curvature continuity is not guaranteed
 
-		\subsection{Curve Design Process}
+		\subsection{Criteria for Good Cruve Design Tools}
 
-		\subsection{Properties of Good Curve Design Software}
+%			From this model, one can derive the requirements that the software tools need to fulfill in order to be useful to the artist.
+%
+%			\begin{itemize}
+%				\item The conversion "curve - defining parameters" should be easy to comprehend (follows from 2 and 5)
+%				\item The parameters should be easy to input to the software (follows from 3)
+%				\item The effects of changing parameters should be local (follows from 5)
+%			\end{itemize}
+%
+%			One may note that the choice of parameters that are used to define the result curve has the most significant influence on the usability of the resulting software tool. It follows that it would be advantageous to make most of the project independent of this choice. That way, there is room for experimenting with the parameters once the framework is established, in order to find the most suitable choice.
 
 			% https://code.google.com/p/kurve/wiki/Foundation
 			% TODO - illustration: visually introduce point, direction, curvature with tangents and osculating circles
