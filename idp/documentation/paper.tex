@@ -43,15 +43,37 @@
 
 			\begin{enumerate}
 				\item obtain the source curve as either a real or a mental image of the curve
-				\item extract a set of properties that uniquely identify the source curve from it
-				\item provide these properties to the software to obtain the result curve
+				\item extract a set of properties from the source curve that uniquely identify it
+				\item provide these properties to the software
+				\item have the software turn them into the result curve
 			\end{enumerate}
 
-			Steps 2 and 3 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
+			Steps 2 to 3 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
 
-			The crucial point here is that the set of properties that is used to communicate the perceived source curve in step 2 to the software in step 3 has to be formulated in the `language' the software uses to describe curves. Different languages may differ in their well-suitedness to be `read' from the source curve by humans, to be `spoken' by humans to the software and in their ability to `describe' curves succinctly and uniquely.
+			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as descriptions for curves (the `language' the software uses). Finally, the success in step 4 depends solely on the ability of the software to turn descriptions of curves that are given to it into mathematical curves.
+
+			The influence which the design tool has on the success or failure of this whole process thus depends on the following key points.
+
+			\begin{itemize}
+				\item Can the language describe curves succinctly and uniquely?
+				\item Is it easy for humans to `read' the language from curves?
+				\item Is it easy for humans to `speak' the language to the software?
+				\item Is it possible for software to build curves from descriptions in the language?
+			\end{itemize}
+
+			At this point it seems obvious that the choice of language is the single most influential one when it comes to the usability of curve design software. Thus, usability analysis in the subsequent sections will focus almost exclusively on this concept of language and the key points made in the list above.
 
 		\subsection{Shortcomings of Existing Curve Design Tools}
+
+			Using the model of the curve design process established in the previous section, various tools available in current vector graphics software can be analyzed 
+
+			\subsubsection{Free-Hand Curves}
+
+			\subsubsection{Bézier Splines}
+
+				
+
+			\subsubsection{Spiro Splines}
 
 			% shortcomings of existing solutions (bézier, spiro (link to spiro promotion), NURBS)
 			%   TODO: maybe correspond these shortcomings and their illustrations to the stuff in the evalution section
@@ -62,16 +84,6 @@
 
 		\subsection{Criteria for Good Cruve Design Tools}
 
-%			From this model, one can derive the requirements that the software tools need to fulfill in order to be useful to the artist.
-%
-%			\begin{itemize}
-%				\item The conversion "curve - defining parameters" should be easy to comprehend (follows from 2 and 5)
-%				\item The parameters should be easy to input to the software (follows from 3)
-%				\item The effects of changing parameters should be local (follows from 5)
-%			\end{itemize}
-%
-%			One may note that the choice of parameters that are used to define the result curve has the most significant influence on the usability of the resulting software tool. It follows that it would be advantageous to make most of the project independent of this choice. That way, there is room for experimenting with the parameters once the framework is established, in order to find the most suitable choice.
-
 			% https://code.google.com/p/kurve/wiki/Foundation
 			% TODO - illustration: visually introduce point, direction, curvature with tangents and osculating circles
 
@@ -79,6 +91,7 @@
 
 		\subsection{Specification-Based Curves}
 
+			% with language being this important, it seems irresponsible to simply choose to use the mathematical parameters of the model as the language
 			% moving from implementation detail to differential geometric specification
 			% implementation section of https://code.google.com/p/kurve/wiki/Foundation
 
