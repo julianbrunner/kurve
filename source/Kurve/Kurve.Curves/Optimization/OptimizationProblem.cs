@@ -112,16 +112,16 @@ namespace Kurve.Curves.Optimization
 					(
 						segment0CurveVelocity.Apply(Terms.Constant(1)),
 						segment1CurveVelocity.Apply(Terms.Constant(0))
-					),
-
-					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
-					let segment0CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Acceleration
-					let segment1CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 1).LocalCurve.Acceleration
-					select Constraints.CreateEquality
-					(
-						segment0CurveAcceleration.Apply(Terms.Constant(1)),
-						segment1CurveAcceleration.Apply(Terms.Constant(0))
 					)
+
+//					from segmentIndex in Enumerable.Range(0, optimizationSegments.Segments.Count() - 1)
+//					let segment0CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 0).LocalCurve.Acceleration
+//					let segment1CurveAcceleration = optimizationSegments.Segments.ElementAt(segmentIndex + 1).LocalCurve.Acceleration
+//					select Constraints.CreateEquality
+//					(
+//						segment0CurveAcceleration.Apply(Terms.Constant(1)),
+//						segment1CurveAcceleration.Apply(Terms.Constant(0))
+//					)
 				)
 			)
 			.ToArray();
