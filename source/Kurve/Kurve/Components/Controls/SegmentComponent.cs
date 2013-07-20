@@ -50,12 +50,12 @@ namespace Kurve.Component
 				Krach.Graphics.Color color = StretchedColor(stretchFactor);
 				Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, color);
 
-				Vector2Double point = 0.5 * (Curve.GetPoint(positions.Item1) + Curve.GetPoint(positions.Item2));
-				Vector2Double direction = Curve.GetDirection((positions.Item1 + positions.Item2) / 2);
-				Vector2Double angularDirection = new Vector2Double(direction.Y, -direction.X);
-				double curvature = Curve.GetCurvature((positions.Item1 + positions.Item2) / 2);
-				Vector2Double curvatureVector = 10000 * curvature * angularDirection;
-				Drawing.DrawLine(context, point, point + curvatureVector, 2, Colors.Green);
+//				Vector2Double point = 0.5 * (Curve.GetPoint(positions.Item1) + Curve.GetPoint(positions.Item2));
+//				Vector2Double direction = Curve.GetDirection((positions.Item1 + positions.Item2) / 2);
+//				Vector2Double angularDirection = new Vector2Double(direction.Y, -direction.X);
+//				double curvature = Curve.GetCurvature((positions.Item1 + positions.Item2) / 2);
+//				Vector2Double curvatureVector = 10000 * curvature * angularDirection;
+//				Drawing.DrawLine(context, point, point + curvatureVector, 2, Colors.Green);
 			}
 
 			base.Draw(context);
