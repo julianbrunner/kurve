@@ -78,21 +78,6 @@
 
 			Using the model of the curve design process as well as the criteria for usability of curve design software that were established in the previous section, various tools available in current vector graphics software can be analyzed.
 
-			% overview of bézier spline design tools
-			% applying curve design model to bézier spline design tools
-			% analysis of bézier spline design tools in terms of criteria
-			%   works well: read, speak, derive
-			%   has issues
-			%     fairness
-			%       curvature continuity is not ensured
-			%       ensuring curvature continuity removes some degree of freedom, curves need more nodes
-			%     expressiveness
-			%       curves that are best described in terms of curvature
-			%         need many nodes
-			%           compromises smoothness
-			%           makes the curve hard to change
-			%           no curvature continuity guaranteed at nodes
-			%         are difficult to specify, mistakes are easy
 			\subsubsection{Common Design Tools for Bézier Splines}
 
 				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\left[0,1\right] \rightarrow \mathbb{R}^2\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(B\) of degree \(n\) consists of \(n + 1\) coefficients \(P_i \in \mathbb{R}^2\). The curve will always go through the first and the last coefficient point (\(B\left(0\right) = P_0, B\left(1\right) = P_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together in such a way as to make the tangent direction along the curve a continuous function.
