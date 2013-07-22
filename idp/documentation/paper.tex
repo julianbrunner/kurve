@@ -2,8 +2,10 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{a4wide}
 \usepackage{parskip}
 \usepackage{times}
+\usepackage{textcomp}
 \usepackage{mathtools}
 \usepackage{amssymb}
 \usepackage{multirow}
@@ -14,6 +16,8 @@
 \title{Optimal Fitting of Planar Curves to Prescribed Constraints}
 \author{Julian Asamer, Julian Brunner}
 \date{\today}
+
+% TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
 
 \begin{document}
 
@@ -40,7 +44,7 @@
 		When trying to improve something, it seems advisable to take a step back and thoroughly research the causes of its perceived shortcomings so as to find a way to improve it without making the same or similar mistakes. In the context of curve design tools, this can be achieved by analyzing and modelling the process that people use when designing curves. Once such a model has been obtained, it can be used to propose criteria for good curve design software as well as to analyze potential issues with existing tools.
 
 		\subsection{Curve Design Process}
-		\label{section:CurveDesignProcess}
+		\label{section:curve_design_process}
 
 			By observing the process that most people seem to go through when designing curves using vector graphics software, the following model appears plausible.
 
@@ -51,60 +55,77 @@
 				\item have the software derive the most likely result curve from these properties
 			\end{enumerate}
 
-			Steps 2 to 3 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
+			Steps 2 to 4 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
 
-			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as descriptions for curves (the `language' the software uses). Unless the properties the designer conveyed to the software in step 3 uniquely identify the curve (an unlikely situation in curve design), in step 4, the design tool will have to choose the curve that the user was most likely describing from an infinite set of curves that exhibit the supplied properties. This notion of 'most likely' is usually modelled in terms of a fairness measure, fairer curves being regarded as more likely. Fairness ususally encodes intuitive notions such as smoothness using mathematical concepts such as continuity and curvature. Here, the software has an opportunity to influence the design process both positively and negatively depending on how the fairness measure is chosen as well as by how good the software is at reliably finding a curve that has a high fairness.
+			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as descriptions for curves (the `language' the software uses). Unless the properties the designer conveyed to the software in step 3 uniquely identify the curve, in step 4, the design tool will have to choose the curve that the user was most likely describing from a possibly infinite set of curves that exhibit the supplied properties. This notion of `most likely' is usually modelled in terms of a fairness measure, fairer curves being regarded as more likely. Fairness ususally encodes intuitive notions such as smoothness using mathematical concepts such as continuity and change in curvature. Here, the software has another opportunity to influence the design process both positively and negatively depending on how the fairness measure is chosen as well as by how good the software is at reliably finding a curve that has a high fairness.
 
-			At this point it seems like the two ways in which curve design software can affect the design process are through the choice of language and fairness measure. Ideally, the language should be very expressive, enabling the user to communicate their intent to the software efficiently, while it and the fairness measure should still retain the mathematical properties that allow curves to be derived from them, a process which becomes increasingly difficult with more expressive description languages and more complex fairness measures.
+			Note that there may be multiple ways to describe a given curve design tool in terms of this process. Instead of modelling the selection of the most likely curve using some fairness measure, one may also propose an alternate view on the process in which the user implicitly specifies the exact curve they want in the properties they specify. For example, in a curve design tool which takes two points from the user and connects them using a straight line, one may say that the user provides the start and the end point of the curve, and the fairness measure is designed to always select the straight line as the fairest curve. Another way of looking at this process is to say that the user, by supplying \(p_0\) and \(p_1\), specified the coefficients of the linear term \(p_0 + (p_1 - p_0) \cdot t\), thus uniquely identifying the desired curve. Modelling the process in such a way that the user supplies only the minimum amount of implicit information, relying on the fairness measure for everything else, is usually closer to reality when analyzing usability of some curve design tool. In a similar fashion, one may consider shortcomings (for instance insufficient continuity) as either shortcomings of the language (the language does not allow the user to request curvature continuity) or as shortcomings of the fairness measure (the fairness measure does not select sufficiently smooth curves).
 
-			From these considerations, we think that applying the following criteria is a good start for assessing the usability of curve design tools.
+		\subsection{Usability of Curve Design Tools}
+		\label{section:usability_curve_design_tools}
+
+			At this point, it seems like the two ways in which curve design software can affect the design process are through the choice of language and fairness measure. Ideally, the language should be very expressive, yet easy to handle for humans, enabling the user to communicate their intent to the software efficiently. The fairness should capture the intuitive notion of curve smoothness sufficiently well. These goals are competing with ability to derive curves from descriptions and the fairness measure reliably and efficiently, a process which becomes increasingly difficult with more expressive description languages and more complex fairness measures. From these considerations, we think that applying the following criteria is a good start for assessing the usability of curve design tools.
 
 			\begin{enumerate}
-				\item How well can the language describe curves?
-				\item How well can humans to `read' descriptions in the language from curves?
-				\item How well can humans to `speak' descriptions in the language to the software?
+				\item How efficient is the language at describing various curves?
+				\item How well can humans `read' descriptions in the language from curves?
+				\item How well can humans `speak' descriptions in the language to the software?
 				\item How well does the fairness measure capture the intuitive notion of smoothness?
-				\item How well can the software derive curves from descriptions and fairness?
+				\item How well can the software derive curves from descriptions and a fairness measure?
 			\end{enumerate}
 
 		\subsection{Existing Curve Design Tools}
 
-			Using the model of the curve design process as well as the criteria for good curve design software that were established in the previous section, the usability of various tools available in current vector graphics software can be analyzed.
+			Using the model of the curve design process as well as the criteria for usability of curve design software that were established in the previous section, various tools available in current vector graphics software can be analyzed.
 
-			\subsubsection{Free-Hand Curve Design}
-
-				While many people would not consider free-hand curve design a form of vector graphics curve design, it is well-suited to demonstrate how the model of the curve design process and the concept of a communication language that the designer uses to convey the curve to the software can be used to analyze the usability of curve design tools.
-
-				Free-hand curves are created by the designer using some kind of pointing device (for instance, a mouse or a graphics tablet), to convey a large number of points that are on the curve to the software. For the simplicity of the argument, we will assume that the graphics software will simply connect these points using straight lines. Some vector graphics software will use Bézier curves instead of straight lines, but due to the large number of points involved as well as due to the low precision of free-hand input using a pointing device, this does not make much of a difference.
-
-				Applying the criteria from section \ref{section:CurveDesignProcess} to free-hand curve design, it is immediately obvious that hundreds of points along the curve are not a succinct way of describing a curve, so criterion 1 is definitely not met very well. Criterion 2 on the other hand seems fine, since all the points that lie on the curve are immediately apparent when looking at it. Point 3 is looking promising aswell, since it's easy enough to input points into some vector graphics software, although this is severely hindered by the fact that there are so many points that need to be specified. Criterion 4 is very well met again, since the software has no problem constructing a polygon from a few hundred points.
-
-				Note that this only applies if the software actually uses the points in the described fashion, that is, by building a curve that goes through all the points. If, on the other hand, the software is tasked with striking a balance between a curve that goes through as many points as possible while also remaining as smooth as possible, this has to be regarded as an entirely different communication language. In this case, the points the user creates using his pointing device are merely an intermediate representation, what is actually communicated to the software is the smooth motion the user makes while using the pointing device. The success of this approach depends largely on the specific algorithm the software uses to fit a smooth curve through the given points as well as the curve primitive that is eventually used to represent the final curve.
-
+			% overview of bézier spline design tools
+			% applying curve design model to bézier spline design tools
+			% analysis of bézier spline design tools in terms of criteria
+			%   works well: read, speak, derive
+			%   has issues
+			%     fairness
+			%       curvature continuity is not ensured
+			%       ensuring curvature continuity removes some degree of freedom, curves need more nodes
+			%     expressiveness
+			%       curves that are best described in terms of curvature
+			%         need many nodes
+			%           compromises smoothness
+			%           makes the curve hard to change
+			%           no curvature continuity guaranteed at nodes
+			%         are difficult to specify, mistakes are easy
 			\subsubsection{Common Design Tools for Bézier Splines}
 
 				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\left[0,1\right] \rightarrow \mathbb{R}^2\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(B\) of degree \(n\) consists of \(n + 1\) coefficients \(P_i \in \mathbb{R}^2\). The curve will always go through the first and the last coefficient point (\(B\left(0\right) = P_0, B\left(1\right) = P_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together in such a way as to make the tangent direction along the curve a continuous function.
 
-				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. Most vector graphics tools have functions that allow preserving the continuity of the tangent direction by automatically modifying adjacent coefficient points accordingly. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
+				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the continuity of the tangent direction by automatically modifying adjacent coefficient points accordingly. They usually do not ensure curvature continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
 
-				% TODO - illustrations
-				% curves that are best described in terms of curvature are difficult to put down
-				%   an excessive number of control points are needed to pin down curvature
-				%     compromises smoothness
-				%     makes the curve hard to change
-				%     somewhat okay when tracing an existing image, since the shapes are already final and the source is likely smooth
-				%   examples
-				%     circle arcs (may have too much curvature in the middle, no constant curvature)
-				%     spirals (fluttershy's mane)
-				%     lugia's back line
-				% curvature continuity is not guaranteed
-				%   curves with lots of changes in curvature sign are affected the most
-				%   examples
-				%     lugia's belly
+				When applying the model introduced in section \ref{section:curve_design_process} to Bézier spline design tools, there are two possibilities for modelling the fairness measure. One way to view things is to assume that the user, in supplying the four coefficient points of each curve segment, uniquely specifies each segment and thus the entire curve, leaving no room for choosing a curve according to some fairness measure. Since users usually don't think about Bézier splines that way, it is more practical to assume that the user only supplies both point and velocity at the start and end of each curve segment, with a fairness measure designed to always choose the cubic polynomial that is uniquely specified by the given properties as the fairest curve.
+
+				Applying the criteria established in section \ref{section:usability_curve_design_tools}, we conclude that the design tools for Bézier splines work sufficiently well in terms of humans trying to read and/or speak their language (criteria 2 and 3), a skill that can be acquired with some practice. Bézier splines are furthermore very simple to derive from their description, fulfilling the 5th criterion perfectly. Design tools for Bézier splines have some issues with both the fairness measure (criterion 4) and the expressiveness of the language (criterion 1), both of which shall be analyzed in the following paragraphs.
+
+				The issue with the fairness measure is that it always selects the uniquely determined cubic polynomial, thus not guarantee curvature continuity. It is difficult for humans to choose the coefficient points in such a way that curvature continuity is established, making it very difficult to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature incontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request curvature-continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with language expressiveness.
+
+				The language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created, respectively moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for curvature continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circle arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points, making it easy to make small mistakes.
+
+				\begin{figure}[htb]
+					\centering
+					\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
+					\caption{Usability Analysis of Bézier Splines}
+					\label{figure:usability_bézier}
+				\end{figure}
+
+				% TODO: improve example index numbers
+				Figure \ref{figure:usability_bézier} illustrates some of these issues by showing some examples of Bézier splines as they appear in common design tools. Bézier nodes are displayed as filled dots, while Bézier handles are displayed as circles.
+
+				Example 1 shows two Bézier splines. The left curve is a circle arc, exhibiting constant curvature, while the right one is not, going from low curvature to high curvature and back to low curvature. Since the difference can be hard to see, it's easy to make mistakes when trying to create circle arcs.
+
+				Examples 2 and 3 show curves that could be described more efficiently in terms of curvature. Since there is no way to directly specify curvature using Bézier splines, a considerable number of nodes is needed to get close to the desired curve. It may be observed that the spiral in example 2 is not perfect. Creating perfect spirals using Bézier splines is very tedious and would require even more nodes (at least one for every 90\textdegree of winding angle covered). It could be speculated on whether the artist would have opted to use a perfect spiral in this example if they had had the tools efficiently do so.
+
+				% TODO: consider removing the handle markers to make curvature incontinuity more visible
+				Example 4 shows a spline with a curvature incontinuity which went unnoticed by the artist at the time of creation. In fact, this incontinuity would be even less visible if the curve were not vertical at said point, manifesting itself only in a reduced overall smoothness of the curve, without a clear indication of where the problem lies.
 
 			\subsubsection{Common Design Tools for Spiro Splines}
 
-				% TODO - illustrations
 				% would in principle be well-suited for circle arcs and spirals and other shapes with linearly changing curvature, but curvature can only be controlled indirectly using points
 				% tangent direction and curvature can only be controlled indirectly
 				%   sometimes, many nodes need to be placed to convey the desired direction/curvature information
@@ -118,7 +139,7 @@
 
 		\subsection{Specification-Based Curves}
 
-			% with language being this important, it seems irresponsible to have it determined by the mathematical parameters of the model as the language
+			% with language being this important, it seems irresponsible to have it determined by the mathematical parameters of the model
 			% moving from implementation detail to differential geometric specification
 			% implementation section of https://code.google.com/p/kurve/wiki/Foundation
             % TODO - diagram: process of going from user input and fairness to curve
@@ -126,23 +147,27 @@
 
 	\section{Proposed Solution: Nonlinear Optimization on Polynomial Curves}
 
-			% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
-			% disambiguation
-			% specifications
-			%   position, direction and curvature
-			% continuity connections
-			% constant velocity
-			% fairness
-			%   derivative of projected acceleration is equal to projected jerk
+		% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
+		% disambiguation
+		% specifications
+		%   position, direction and curvature
+		% continuity connections
+		% fixed length, constant velocity
+		%   fixed length is necessary if specification positions are a fraction of the arc-length of the whole curve, otherwise, any change in the specifications may change the curve length and thus move all specifications along the curve
+		% fairness
+		%   derivative of projected acceleration is equal to projected jerk
 
 	\section{Implementation}
 
 	\section{Evaluation}
 
-			% demonstrate euler spirals and bézier curves being embedded
-			% revisit examples made when analyzing Bézier splines and Spiro splines
+		% demonstrate euler spirals and bézier curves being embedded
+		% revisit examples made when analyzing Bézier splines and Spiro splines
+		% a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
 
 	\section{Conclusion}
+
+		% possibility to have curves without fixed length? could be useful for curves which only have specifications at the start and/or end of the curve
 
 		\begin{table}[htbp]
 			\centering
