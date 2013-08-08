@@ -2,4 +2,4 @@ all:
 	pdflatex paper.tex
 
 clean:
-	rm paper.aux paper.toc paper.pdf paper.log
+	rm paper.out paper.aux paper.toc paper.pdf paper.log
