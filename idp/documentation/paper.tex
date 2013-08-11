@@ -126,6 +126,22 @@
 
 				The only real issue lies in the insufficient expressiveness of the language. Section \ref{section:common_design_tools_bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify direction nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of direction and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to describing circle arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed \(G^2\) continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying direction and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
 
+				\begin{figure}[htb]
+					\centering
+					\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}
+					\caption{Usability Analysis of Spiro Splines}
+					\label{figure:usability_spiro}
+				\end{figure}
+
+				% TODO: improve example index numbers
+				Figure \ref{figure:usability_spiro} illustrates some of these issues by showing some examples of Spiro splines as they appear in common design tools. Control points are displayed as filled dots.
+
+				Example 1 shows a shape that is in principle well-suited for being represented by parts of the Euler spiral. Unfortunately, describing the curve using Spiro splines still requires many control points. In contrast to the corresponding example in section \ref{section:common_design_tools_bézier_splines}, the curve in this example is close to a perfect spiral an thus does not match the source image perfectly. Additional control points would have to be added in order to approximate the imperfect spiral in the source image better.
+
+				Example 2 shows how some shapes can be described using Spiro splines by placing only very few control points. In this case, the shape consists of a circle arc with low curvature (segment a), a segment of linearly increasing curvature (segment b) and finally a circle arc with high curvature (segment c). This shape can be described conveniently using a Spiro spline with just 4 control points.
+
+				Unfortunately, as can be seen in example 3, this scenario does not handle modifications very well. For instance, increasing the curvature of segment c has to be done indirectly by moving a control point. Unfortunately, in this case, this also changes the direction of the curve at that point, such that additional modifications would be needed to correct this. The change also adversely affects segment a, since the curvature there was not specified directly but instead relied on the rather fragile configuration of the 4 control points.
+
 		\subsection{Specification-Based Curves}
 
 			% with language being this important, it seems irresponsible to have it determined by the mathematical parameters of the model
