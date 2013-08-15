@@ -41,6 +41,7 @@
 		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available through current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software. Thus, the objective of this project is to identify the exact nature and cause of these inadequacies and then specify and implement curve design tools that do not exhibit them.
 
 		% TODO: make sure introduction does not overlap with start of next section regarding both content and wording
+		% TODO: quote raphael levien on usability of Bézier splines
 		% TODO: comment on that although there has been some research into better curves (quote MVC curves), it was less focused on usability and hasn't had much impact on actual vector graphics software which continues to almost exclusively use bézier splinse to this day
 
 	\section{Usability of Curve Design Tools}
@@ -102,7 +103,7 @@
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
-					\caption{Usability Analysis of Bézier Splines}
+					\caption{Usability Analysis of Bézier Splines (left: \cite{Fluttershy}, right: \cite{Lugia})}
 					\label{figure:usability_bézier}
 				\end{figure}
 
@@ -131,7 +132,7 @@
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}
-					\caption{Usability Analysis of Spiro Splines}
+					\caption{Usability Analysis of Spiro Splines (left: \cite{Fluttershy}, right: \cite{Lugia})}
 					\label{figure:usability_spiro}
 				\end{figure}
 
@@ -207,6 +208,16 @@
 			\emph{From Spiral to Spline: Optimal Techniques in Interactive Curve Design}\\
 			Raphael Linus Levien\\
 			University of California, Berkeley, Fall 2009
+
+		\bibitem{Fluttershy}
+			\emph{Fluttershy}\\
+			Hasbro, Inc.\\
+			My Little Pony: Friendship is Magic, 2010
+
+		\bibitem{Lugia}
+			\emph{Lugia}\\
+			Nintendo Co., Ltd.\\
+			Pokémon, 1999
 
 	\end{thebibliography}
 
