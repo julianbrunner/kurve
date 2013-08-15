@@ -20,6 +20,7 @@
 \date{\today}
 
 % TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
+% TODO: maybe extract topical project progress from log
 
 \begin{document}
 
@@ -150,7 +151,7 @@
 
 			Seeing how the specification language and fairness measure almost completely determine all usability aspects of the resulting curve design tool, it seems unwise to choose them based on low-level mathematical aspects of the curve as is the case with Bézier splines. Spiro splines are much better in that a lot of effort was put into the fairness measure. Unfortunately, the project has set out to solve the problem of constructing interpolating splines, thereby committing to a very restricted specification language right from the start.
 
-			We think that in order to get the best usability, using a good specification language has to be the top priority. Since it is not immediately clear which specification language is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables flexible construction of curves based on some specification and some fairness measure, as illustrated in figure \ref{figure:specification-based_curves}.
+			We think that in order to get the best usability, using a good specification language which does not rely on implementation details has to be the top priority. Since it is not immediately clear which specification language is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables flexible creation of curves based on some specification and some fairness measure, as illustrated in figure \ref{figure:specification-based_curves}.
 
 			\begin{figure}[htb]
 				\centering
@@ -161,6 +162,7 @@
 
 	\section{Proposed Solution: Nonlinear Optimization on Polynomial Curves}
 
+		% instance of specification-based curves
 		% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
 		% disambiguation
 		% specifications
@@ -174,7 +176,55 @@
 
 	\section{Implementation}
 
+		% choice of platform
+		%   C#: platform independent, high-level, possibility to interface with native code, familarity, good UI frameworks (GTK#)
+		%   ipopt
+		%   casadi
+		%   link to googlecode page
+		% numeric optimization
+		%   formalization of model using symbolic functions in casadi
+		%   optimization using ipopt
+		%   caching
+		%   keeping track of disambiguation information
+		%   input is a set of specifications, disambiguation, etc.
+		%   result is a curve whose segmentation is no longer visible
+		% user interface (include screenshots)
+		%   goal: proof of concept
+		%   interacts with numeric optimizer
+		%   specify any combination of point, direction and curvature at positions on the curve
+		%   change position of a specification
+		%     in case of pointspecifications optionally moving the point along the curve accordingly
+		%   insert/remove curve length at or between specifications
+		%   displays deviation from set velocity, such that the user knows when a segment is over-stretched, or where the curve degree/segment count is too low
+		%   loading/saving of documents
+		%     specification can be serialized from/to XML
+
 	\section{Evaluation}
+
+		% were the goals met? (TODO: systematic approach for describing expressiveness and new features)
+		%   controlling length is actually a very nice thing to have
+		%     a good way to control circle arcs in terms of radius (fluttershy's ear, mouth)
+		%     a good way to pull curves in place when they don't have direction specifications
+		%   fluttershy's mane
+		%     spirals done this way are guaranteed to be smooth and not have any unintentional bumps
+		%     comparison with bézier
+		%       source image is in flash, already made of bézier splines, easy to trace
+		%       still many more nodes needed
+		%       hard to get actual, perfect spirals right
+		%       curvature incontinuities, small bumps
+		%     somewhat hampered by poor performance and optimization stability issues, concept seems very powerful though
+		%   some curves are more easily described in terms of curvature than points and/or direction
+		% problems
+		%   local optima
+		%   bad stability, infeasible for numeric optimization
+		%   performance
+		%     possible improvements
+		%       make sure substitutions only happen where and when necessary
+		%       cache partially instantiated IpoptProblem? such that fewer substitutions have to happen when changing a single specification
+		%       use better linear solver with ipopt
+		%       properly configure ipopt options
+		%       adaptive segment density
+		%       adaptive velocity/fairness trapezoid sum
 
 		% demonstrate euler spirals and bézier curves being embedded
 		%   minimization of normal jerk squares prefers linear change in curvature
@@ -184,7 +234,15 @@
 
 	\section{Conclusion}
 
+		% distinguish between further research work and turning the project into practical software)	
+		% further possibilities to instantiate overall structure (different and/or combined spline primitives, constructive instead of optimization approach)
+		% adaptive line segments, adaptive bézier approximation
+		% steps that are necessary to turn this project into a useful application
+		%   make absolutely sure the concept works by testing it with actual users
+		%   performance improvements
+		%   inkscape plugin
 		% possibility to have curves without fixed length? could be useful for curves which only have specifications at the start and/or end of the curve
+		% investigate into the calculus of variations and whether there may be a possibility to construct MVC curves based on our specification format, once the format itsself has proven to be useful
 
 		\begin{table}[htbp]
 			\centering
