@@ -150,7 +150,7 @@
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
 
-		TODO
+		Having analyzed the usability aspect of curve design tools, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing a usability-oriented curve design tool, as well as our specific ideas for developing a piece of software using this approach.
 
 		\subsection{Specification-Based Curves}
 		\label{section:specification-based_curves}
@@ -175,32 +175,43 @@
 
 			The goal of this project is to figure out which specification language and fairness measure yield the best usability in the resulting curve design tool. In order to achieve this goal, we decided to use nonlinear optimization on polynomial splines, that is, the curves are splines built from parametric polynomial curves which are connected with \(G^2\) continuity and whose parameters are determined using nonlinear optimization on some objective function determined by the specification and the fairness measure. This approach allows us to conveniently experiment with different specification languages and fairness measures in order to assess their usability.
 
-			\begin{table}[htb]
-				\centering
-				\begin{tabular}{c|c|r|r|}
-					\multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Segmentation Visibility} \\
-					\cline{2-4}
-					& Scenario & \multicolumn{1}{|c|}{Exposed} & \multicolumn{1}{|c|}{Opaque} \\
-					\cline{2-4}
-					\multirow{2}{*}{Position Specification} & Default & 1 & 2 \\
-					\cline{2-4}
-					& Arc-Length & 3 & 4 \\
-					\cline{2-4}
-				\end{tabular}
-				\caption{Choices for Position Specification and Segmentation Visibility}
-				\label{table:choices_position_specification_segmentation_visibility}
-			\end{table}
+			\subsubsection{Specification Language}
 
-		% segmentation, separation of segmentation and specification, global positions on curve (https://code.google.com/p/kurve/wiki/SegmentationParametrization, maybe diagram)
-		% disambiguation
-		% specifications
-		%   differential geometric properties
-		%   position, direction and curvature
-		% continuity connections
-		% fixed length, constant velocity
-		%   fixed length is necessary if specification positions are a fraction of the arc-length of the whole curve, otherwise, any change in the specifications may change the curve length and thus move all specifications along the curve
-		% fairness (quote paper or thesis on MVC)
-		%   derivative of projected acceleration is equal to projected jerk
+				% specification language
+				%   differential geometric properties
+				%   point, direction and curvature
+				%   some kind of position specification (ideally, arc-length) is needed for non-points (even points aren't optimal without as they can slide)
+				% maybe just leave out the whole justification with segmentation, etc. and just assume arc-length parametrization
+
+			\subsubsection{Fairness Measure}
+
+				% fairness (quote paper or thesis on MVC)
+				%   derivative of projected acceleration is equal to projected jerk (maybe this belongs to implementation)
+
+			\subsubsection{Segmentation and Parametrization}
+
+				% continuity connections
+				% segmentation, separation of segmentation and specification, global positions on curve
+				% fixed length, constant velocity
+				%   fixed length is necessary if specification positions are a fraction of the arc-length of the whole curve, otherwise, any change in the specifications may change the curve length and thus move all specifications along the curve
+
+				\begin{table}[htb]
+					\centering
+					\begin{tabular}{c|c|r|r|}
+						\multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Segmentation Visibility} \\
+						\cline{2-4}
+						& Scenario & \multicolumn{1}{|c|}{Exposed} & \multicolumn{1}{|c|}{Opaque} \\
+						\cline{2-4}
+						\multirow{2}{*}{Position Specification} & Default & 1 & 2 \\
+						\cline{2-4}
+						& Arc-Length & 3 & 4 \\
+						\cline{2-4}
+					\end{tabular}
+					\caption{Choices for Position Specification and Segmentation Visibility}
+					\label{table:choices_position_specification_segmentation_visibility}
+				\end{table}
+
+			\subsubsection{Disambiguation Information}
 
 	\section{Implementation}
 
