@@ -9,7 +9,6 @@
 \usepackage{textcomp}          % adds symbols like \textdegree
 \usepackage{mathtools}         % modern version of ams math package
 \usepackage{amssymb}           % ams math symbols
-\usepackage{multirow}          % enables multirow tables
 
 % tells LaTeX to avoid orphan lines at the beginning or end of a page
 \clubpenalty = 10000
@@ -20,6 +19,8 @@
 \date{\today}
 
 % TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
+% TODO: expand n't contractions
+% TODO: check if all quotations are done `like this'
 % TODO: maybe extract topical project progress from log
 
 \begin{document}
@@ -176,42 +177,30 @@
 			The goal of this project is to figure out which specification language and fairness measure yield the best usability in the resulting curve design tool. In order to achieve this goal, we decided to use nonlinear optimization on polynomial splines, that is, the curves are splines built from parametric polynomial curves which are connected with \(G^2\) continuity and whose parameters are determined using nonlinear optimization on some objective function determined by the specification and the fairness measure. This approach allows us to conveniently experiment with different specification languages and fairness measures in order to assess their usability.
 
 			\subsubsection{Specification Language}
+			\label{section:specification_language}
 
-				% specification language
-				%   differential geometric properties
-				%   point, direction and curvature
-				%   some kind of position specification (ideally, arc-length) is needed for non-points (even points aren't optimal without as they can slide)
-				% maybe just leave out the whole justification with segmentation, etc. and just assume arc-length parametrization
+				The specification language we propose uses differential geometric properties of curves and is thus decoupled from specifics of the underlying curve model, hopefully leading to a specification language that is easier to learn and use. The human visual system seems to be fairly insensitive to curve properties beyond the second derivative, so the specification language will use points on the curve, tangent angles of the curve as well as the curvature value of the curve. In order to provide the maximum flexibility, the specification language should allow to specify any combination of these three properties.
+
+				With point specifications, it's sometimes enough to require the curve to go through all of them in order, although sometimes, this will lead to undesirable results. Even with the curve preserving the order in which the points are visited, it is unspecified how much arc length the curve will spend between each pair of points. When specifying tangent angles and/or curvature values without an associated point, it becomes a necessity to associate this specification with some kind of positional information in order to anchor it to some point on the curve. If this was not done, the specification could move freely along the curve and would thus behave very unpredictably. We thus chose to associate each combination of point, tangent angle and curvature value with a position on the curve.
+
+				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the position of a specification, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification relative to the start and end points of the curve is independent of the total arc length of the curve.
+
+				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specifications associated to their start and end points. Also, with unspecified curve length, changing any specification may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification positions are given as a fraction of the curve's total arc length.
+
+				% TODO: give formal description of specification language
 
 			\subsubsection{Fairness Measure}
+			\label{section:fairness_measure}
 
 				% fairness (quote paper or thesis on MVC)
 				%   derivative of projected acceleration is equal to projected jerk (maybe this belongs to implementation)
 
-			\subsubsection{Segmentation and Parametrization}
+			\subsubsection{Optimization Problem}
+			\label{section:optimization_problem}
 
 				% continuity connections
 				% segmentation, separation of segmentation and specification, global positions on curve
-				% fixed length, constant velocity
-				%   fixed length is necessary if specification positions are a fraction of the arc-length of the whole curve, otherwise, any change in the specifications may change the curve length and thus move all specifications along the curve
-
-				\begin{table}[htb]
-					\centering
-					\begin{tabular}{c|c|r|r|}
-						\multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{Segmentation Visibility} \\
-						\cline{2-4}
-						& Scenario & \multicolumn{1}{|c|}{Exposed} & \multicolumn{1}{|c|}{Opaque} \\
-						\cline{2-4}
-						\multirow{2}{*}{Position Specification} & Default & 1 & 2 \\
-						\cline{2-4}
-						& Arc-Length & 3 & 4 \\
-						\cline{2-4}
-					\end{tabular}
-					\caption{Choices for Position Specification and Segmentation Visibility}
-					\label{table:choices_position_specification_segmentation_visibility}
-				\end{table}
-
-			\subsubsection{Disambiguation Information}
+				% fixed length as constant speed
 
 	\section{Implementation}
 
