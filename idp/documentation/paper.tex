@@ -183,11 +183,23 @@
 
 				With point specifications, it's sometimes enough to require the curve to go through all of them in order, although sometimes, this will lead to undesirable results. Even with the curve preserving the order in which the points are visited, it is unspecified how much arc length the curve will spend between each pair of points. When specifying tangent angles and/or curvature values without an associated point, it becomes a necessity to associate this specification with some kind of positional information in order to anchor it to some point on the curve. If this was not done, the specification could move freely along the curve and would thus behave very unpredictably. We thus chose to associate each combination of point, tangent angle and curvature value with a position on the curve.
 
-				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the position of a specification, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification relative to the start and end points of the curve is independent of the total arc length of the curve.
+				With that in mind, it is now possible to abandon this notion of a combination of point, tangent angle and curvature value and instead talk about specification items, a specification item being either a positioned point, a positioned tangent angle or a positioned curvature value. A combination of point and curvature value at some position thus splits up into a point specification item at this position and a curvature specification item at the same position.
 
-				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specifications associated to their start and end points. Also, with unspecified curve length, changing any specification may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification positions are given as a fraction of the curve's total arc length.
+				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
 
-				% TODO: give formal description of specification language
+				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length.
+
+				Thus, the final specification language is as follows.
+
+				\begin{align*}
+					\text{Positions} & = \left[0, 1\right]\\
+					\text{Points} & = \mathbb{R}^2\\
+					\text{Directions} & = \mathbb{R}\\
+					\text{Curvatures} & = \mathbb{R}\\
+					\text{SpecificationItems} & = \text{Positions} \times \left(\text{Points} \cup \text{Directions} \cup \text{Curvatures}\right)\\
+					\text{CurveLengths} & = \mathbb{R}\\
+					\text{Specifications} & = \mathcal{P}\left(\text{SpecificationItems}\right) \times \text{CurveLengths}
+				\end{align*}
 
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
