@@ -151,7 +151,7 @@
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
 
-		Having analyzed the usability aspect of curve design tools, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing a usability-oriented curve design tool, as well as our specific ideas for developing a piece of software using this approach.
+		Having analyzed the usability aspect of curve design tools, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as our specific ideas for developing a piece of software using this approach.
 
 		\subsection{Specification-Based Curves}
 		\label{section:specification-based_curves}
@@ -167,7 +167,7 @@
 				\label{figure:specification-based_curves}
 			\end{figure}
 
-			Figure \ref{figure:specification-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the specification language and fairness measure should be, whether to do segmentation (spline approach) or use a single parametric curve, or if the curve should be determined by numerical optimization or by explicit construction. These choices will be dealt with in the following section.
+			Figure \ref{figure:specification-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the specification language and fairness measure should be, whether to do segmentation (spline approach) or use a single parametric curve, or if the curve should be determined by numerical optimization or by explicit construction.
 
 		\subsection{Nonlinear Optimization on Polynomial Curves}
 		\label{section:nonlinear_optimization_polynomial_curves}
@@ -215,14 +215,31 @@
 					\int_{0}^{1}{\kappa'\!\left(t\right)}^2\;\mathrm{d}t
 				\end{displaymath}
 
-				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square fo the derivative of the curvature.
+				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square fo the derivative of the curvature. Because of these appealing properties, the MVC fairness measure was chosen.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
 
+				Having chosen a specification language and a fairness measure, it is time to formulate the optimization problem. Since polynomials of very high degree usually don't behave very well, an approach where multiple polynomial parametric curves are connected to a spline seems advisable. This way, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. In the following, we will denote the \(i\)th coefficient of the \(k\)th polynomial by \(c_{k,i}\), and the vector of all coefficients by \(c\).
+
+				definitions 
+				\begin{align*}
+					p & : \left[0,1\right] \rightarrow \mathbb{R}^2 & & && \text{(point)}\\
+					v & : \left[0,1\right] \rightarrow \mathbb{R}^2, & v & = p' && \text{(velocity)}\\
+					a & : \left[0,1\right] \rightarrow \mathbb{R}^2, & a & = v' && \text{(acceleration)}
+				\end{align*}
+
+				The first problem we face is that polynomials will in general not be in natural parametrization (that is, a parametrization where the parameter \(t\) is equal to the covered arc length of the curve up to the point \(p\left(t\right)\)). Since we chose to give the position of a specification item as a fraction of the curve's total arc length, it would be very advantageous to have a parametrization where the parameter is at least proportional to the covered arc length of the curve. This property is equivalent to the first derivative of the curve (velocity) having constant euclidean norm (\(\|p'\left(t\right)\|\) is constant) and has additional useful consequences, such as the second derivative of the curve (acceleration) being orthogonal to the velocity. Thus, one of the objectives of the optimization is to make sure that the speed of the curve is constant.
+
+				% constant velocity
+				% fairness
+				% specification
+				% continuity connections
+
 				% continuity connections
 				% segmentation, separation of segmentation and specification, global positions on curve
 				% fixed length as constant speed
+				% give objective and constraints function
 
 	\section{Implementation}
 
