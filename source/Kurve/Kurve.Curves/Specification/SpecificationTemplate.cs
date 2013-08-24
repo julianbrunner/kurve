@@ -95,7 +95,7 @@ namespace Kurve.Curves
 					(
 						segments,
 						segmentWeights,
-						(segment, segmentWeight) => Terms.Scaling(segmentWeight, Terms.Difference(segment.GlobalCurve.Direction.Apply(position), direction))
+						(segment, segmentWeight) => Terms.Scaling(segmentWeight, Terms.Difference(segment.GlobalCurve.NormalizedVelocity.Apply(position), direction))
 					)
 				)
 			);

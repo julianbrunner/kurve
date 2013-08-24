@@ -3,18 +3,19 @@ using Krach.Basics;
 using Wrappers.Casadi;
 using System.Xml.Linq;
 using System.Linq;
+using Krach.Extensions;
 
 namespace Kurve.Curves
 {
 	public class DirectionCurveSpecification : CurveSpecification, IEquatable<DirectionCurveSpecification>
 	{
 		readonly double position;
-		readonly Vector2Double direction;
+		readonly double direction;
 		
 		public static string XElementName { get { return "direction_curve_specification"; } }
 
 		public override double Position { get { return position; } }
-		public Vector2Double Direction { get { return direction; } }
+		public double Direction { get { return direction; } }
 		public override XElement XElement
 		{
 			get
@@ -23,12 +24,12 @@ namespace Kurve.Curves
 				(
 					XElementName,
 					new XElement("position", position),
-					new XElement("direction", direction.XElement)
+					new XElement("direction", direction)
 				);	
 			}
 		}
 
-		public DirectionCurveSpecification(double position, Vector2Double direction)
+		public DirectionCurveSpecification(double position, double direction)
 		{
 			if (position < 0 || position > 1) throw new ArgumentOutOfRangeException("position");
 			
@@ -40,7 +41,7 @@ namespace Kurve.Curves
 			if (source == null) throw new ArgumentNullException("source");
 
 			this.position = (double)source.Element("position");
-			this.direction = new Vector2Double(source.Element("direction").Elements().Single());
+			this.direction = (double)source.Element("direction");
 		}
 
 		public override bool Equals(object obj)

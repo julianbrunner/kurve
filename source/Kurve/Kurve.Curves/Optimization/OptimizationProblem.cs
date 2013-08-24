@@ -36,33 +36,39 @@ namespace Kurve.Curves.Optimization
 			this.curveLength = Terms.Variable("curveLength");
 
 			IEnumerable<ValueTerm> variables = optimizationSegments.Parameters; 
+			
+			ValueTerm targetSpeed = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
 
-			ValueTerm velocityError = Terms.Sum
+			ValueTerm speedError = Terms.Sum
 			(
 				from segment in optimizationSegments.Segments
 				let position = Terms.Variable("t")
 				let curve = segment.LocalCurve
 				let speed = curve.Speed.Apply(position)
-				let length = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()))
-				let error = Terms.Square(Terms.Difference(speed, length))
-				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
-			);
-			ValueTerm fairnessError = Terms.Sum
-			(
-				from segment in optimizationSegments.Segments
-				let position = Terms.Variable("t")
-				let curve = segment.LocalCurve
-				let jerk = curve.Jerk.Apply(position)
-				let acceleration = curve.Acceleration.Apply(position)
-				let error = Terms.Square(Terms.DotProduct(jerk, Terms.Normalize(acceleration)))
-				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				let error = Terms.Square(Terms.Difference(speed, targetSpeed))
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 32)
 			);
 
-			// TODO: figure out a more mathematically sound way to do the weighting, maybe dependent on curve length
+			ValueTerm fairnessError = Terms.Scaling
+			(
+				Terms.Exponentiation(targetSpeed, Terms.Constant(-6)),
+				Terms.Sum
+				(
+					from segment in optimizationSegments.Segments
+					let position = Terms.Variable("t")
+					let curve = segment.LocalCurve
+					let jerk = curve.Jerk.Apply(position)
+					let normal = Terms.Normal(curve.Velocity.Apply(position))
+					let error = Terms.Square(Terms.DotProduct(jerk, normal))
+					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 32)
+				)
+			);
+
+			// TODO: figure out how to do weighting that is independent of curve size
 			ValueTerm objectiveValue = Terms.Sum
 			(
-				Terms.Product(Terms.Constant(1.0), velocityError),
-				Terms.Product(Terms.Constant(0.000005), fairnessError)
+				Terms.Product(Terms.Constant(1.0), speedError),
+				Terms.Product(Terms.Constant(100000.0), fairnessError)
 			)
 			.Simplify();
 

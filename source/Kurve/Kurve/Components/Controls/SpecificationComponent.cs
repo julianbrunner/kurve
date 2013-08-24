@@ -20,7 +20,7 @@ namespace Kurve.Component
 
 		double position = 0;
 		Vector2Double point;
-		Vector2Double direction;
+		double direction;
 		double curvature;
 	
 		public event Action SpecificationChanged;
@@ -47,7 +47,7 @@ namespace Kurve.Component
 				if (specifiesPoint) point = value;
 			}
 		}
-		public Vector2Double Direction 
+		public double Direction 
 		{ 
 			get 
 			{ 
@@ -181,9 +181,7 @@ namespace Kurve.Component
 				}
 				else
 				{
-					double angle = Scalars.ArcTangent(Direction.Y, Direction.X) + 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
-
-					Direction = new Vector2Double(Scalars.Cosine(angle), Scalars.Sine(angle));
+					Direction += 0.1 * SlowDownFactor * ((scrollDirection == ScrollDirection.Up) ? 1 : -1);
 				}
 
 				OnSpecificationChanged();

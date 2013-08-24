@@ -29,7 +29,7 @@ namespace Kurve.Curves
 		{
 			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetSpeed(position);
 		}
-		public override Vector2Double GetDirection(double position)
+		public override double GetDirection(double position)
 		{
 			return segments.ElementAt(getSegmentIndex(position)).GlobalCurve.GetDirection(position);
 		}

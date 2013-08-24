@@ -41,7 +41,7 @@ namespace Kurve
 		{
 			return GetItem(position).Speed;
 		}
-		public override Vector2Double GetDirection(double position)
+		public override double GetDirection(double position)
 		{
 			return GetItem(position).Direction;
 		}

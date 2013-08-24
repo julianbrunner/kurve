@@ -10,11 +10,11 @@ namespace Kurve.Curves
 {
 	public class PolynomialFunctionTermCurveTemplate : FunctionTermCurveTemplate, IEquatable<PolynomialFunctionTermCurveTemplate>
 	{
-		readonly int degree;
+		readonly int length;
 
 		public static string XElementName { get { return "polynomial_curve_template"; } }
 
-		public int Degree { get { return degree; } }
+		public int Degree { get { return length; } }
 		public override XElement XElement
 		{
 			get
@@ -22,16 +22,16 @@ namespace Kurve.Curves
 				return new XElement
 				(
 					XElementName,
-					new XElement("degree", degree)
+					new XElement("length", length)
 				);
 			}
 		}
 
-		public PolynomialFunctionTermCurveTemplate(int degree) : base(Create(degree))
+		public PolynomialFunctionTermCurveTemplate(int length) : base(Create(length))
 		{
-			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
+			if (length < 0) throw new ArgumentOutOfRangeException("length");
 
-			this.degree = degree;
+			this.length = length;
 		}
 		public PolynomialFunctionTermCurveTemplate(XElement source) : this(Create(source)) { }
 
@@ -41,7 +41,7 @@ namespace Kurve.Curves
 		}
 		public override int GetHashCode()
 		{
-			return GetType().Name.GetHashCode() ^ degree.GetHashCode();
+			return GetType().Name.GetHashCode() ^ length.GetHashCode();
 		}
 		public bool Equals(PolynomialFunctionTermCurveTemplate other)
 		{
@@ -62,13 +62,13 @@ namespace Kurve.Curves
 			if (object.ReferenceEquals(curveTemplate1, curveTemplate2)) return true;
 			if (object.ReferenceEquals(curveTemplate1, null) || object.ReferenceEquals(curveTemplate2, null)) return false;
 			
-			return curveTemplate1.degree == curveTemplate2.degree;
+			return curveTemplate1.length == curveTemplate2.length;
 		}
-		static FunctionTerm Create(int degree)
+		static FunctionTerm Create(int length)
 		{
-			if (degree < 0) throw new ArgumentOutOfRangeException("degree");
+			if (length < 0) throw new ArgumentOutOfRangeException("length");
 
-			return Terms.Polynomial(Terms.StandardPolynomialBasis(degree), 2);
+			return Terms.Polynomial(Terms.StandardPolynomialBasis(length), 2);
 		}
 		static int Create(XElement source)
 		{
