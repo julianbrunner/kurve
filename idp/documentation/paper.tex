@@ -189,8 +189,9 @@
 			\begin{align*}
 				p                & : \left[0,1\right] \rightarrow \mathbb{R}^2 &                   &                                           && \text{point}\\
 				s                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{s}{t}      & = \left\|\apply{p'}{t}\right\|            && \text{speed}\\
+				l                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{l}{t}      & = \int_{0}^{t}\apply{s}{u}\;\mathrm{d}u   && \text{covered arc length}\\
 				\theta           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\theta}{t} & = \apply{\alpha}{\apply{p'}{t}}           && \text{direction}\\
-				\kappa           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\kappa}{t} & = \frac{\apply{\theta'}{t}}{\apply{s}{t}} && \text{curvature}
+				\kappa           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\kappa}{t} & = \frac{\apply{\theta'}{t}}{\apply{s}{t}} = \frac{\apply{p''}{t}^\mathrm{T}\overline{\apply{p'}{t}}}{\apply{s}{t}^3} && \text{curvature}
 			\end{align*}
 
 			Using these definitions, the direction \(\apply{\theta}{t}\) is equal to the tangent angle at the point \(\apply{p}{t}\) and the curvature \(\apply{\kappa}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{p}{t}\) or \(0\) if the curve is locally a straight line at the point \(\apply{p}{t}\).
@@ -248,16 +249,17 @@
 
 				Having chosen a specification language and a fairness measure, it is time to formulate the optimization problem. Since polynomials of very high degree usually don't behave very well, an approach where multiple polynomial parametric curves are connected to a spline seems advisable. This way, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. In the following, we will denote the \(i\)th coefficient of the \(k\)th polynomial by \(c_{k,i}\), and the vector of all coefficients by \(c\).
 
-				The first problem we face is that polynomials will in general not be in natural parametrization (that is, a parametrization where the parameter \(t\) is equal to the covered arc length of the curve up to the point \(\apply{p}{t}\)). Since we chose to give the position of a specification item as a fraction of the curve's total arc length, it would be very advantageous to have a parametrization where the parameter is at least proportional to the covered arc length of the curve. This property is equivalent to the speed of the curve being constant and has additional useful consequences, such as the second derivative of the curve being orthogonal to the first derivative. Thus, one of the objectives of the optimization is to make sure that the speed of the curve is constant.
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need a function mapping covered arc length to parameter values (the inverse to the function \(l\) defined in section \ref{section:parametric_plane_curves}). Unfortunately, this function isn't very well suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Thus, an additional optimization goal is to find parametric curves where this function is approximately linear. This property is equivaent to the speed of the curve being approximately constant and has additional useful consequences, such as the second derivative of the curve being orthogonal to the first derivative. Since the chosen specification language already specifies the total arc length of the curve, and the parameter runs through the unit range, the target value for the speed is simply the total arc length of the curve (\(l^*\)), leading to the following error term:
+				\begin{displaymath}
+					\int_{0}^{1}\left(\apply{s}{t} - l^*\right)^2\;\mathrm{d}t
+				\end{displaymath}
 
 				% constant velocity
 				% fairness
 				% specification
 				% continuity connections
 
-				% continuity connections
 				% segmentation, separation of segmentation and specification, global positions on curve
-				% fixed length as constant speed
 				% give objective and constraints function
 
 	\section{Implementation}
