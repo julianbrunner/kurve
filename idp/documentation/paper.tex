@@ -7,8 +7,10 @@
 \usepackage{parskip}           % replaces hanging paragraphs with spacing between paragraphs
 \usepackage{times}             % replaces Computer Modern font with something resembling Times
 \usepackage{textcomp}          % adds symbols like \textdegree
-\usepackage{mathtools}         % modern version of ams math package
+\usepackage{graphicx}          % enables including graphics
+\usepackage{amsmath}           % ams math module
 \usepackage{amssymb}           % ams math symbols
+\usepackage{mathtools}         % fixes a few quirks with the ams packages
 
 % tells LaTeX to avoid orphan lines at the beginning or end of a page
 \clubpenalty = 10000
@@ -184,7 +186,7 @@
 
 			Definitions about vectors in the euclidean plane:
 			\begin{align*}
-				\overline{\cdot} & : \mathbb{R}^2 \rightarrow \mathbb{R}^2     & \overline{v}      & = \vectorB{-v_2}{v_1}                      && \text{orthogonal vector}\\
+				\overline{\cdot} & : \mathbb{R}^2 \rightarrow \mathbb{R}^2     & \overline{v}      & = \vectorB{-v_2}{v_1}                     && \text{orthogonal vector}\\
 				\alpha           & : \mathbb{R}^2 \rightarrow \mathbb{R}       & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1}                && \text{polar coordinate angle}
 			\end{align*}
 
@@ -225,31 +227,33 @@
 				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length.
 
 				Thus, the final specification language is as follows:
-				\begin{align*}
-					\text{Positions} & = \left[0, 1\right]\\
-					\text{Points} & = \mathbb{R}^2\\
-					\text{Directions} & = \mathbb{R}\\
-					\text{Curvatures} & = \mathbb{R}\\
-					\text{SpecificationItems} & = \text{Positions} \times \left(\text{Points} \cup \text{Directions} \cup \text{Curvatures}\right)\\
-					\text{CurveLengths} & = \mathbb{R}\\
-					\text{Specifications} & = \mathcal{P}\left(\text{SpecificationItems}\right) \times \text{CurveLengths}
-				\end{align*}
+				\begin{equation*}
+					\begin{alignedat}{2}
+						& \mathrm{Positions}          && = \left[0, 1\right]\\
+						& \mathrm{Points}             && = \mathbb{R}^2\\
+						& \mathrm{Directions}         && = \mathbb{R}\\
+						& \mathrm{Curvatures}         && = \mathbb{R}\\
+						& \mathrm{SpecificationItems} && = \mathrm{Positions} \times \left(\mathrm{Points} \cup \mathrm{Directions} \cup \mathrm{Curvatures}\right)\\
+						& \mathrm{CurveLengths}       && = \mathbb{R}\\
+						& \mathrm{Specifications}     && = \mathcal{P}\left(\mathrm{SpecificationItems}\right) \times \mathrm{CurveLengths}
+					\end{alignedat}
+				\end{equation*}
 
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
 
 				% TODO: add citations
 
-				Many different fairness measures for plane curves have been proposed throughout history. Most of them set out to emulate the behavior of mechanical splines made from wood or steel, like those which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in a bent steel band, arriving at the following functional describing the minimum energy curve (MEC):
-				\begin{displaymath}
+				Many different fairness measures for plane curves have been proposed throughout history. Most of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band, arriving at the following functional describing the minimum energy curve (MEC):
+				\begin{equation*}
 					\int_{0}^{1}\apply{\kappa}{t}^2\;\mathrm{d}t
-				\end{displaymath}
+				\end{equation*}
+				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when constrained by co-circular points.
 
-				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when constrained by co-circular points. Thus, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC), whose functional is given below:
-				\begin{displaymath}
+				Thus, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC), whose functional is given below:
+				\begin{equation*}
 					\int_{0}^{1}\apply{\kappa'}{t}^2\;\mathrm{d}t
-				\end{displaymath}
-
+				\end{equation*}
 				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square of the derivative of the curvature. Because of these appealing properties, the MVC fairness measure was chosen.
 
 			\subsubsection{Optimization Problem}
@@ -257,33 +261,42 @@
 
 				Having chosen a specification language and a fairness measure, it is time to state the optimization problem. Since polynomials of very high degree usually don't behave very well, an approach where multiple polynomial parametric curves are connected to a spline seems advisable. This way, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. In the following, we will denote the \(i\)th coefficient of the \(k\)th polynomial by \(c_{k,i}\), and the vector of all coefficients by \(c\).
 
-				% TODO: introduce constraints and objective
+				% TODO: figure out proper names
 
 				Using definitions from section \ref{section:parametric_plane_curves}...
 
 				Given specification items ..., total arc length \(l^*\)...
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the error terms for the specification items. Unfortunately, this function isn't very well suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Additionally, we need to incorporate the specification of the total arc length of the curve into the optimization goals. In order to address these problems, the following error term is used as part of the objective function:
-				\begin{displaymath}
-					\apply{se}{c} = \int_{0}^{1}\left(\apply{s_c}{t} - l^*\right)^2\;\mathrm{d}t
-				\end{displaymath}
-				For polynomial splines with sufficient degree and segment count, this error term will be brought close to zero, making the speed approximately constant with value \(l^*\). This, in turn, makes the covered arc length function approximately linear:
-				\begin{displaymath}
-					\apply{l_c}{t} = \int_{0}^{t}\apply{s_c}{u}\;\mathrm{d}u \approx \int_{0}^{t}l^*\;\mathrm{d}u = l^*t
-				\end{displaymath}
-				This causes the inverse of the covered arc length function \(l_c^{-1}\) to be approximately linear as well, facilitating the simple statement of the error terms for the specification items. It also causes the total arc length of the curve to be equal to \(l^*\).
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the error terms for the specification items. Unfortunately, this function isn't very well suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which polynomial segment each specification item will end up, something that is difficult to state in a smooth optimization problem. Another issue is the need to incorporate the specification of the total arc length of the curve into the optimization goals, which is also related to the covered arc length function. In order to address these problems, the following error term is used as part of the objective function:
+				\begin{equation*}
+					\apply{e_s}{c} = \int_{0}^{1}\left(\apply{s_c}{t} - l^*\right)^2\;\mathrm{d}t
+				\end{equation*}
+				For polynomial splines with sufficient degree and segment count, this error term will be brought close to zero, making the speed approximately constant with value \(l^*\). This, in turn, makes the covered arc length function approximately linear (\(\apply{l_c}{t} \approx l^*t\)) which causes the inverse of the covered arc length function \(l_c^{-1}\) to be approximately linear as well, facilitating the simple statement of the error terms for the specification items. It also causes the total arc length of the curve to be equal to \(l^*\).
 
-				As mentioned in section \ref{section:specification_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\mathrm{G}^2\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\mathrm{C}^\infty\)), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\mathrm{G}^2\) continuity for the whole curve, it is sufficient to ensure \(\mathrm{G}^2\) continuity at the segment connection points. Since the constant speed requirement introduced in the previous paragraph collapses \(\mathrm{C}^2\) continuity and \(\mathrm{G}^2\) continuity, ensuring \(\mathrm{C}^2\) continuity is equivalent, yet better suited for nonlinear optimization. Thus, for each connection point (\(0 \leq k \leq n - 1\)), three constraints are added:
-				\begin{align*}
-					\apply{p_{c_k}}{1}   & = \apply{p_{c_{k+1}}}{0}\\
-					\apply{p'_{c_k}}{1}  & = \apply{p'_{c_{k+1}}}{0}\\
-					\apply{p''_{c_k}}{1} & = \apply{p''_{c_{k+1}}}{0}
-				\end{align*}
+				As mentioned in section \ref{section:specification_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\mathrm{G}^2\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\mathrm{C}^\infty\)), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\mathrm{G}^2\) continuity for the whole curve, it is sufficient to ensure \(\mathrm{G}^2\) continuity at the segment connection points. Since the constant speed requirement introduced in the previous paragraph collapses \(\mathrm{C}^2\) continuity and \(\mathrm{G}^2\) continuity, ensuring \(\mathrm{C}^2\) continuity is equivalent, yet better suited for optimization. Thus, for each connection point (\(0 \leq k \leq n - 1\)), three error terms are added:
+				\begin{equation*}
+					\begin{aligned}
+						\apply{e_a}{c} & = \apply{p_{c_k}}{1} - \apply{p_{c_{k+1}}}{0}\\
+						\apply{e_b}{c} & = \apply{p'_{c_k}}{1} - \apply{p'_{c_{k+1}}}{0}\\
+						\apply{e_c}{c} & = \apply{p''_{c_k}}{1} - \apply{p''_{c_{k+1}}}{0}
+					\end{aligned}
+				\end{equation*}
 
-				% constant velocity
-				% fairness
-				% specification
-				% continuity connections
+				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items:
+				\begin{equation*}
+					\begin{aligned}
+						\apply{e_d}{c} & = \apply{p_c}{t_s} - p_s\\
+						\apply{e_e}{c} & = \apply{\theta_c}{t_s} - \theta_s\\
+						\apply{e_f}{c} & = \apply{\kappa_c}{t_s} - \kappa_s
+					\end{aligned}
+				\end{equation*}
+
+				Finally, the error term for the MVC fairness measure as defined in section \ref{section:fairness_measure}:
+				\begin{equation*}
+					\apply{e_f}{c} = \int_{0}^{1}\apply{\kappa'_c}{t}^2\;\mathrm{d}t
+				\end{equation*}
+
+				% TODO: introduce constraints and objective model of ipopt
 
 				% segmentation, separation of segmentation and specification, global positions on curve
 				% give objective and constraints function
