@@ -46,7 +46,7 @@ namespace Kurve.Curves.Optimization
 				let curve = segment.LocalCurve
 				let speed = curve.Speed.Apply(position)
 				let error = Terms.Square(Terms.Difference(speed, targetSpeed))
-				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 32)
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 			);
 
 			ValueTerm fairnessError = Terms.Scaling
@@ -60,7 +60,7 @@ namespace Kurve.Curves.Optimization
 					let jerk = curve.Jerk.Apply(position)
 					let normal = Terms.Normal(curve.Velocity.Apply(position))
 					let error = Terms.Square(Terms.DotProduct(jerk, normal))
-					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 32)
+					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 				)
 			);
 

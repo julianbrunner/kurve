@@ -74,7 +74,7 @@ namespace Kurve.Curves
 		{
 			if (source == null) throw new ArgumentNullException("source");
 
-			return (int)source.Element("degree");
+			return (int)source.Element("length");
 		}
 	}
 }
