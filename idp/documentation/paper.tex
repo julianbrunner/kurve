@@ -284,21 +284,29 @@
 						g_l \leq \apply{g}{x^*} \leq g_u
 					\end{gathered}
 				\end{equation*}
-				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term is zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
+				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
 				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the description language established in section \ref{section:description_language}.
 
-				% TODO: proper explanation of how segments are put together to a spline (wrt. parameter t)
-				When using polynomial splines, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. Let \(m\) be the number of segments. In the following, we will denote the vector of coefficients of the \(i\)th polynomial by \(c_i\), and the vector of all coefficients by \(c\). The functions defined in section \ref{section:parametric_plane_curves} are used with subscripts (\(\apply{\phi_c}{t}\)) to indicate their dependence on the coefficient vector \(c\). They may also be used with an indexed coefficient vector (\(\apply{\phi_{c_i}}{t}\)) when referring to the \(i\)th segment of the spline.
+			\subsubsection{Sgementation and Notation}
+			\label{section:segmentation_notation}
 
-				Let \(n\) be the number of specification items, with the \(i\)th item being at position \(\hat{t}_i\). If the \(i\)th item is a point specification, the point is denoted \(\hat{\phi}_i\), if it is a direction specification, the direction is denoted \(\hat{\delta}_i\) and if it is a curvature specification, the curvature is doneted \(\hat{\chi}_i\). The specified total arc length for the curve is denoted \(\hat{\lambda}\).
+				Let \(m\) be the number of segments that make up the polynomial spline. The parametric curve functions are used with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline \(\apply{\phi}{t}\). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
+				\begin{equation*}
+					\apply{\phi_i}{t} = \apply{\phi}{i + \frac{t}{m}}
+				\end{equation*}
+				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static.
+
+				When using polynomial splines, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline, denoted \(c\). The parametric curve functions of both the whole spline and each segment are used with subscript \(c\) to indicate their dependence on the coefficient vector (\(\apply{\phi_c}{t}\), \(\apply{{\phi_i}_c}{t}\)) when used in error terms for the optimization.
+
+				Let \(n\) be the number of specification items. Let \(\hat{t}_i\) be the position of the \(i\)th specification item. If the \(i\)th item is a point specification, the point is denoted \(\hat{\phi}_i\), if it is a direction specification, the direction is denoted \(\hat{\delta}_i\) and if it is a curvature specification, the curvature is doneted \(\hat{\chi}_i\). The specified total arc length for the curve is denoted \(\hat{\lambda}\).
 
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
 				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. In order to address these problems, the following error term is used:
 				\begin{equation*}
-					\apply{e_a}{c} = \max_{t \in \unit} \xa{\apply{\sigma_c}{t} - \hat{\lambda}}
+					\max_{t \in \unit} \xa{\apply{\sigma_c}{t} - \hat{\lambda}}
 				\end{equation*}
 				For polynomial splines with sufficient degree and segment count, this term will be brought close to zero in the optimization, making the speed approximately constant with value \(\hat{\lambda}\). This, in turn, makes the covered arc length function approximately linear (\(\apply{\lambda_c}{t} \approx \hat{\lambda}t\)) which causes the inverse of the covered arc length function \(\lambda_c^{-1}\) to be approximately linear as well, facilitating the simple statement of the optimization goals for the specification items as well as fixing the segment for each specification item. It also causes the total arc length of the curve to be approximately equal to \(\hat{\lambda}\), as requested by the specification.
 
@@ -306,7 +314,7 @@
 
 				The error term given above is not well-suited for smooth optimization because it incorporates finding a maximum. Since the optimization problem will allow the original error term to be brought close to zero, we can approximate it using the following error term:
 				\begin{equation*}
-					\apply{e_b}{c} = \integral{0}{1}{\xp{\apply{\sigma_c}{t} - \hat{\lambda}}^2}{t}
+					\integral{0}{1}{\xp{\apply{\sigma_c}{t} - \hat{\lambda}}^2}{t}
 				\end{equation*}
 				This term is then finally used as part of the objective function, thus making it a minimization goal.
 
@@ -315,11 +323,11 @@
 
 				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\contg{2}\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
 				\begin{equation*}
-					\begin{aligned}
-						\apply{e_c}{c} & = \apply{\phi_{c_i}}{1} - \apply{\phi_{c_{i+1}}}{0}\\
-						\apply{e_d}{c} & = \apply{\phi'_{c_i}}{1} - \apply{\phi'_{c_{i+1}}}{0}\\
-						\apply{e_e}{c} & = \apply{\phi''_{c_i}}{1} - \apply{\phi''_{c_{i+1}}}{0}
-					\end{aligned}
+					\begin{gathered}
+						\apply{{\phi_i}_c}{1} - \apply{{\phi_{i + 1}}_c}{0}\\
+						\apply{{\phi'_i}_c}{1} - \apply{{\phi'_{i + 1}}_c}{0}\\
+						\apply{{\phi''_i}_c}{1} - \apply{{\phi''_{i + 1}}_c}{0}
+					\end{gathered}
 				\end{equation*}
 				These error terms being zero implies \(\contp{2}\) continuity. However, since the constant speed requirement introduced in the previous paragraph collapses \(\contp{2}\) continuity and \(\contg{2}\) continuity, this is equivalent to the original requirement of ensuring only \(\contg{2}\) continuity, yet better suited for optimization. 
 
@@ -330,30 +338,31 @@
 
 				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. For each specification item (\(0 \leq i \leq n\)), we add one of the following error terms, depending on the type of the specification item:
 				\begin{equation*}
-					\begin{aligned}
-						\apply{e_f}{c} & = \apply{\phi_c}{\hat{t}_i} - \hat{\phi}_i\\
-						\apply{e_g}{c} & = \apply{\delta_c}{\hat{t}_i} - \hat{\delta}_i\\
-						\apply{e_h}{c} & = \apply{\chi_c}{\hat{t}_i} - \hat{\chi}_i
-					\end{aligned}
+					\begin{gathered}
+						\apply{\phi_c}{\hat{t}_i} - \hat{\phi}_i\\
+						\apply{\delta_c}{\hat{t}_i} - \hat{\delta}_i\\
+						\apply{\chi_c}{\hat{t}_i} - \hat{\chi}_i
+					\end{gathered}
 				\end{equation*}
 
-				The user usually wants to specify exact curve behavior rather than indirectly influencing its properties, so these error terms are also added as zero-error constraints.
+				The user usually wants to specify exact curve behavior rather than indirectly influencing properties, so these error terms are also added as zero-error constraints.
 
 			\subsubsection{Fairness Error}
 			\label{section:fairness_error}
 
 				Finally, the error term for the MVC fairness measure as defined in section \ref{section:fairness_measure} is used:
 				\begin{equation*}
-					\apply{e_i}{c} = \integral{0}{1}{\apply{\chi'_c}{t}^2}{t}
+					\integral{0}{1}{\apply{\chi'_c}{t}^2}{t}
 				\end{equation*}
 
 				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal.
 
-			\subsubsection{Complete Formalization}
-			\label{section:complete_formalization}
+			\subsubsection{Final Assembly}
+			\label{section:final_assembly}
 
-				% give objective and constraints function
-				% check code to see if anything was left out
+				Having gathered all the necessary error terms, it's time to put them together. Terms with zero-error constraints, as well as terms with upper bounds on the error are added as component functions of the constraint function \(g\) together with appropriate bounds in \(g_l\) and \(g_u\).
+
+				Minimization goals, on the other hand, are assembled in a weighted sum which defines the the objective function \(f\).
 
 	\section{Implementation}
 
