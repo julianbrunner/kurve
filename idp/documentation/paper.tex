@@ -81,7 +81,10 @@
 		\subsection{Usability Criteria for Curve Design Tools}
 		\label{section:usability_criteria_curve_design_tools}
 
-			We conclude that the two ways in which curve design software can affect the design process are through the choice of specification language and fairness measure. Ideally, the specification language should be very expressive, yet easy to handle for humans, enabling the user to communicate their intent to the software efficiently. The fairness should capture the intuitive notion of curve smoothness sufficiently well. These goals are competing with the software's ability to derive curves from specifications and the fairness measure reliably and efficiently, a process which becomes increasingly difficult with more expressive specification languages and more complex fairness measures.
+			% TODO: properly instroduce description language, how the fairness measure determines semantics but not syntax of that language, etc., figure out when to use description and when to use specification, since they are syntactically identical
+			We conclude that the two ways in which curve design software can affect the design process are through the choice of specification language and fairness measure, which we will call the description language. The usability is of course also affected by the software's ability to derive curves from descriptions.
+
+			Ideally, the specification language should be very expressive, yet easy to handle for humans, enabling the user to communicate their intent to the software efficiently. The fairness should capture the intuitive notion of curve smoothness sufficiently well. These goals are competing with the software's ability to derive curves from descriptions reliably and efficiently, a process which becomes increasingly difficult with more expressive specification languages and more complex fairness measures.
 
 			From these considerations, we think that applying the following criteria is a good start for assessing the usability of curve design tools:
 			\begin{enumerate}
@@ -102,6 +105,7 @@
 
 				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\left[0,1\right] \rightarrow \mathbb{R}^2\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(B\) of degree \(n\) consists of \(n + 1\) coefficients \(P_i \in \mathbb{R}^2\). The curve will always go through the first and the last coefficient point (\(\apply{B}{0} = P_0, \apply{B}{1} = P_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together such that the resulting spline is \(G^1\) continuous.
 
+				% TODO: explain velocity
 				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the \(G^1\) continuity of the spline by automatically modifying adjacent coefficient points accordingly. They usually do not ensure \(\mathrm{G}^2\) continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
 
 				When applying the model introduced in section \ref{section:curve_design_process} to Bézier spline design tools, there are two possibilities for modelling the fairness measure. One way to view things is to assume that the user, in supplying the four coefficient points of each curve segment, uniquely specifies each segment and thus the entire curve, leaving no room for choosing a curve according to some fairness measure. Since users usually don't think about Bézier splines that way, it is more practical to assume that the user only supplies both point and velocity at the start and end of each curve segment, with a fairness measure designed to always choose the cubic polynomial that is uniquely specified by the given properties as the fairest curve.
@@ -112,6 +116,8 @@
 
 				The specification language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for \(\mathrm{G}^2\) continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
 
+				% TODO: consider moving away from the 'source image is traced' samples and use the actual vector graphics leading to those curves
+				% TODO: make sure the size of the node visualization is consistent, use visible colors for node visualization, maybe get rid of circles for handles
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
@@ -119,7 +125,7 @@
 					\label{figure:usability_bézier}
 				\end{figure}
 
-				% TODO: improve example index numbers
+				% TODO: improve example index numbers (also use font consistent with text)
 				Figure \ref{figure:usability_bézier} illustrates some of these issues by showing some examples of Bézier splines as they appear in common design tools. Bézier nodes are displayed as filled dots, while Bézier handles are displayed as circles.
 
 				Example 1 shows two Bézier splines. The left curve is a Bézier spline approximation of a circular arc, exhibiting nearly constant curvature, while the right one is not, going from low curvature to high curvature and back to low curvature. Since the difference can be hard to see, it's easy to make mistakes when trying to approximate circular arcs using Bézier splines.
@@ -162,22 +168,22 @@
 	\label{section:proposed_solution}
 
 		Having analyzed the usability aspect of curve design tools, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as our specific ideas for developing a piece of software using this approach.
+          
+		\subsection{Description-Based Curves}
+		\label{section:description-based_curves}
 
-		\subsection{Specification-Based Curves}
-		\label{section:specification-based_curves}
+			Seeing how the description language almost completely determine all usability aspects of the resulting curve design tool, it seems unwise to choose them based on low-level mathematical aspects of the curve as is the case with Bézier splines. Spiro splines are much better in that a lot of effort was put into the fairness measure. Unfortunately, the project has set out to solve the problem of constructing interpolating splines, thereby committing to a very restricted specification language right from the start.
 
-			Seeing how the specification language and fairness measure almost completely determine all usability aspects of the resulting curve design tool, it seems unwise to choose them based on low-level mathematical aspects of the curve as is the case with Bézier splines. Spiro splines are much better in that a lot of effort was put into the fairness measure. Unfortunately, the project has set out to solve the problem of constructing interpolating splines, thereby committing to a very restricted specification language right from the start.
-
-			We think that in order to get the best usability, using a good specification language which does not rely on implementation details has to be the top priority. Together with a good fairness measure, it will then lead to usable curve design tools. Since it is not immediately clear which specification language or which fairness measure is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables the creation of curves based on explicit specifications and a fairness measure.
+			We think that in order to get the best usability, using a good specification language which does not rely on implementation details has to be the top priority. Together with a good fairness measure, it forms a description language that, if it allows for reliable and efficient derivation of curves, will then lead to usable curve design tools. Since it is not immediately clear which description language is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables the creation of curves based on descriptions.
 
 			\begin{figure}[htb]
 				\centering
-				\includegraphics[width=\textwidth]{../resources/specification-based_curves.pdf}
-				\caption{Specification-Based Curves}
-				\label{figure:specification-based_curves}
+				\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}
+				\caption{Description-Based Curves}
+				\label{figure:description-based_curves}
 			\end{figure}
 
-			Figure \ref{figure:specification-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the specification language and fairness measure should be, whether to do segmentation (spline approach) or use a single curve, or if the curve should be determined by numerical optimization or by explicit construction.
+			Figure \ref{figure:description-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the description language should be, as well as how to derive curves from them.
 
 		\subsection{Definitions}
 		\label{section:definitions}
@@ -211,11 +217,10 @@
 
 				% TODO: introduce parametric and geometric continuity
 
-
-		\subsection{Specification Language and Fairness Measure}
-		\label{section:specification_language_fairness_measure}
+		\subsection{Description Language}
+		\label{section:description_language}
 			
-			After using the results of the usability analysis to establish the general approach to curve design tools in section \ref{section:specification-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first steps are to choose both a specification language and a fairness measure.
+			After using the results of the usability analysis to establish the general approach to curve design tools in section \ref{section:description-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first steps are to choose both a specification language and a fairness measure.
 
 			\subsubsection{Specification Language}
 			\label{section:specification_language}
@@ -261,10 +266,10 @@
 				\end{equation*}
 				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square of the derivative of the curvature. Because of these appealing properties, the MVC fairness measure was chosen.
 
-		\subsection{Nonlinear Optimization on Polynomial Curves}
-		\label{section:nonlinear_optimization_polynomial_curves}
+		\subsection{Curve Derivation}
+		\label{section:curve_derivation}
 
-			Having decided on a specification language and a fairness measure in section \ref{section:specification_language_fairness_measure}, the only thing missing from the process described in section \ref{section:specification-based_curves} is a way of turning specifications into actual curves. In order to achieve this goal, we decided to use nonlinear optimization on polynomial splines, that is, the curves are splines built from parametric polynomial curves whose parameters are determined using nonlinear optimization based on the specification and the fairness measure.
+			Having decided on a specification language and a fairness measure in section \ref{section:description_language}, the only thing missing from the process described in section \ref{section:description-based_curves} is a way of turning specifications into actual curves. In order to achieve this goal, we decided to use nonlinear optimization on polynomial splines, that is, the curves are splines built from parametric polynomial curves whose parameters are determined using nonlinear optimization based on the specification and the fairness measure.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
@@ -278,7 +283,7 @@
 				\end{equation*}
 				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term is zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
-				In the following sections, we will introduce the optimization goals that enable us to use nonlinear optimization for building curves based on specifications using the specification language and fairness measure established in section \ref{section:specification_language_fairness_measure}. We will also state how they are expressed using constraint function and bounds as well as objective function.
+				In the following sections, we will introduce the optimization goals that enable us to use nonlinear optimization for building curves based on specifications using the specification language and fairness measure established in section \ref{section:description_language}. We will also state how they are expressed using constraint function and bounds as well as objective function.
 
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
