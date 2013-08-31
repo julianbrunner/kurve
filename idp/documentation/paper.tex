@@ -12,16 +12,11 @@
 \usepackage{amssymb}           % ams math symbols
 \usepackage{mathtools}         % fixes a few quirks with the ams packages
 
+\input{math.tex}               % some math helper macros
+
 % tells LaTeX to avoid orphan lines at the beginning or end of a page
 \clubpenalty = 10000
 \widowpenalty = 10000
-
-% math commands
-\DeclareMathOperator{\atan2}{atan2}
-\newcommand{\apply}[2]{#1\!\left(#2\right)}
-\newcommand{\vectorA}[1]{\begin{pmatrix}#1\end{pmatrix}}
-\newcommand{\vectorB}[2]{\begin{pmatrix}#1\\\linebreak{}#2\end{pmatrix}}
-\newcommand{\vectorC}[3]{\begin{pmatrix}#1\\\linebreak{}#2\\\linebreak{}#3\end{pmatrix}}
 
 \title{Optimal Fitting of Planar Curves to Prescribed Constraints}
 \author{Julian Asamer, Julian Brunner}
@@ -31,6 +26,7 @@
 % TODO: expand n't contractions
 % TODO: check if all quotations are done `like this'
 % TODO: maybe extract topical project progress from log
+% TODO: consistent use of polynomial, planar, plane, parametric, curve
 
 \begin{document}
 
@@ -74,9 +70,9 @@
 
 			Steps 2 to 4 are then repeated on portions of the curve in order to make small adjustments until the result curve is sufficiently similar to the source curve.
 
-			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as specifications for curves (the specification language the software uses). Unless the properties the designer conveyed to the software in step 3 uniquely identify the curve, in step 4, the design tool will have to choose the curve that the user was most likely describing from a possibly infinite set of curves that exhibit the supplied properties. This notion of `most likely' is usually modelled in terms of a fairness measure, fairer curves being regarded as more likely. Fairness ususally encodes intuitive notions such as smoothness using mathematical concepts such as continuity and change in curvature. Here, the software has another opportunity to influence the design process both positively and negatively depending on how the fairness measure is chosen as well as by how good the software is at reliably finding a curve that has a high fairness.
+			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as specifications for curves (the specification language the software uses). Unless the properties the designer conveyed to the software in step 3 uniquely identify the curve, in step 4, the design tool will have to choose the curve that the user was most likely describing from a possibly infinite set of curves that exhibit the supplied properties. This notion of `most likely' is usually modelled in terms of a fairness measure, fairer curves being regarded as more likely. Fairness ususally encodes intuitive notions such as smoothness using mathematical concepts such as continuity and change in curvature. Here, the software has another opporunity to influence the design process both positively and negatively depending on how the fairness measure is chosen as well as by how good the software is at reliably finding a curve that has a high fairness.
 
-			Note that there may be multiple ways to describe a given curve design tool in terms of this process. Instead of modelling the selection of the most likely curve using some fairness measure, one may also propose an alternate view on the process in which the user implicitly specifies the exact curve they want in the properties they specify. For example, in a curve design tool which takes two points from the user and connects them using a straight line, one may say that the user provides the start and the end point of the curve, and the fairness measure is designed to always select the straight line as the fairest curve. Another way of looking at this process is to say that the user, by supplying \(p_0\) and \(p_1\), specified the coefficients of the linear term \(p_0 + \left(p_1 - p_0\right) \cdot t\), thus uniquely identifying the desired curve. Modelling the process in such a way that the user supplies only the minimum amount of implicit information, relying on the fairness measure for everything else, is usually closer to reality when analyzing usability of some curve design tool. In a similar fashion, one may consider shortcomings (for instance insufficient continuity) as either shortcomings of the specification language (the language does not allow the user to request \(\mathrm{G}^2\) continuity) or as shortcomings of the fairness measure (the fairness measure does not select sufficiently smooth curves).
+			Note that there may be multiple ways to describe a given curve design tool in terms of this process. Instead of modelling the selection of the most likely curve using some fairness measure, one may also propose an alternate view on the process in which the user implicitly specifies the exact curve they want in the properties they specify. For example, in a curve design tool which takes two points from the user and connects them using a straight line, one may say that the user provides the start and the end point of the curve, and the fairness measure is designed to always select the straight line as the fairest curve. Another way of looking at this process is to say that the user, by supplying \(p_0\) and \(p_1\), specified the coefficients of the linear term \(p_0 + \xp{p_1 - p_0} t\), thus uniquely identifying the desired curve. Modelling the process in such a way that the user supplies only the minimum amount of implicit information, relying on the fairness measure for everything else, is usually closer to reality when analyzing usability of some curve design tool. In a similar fashion, one may consider shortcomings (for instance insufficient continuity) as either shortcomings of the specification language (the language does not allow the user to request \(\contg{2}\) continuity) or as shortcomings of the fairness measure (the fairness measure does not select sufficiently smooth curves).
 
 		\subsection{Usability Criteria for Curve Design Tools}
 		\label{section:usability_criteria_curve_design_tools}
@@ -103,18 +99,18 @@
 			\subsubsection{Bézier Splines}
 			\label{section:bézier_splines}
 
-				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\left[0,1\right] \rightarrow \mathbb{R}^2\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(B\) of degree \(n\) consists of \(n + 1\) coefficients \(P_i \in \mathbb{R}^2\). The curve will always go through the first and the last coefficient point (\(\apply{B}{0} = P_0, \apply{B}{1} = P_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together such that the resulting spline is \(G^1\) continuous.
+				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\function{\unit}{\R{2}}\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(\phi\) of degree \(n\) consists of \(n + 1\) coefficients \(c_i \in \R{2}\). The curve will always go through the first and the last coefficient point (\(\apply{\phi}{0} = c_0, \apply{\phi}{1} = c_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together such that the resulting spline is \(\contg{1}\) continuous.
 
 				% TODO: explain velocity
-				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the \(G^1\) continuity of the spline by automatically modifying adjacent coefficient points accordingly. They usually do not ensure \(\mathrm{G}^2\) continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
+				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the \(\contg{1}\) continuity of the spline by automatically modifying adjacent coefficient points accordingly. They usually do not ensure \(\contg{2}\) continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
 
 				When applying the model introduced in section \ref{section:curve_design_process} to Bézier spline design tools, there are two possibilities for modelling the fairness measure. One way to view things is to assume that the user, in supplying the four coefficient points of each curve segment, uniquely specifies each segment and thus the entire curve, leaving no room for choosing a curve according to some fairness measure. Since users usually don't think about Bézier splines that way, it is more practical to assume that the user only supplies both point and velocity at the start and end of each curve segment, with a fairness measure designed to always choose the cubic polynomial that is uniquely specified by the given properties as the fairest curve.
 
 				Applying the criteria established in section \ref{section:usability_criteria_curve_design_tools}, we conclude that the design tools for Bézier splines work sufficiently well in terms of humans trying to read and/or speak their specification language (criteria 2 and 3), a skill that can be acquired with some practice. Bézier splines are furthermore very simple to derive from their specification, fulfilling the 5th criterion perfectly. Design tools for Bézier splines have some issues with both the fairness measure (criterion 4) and the expressiveness of the specification language (criterion 1), both of which shall be analyzed in the following paragraphs.
 
-				The issue with the fairness measure is that it always selects the uniquely determined cubic polynomial, thus not guaranteeing \(\mathrm{G}^2\) continuity. It is difficult for humans to choose the coefficient points in such a way that \(\mathrm{G}^2\) continuity is established, making it hard to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature discontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request \(\mathrm{G}^2\) continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with specification language expressiveness.
+				The issue with the fairness measure is that it always selects the uniquely determined cubic polynomial, thus not guaranteeing \(\contg{2}\) continuity. It is difficult for humans to choose the coefficient points in such a way that \(\contg{2}\) continuity is established, making it hard to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature discontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request \(\contg{2}\) continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with specification language expressiveness.
 
-				The specification language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for \(\mathrm{G}^2\) continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
+				The specification language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for \(\contg{2}\) continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
 
 				% TODO: consider moving away from the 'source image is traced' samples and use the actual vector graphics leading to those curves
 				% TODO: make sure the size of the node visualization is consistent, use visible colors for node visualization, maybe get rid of circles for handles
@@ -140,13 +136,13 @@
 
 				Spiro splines were added to Inkscape in 2009. Even though they were integrated using path effects and thus have a somewhat cumbersome user interface, they constitute a commendable effort of incorporating results from curve research into vector graphics software, something that has hardly happened this far. More information on Spiro splines can be found in the dissertation of Raphael Levien \cite{Levien2009}.
 
-				Spiro splines consist of parts of the Euler spiral, which is a curve whose curvature changes linearly with the curve's arc length. The user can specify control points through which the software puts an interpolating spline. There is no way to directly specify tangent angle and/or curvature. The splines are guaranteed to have \(\mathrm{G}^2\) continuity.
+				Spiro splines consist of parts of the Euler spiral, which is a curve whose curvature changes linearly with the curve's arc length. The user can specify control points through which the software puts an interpolating spline. There is no way to directly specify tangent angle and/or curvature. The splines are guaranteed to have \(\contg{2}\) continuity.
 
-				Again, the model from section \ref{section:curve_design_process} is applied. With Spiro splines, the modelling is fairly straightforward. The user supplies a set of points for which the software computes an interpolating spline. The fairness measure chooses the segments of this spline to be parts of the Euler spiral and makes sure that there is \(\mathrm{G}^2\) continuity and no excessive winding.
+				Again, the model from section \ref{section:curve_design_process} is applied. With Spiro splines, the modelling is fairly straightforward. The user supplies a set of points for which the software computes an interpolating spline. The fairness measure chooses the segments of this spline to be parts of the Euler spiral and makes sure that there is \(\contg{2}\) continuity and no excessive winding.
 
 				We analyze Spiro splines in terms of the criteria presented in section \ref{section:usability_criteria_curve_design_tools}. The specification language of Spiro splines being simply points on the curve, plus the fact that on sufficiently smooth curves, not very many of them being needed, the language is well-suited to be read and spoken by humans (criteria 2 and 3). The fairness measure leads to beautifully smooth curves that are ususally sufficiently close to what a human would expect given the control points (criterion 4). The software is also good and sufficiently quick at constructing these curves (there are some cases where the algorithm fails to find a meaningful curve, but these cases are fairly artificial and can usually be avoided when designing actual curves) and thus fulfills criterion 5 well enough.
 
-				The only real issue lies in the insufficient expressiveness of the specification language. Section \ref{section:bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify tangent angle nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of tangent angle and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to describing circular arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed \(\mathrm{G}^2\) continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying tangent angle and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
+				The only real issue lies in the insufficient expressiveness of the specification language. Section \ref{section:bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify tangent angle nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of tangent angle and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to describing circular arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed \(\contg{2}\) continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying tangent angle and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
 
 				\begin{figure}[htb]
 					\centering
@@ -176,20 +172,20 @@
 
 			Definitions about vectors in the euclidean plane:
 			\begin{align*}
-				\overline{\cdot} & : \mathbb{R}^2 \rightarrow \mathbb{R}^2     & \overline{v}      & = \vectorB{-v_2}{v_1}                     && \text{orthogonal vector}\\
-				\alpha           & : \mathbb{R}^2 \rightarrow \mathbb{R}       & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1}                && \text{polar coordinate angle}
+				\overline{\cdot} & : \function{\R{2}}{\R{2}} & \overline{v}      & = \vectorB{-v_2}{v_1}      && \text{orthogonal vector}\\
+				\alpha           & : \function{\R{2}}{\RR} & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1} && \text{polar coordinate angle}
 			\end{align*}
 
 			Definitions about parametric curves:
 			\begin{align*}
-				p                & : \left[0,1\right] \rightarrow \mathbb{R}^2 &                   &                                           && \text{point}\\
-				s                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{s}{t}      & = \left\|\apply{p'}{t}\right\|            && \text{speed}\\
-				l                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{l}{t}      & = \int_{0}^{t}\apply{s}{u}\;\mathrm{d}u   && \text{covered arc length}\\
-				\theta           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\theta}{t} & = \apply{\alpha}{\apply{p'}{t}}           && \text{direction}\\
-				\kappa           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\kappa}{t} & = \frac{\apply{\theta'}{t}}{\apply{s}{t}} && \text{curvature}
+				\phi    & : \function{\unit}{\R{2}} &                    &                                                && \text{point}\\
+				\sigma  & : \function{\unit}{\RR}   & \apply{\sigma}{t}  & = \xn{\apply{\phi'}{t}}                        && \text{speed}\\
+				\lambda & : \function{\unit}{\RR}   & \apply{\lambda}{t} & = \integral{0}{t}{\apply{\sigma}{u}}{u}        && \text{covered arc length}\\
+				\delta  & : \function{\unit}{\RR}   & \apply{\delta}{t}  & = \apply{\alpha}{\apply{\phi'}{t}}             && \text{direction}\\
+				\chi    & : \function{\unit}{\RR}   & \apply{\chi}{t}    & = \frac{\apply{\delta'}{t}}{\apply{\sigma}{t}} && \text{curvature}
 			\end{align*}
 
-			Using these definitions, the direction \(\apply{\theta}{t}\) is equal to the tangent angle at the point \(\apply{p}{t}\) and the curvature \(\apply{\kappa}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{p}{t}\) or \(0\) if the curve is locally a straight line at the point \(\apply{p}{t}\).
+			Using these definitions, the direction \(\apply{\delta}{t}\) is equal to the tangent angle at the point \(\apply{\phi}{t}\) and the curvature \(\apply{\chi}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{\phi}{t}\) and it is \(0\) if the curve is locally a straight line at the point \(\apply{\phi}{t}\).
 
 		\subsection{Continuity}
 		\label{section:continuity}
@@ -199,7 +195,7 @@
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
 
-		Having analyzed the usability aspect of curve design tools, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as our specific ideas for developing a piece of software using this approach.
+		Having analyzed the usability aspect of curve design tools in \ref{section:problem_analysis}, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as our specific ideas for developing a piece of software using this approach.
           
 		\subsection{Description-Based Curves}
 		\label{section:description-based_curves}
@@ -215,12 +211,14 @@
 				\label{figure:description-based_curves}
 			\end{figure}
 
-			Figure \ref{figure:description-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the description language should be, as well as how to derive curves from them.
+			Figure \ref{figure:description-based_curves} shows such a process. Note that this approach doesn't give any specifics yet, since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the description language should be, as well as how to derive curves from these descriptions.
 
 		\subsection{Description Language}
 		\label{section:description_language}
 			
-			After using the results of the usability analysis to establish the general approach to curve design tools in section \ref{section:description-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first steps are to choose both a specification language and a fairness measure.
+			After establishing the general approach to curve design tools in section \ref{section:description-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first step is to choose a description language, consisting of both a specification language and a fairness measure.
+
+			% TODO: talk about insensitivity of the human visual system to properties beyond the second derivative in both sections, build everything on that premise
 
 			\subsubsection{Specification Language}
 			\label{section:specification_language}
@@ -238,13 +236,13 @@
 				Thus, the final specification language is as follows:
 				\begin{equation*}
 					\begin{alignedat}{2}
-						& \mathrm{Positions}          && = \left[0, 1\right]\\
-						& \mathrm{Points}             && = \mathbb{R}^2\\
-						& \mathrm{Directions}         && = \mathbb{R}\\
-						& \mathrm{Curvatures}         && = \mathbb{R}\\
+						& \mathrm{Positions}          && = \unit\\
+						& \mathrm{Points}             && = \R{2}\\
+						& \mathrm{Directions}         && = \RR\\
+						& \mathrm{Curvatures}         && = \RR\\
 						& \mathrm{SpecificationItems} && = \mathrm{Positions} \times \left(\mathrm{Points} \cup \mathrm{Directions} \cup \mathrm{Curvatures}\right)\\
-						& \mathrm{CurveLengths}       && = \mathbb{R}\\
-						& \mathrm{Specifications}     && = \mathcal{P}\left(\mathrm{SpecificationItems}\right) \times \mathrm{CurveLengths}
+						& \mathrm{CurveLengths}       && = \RR\\
+						& \mathrm{Specifications}     && = \powerset{\mathrm{SpecificationItems}} \times \mathrm{CurveLengths}
 					\end{alignedat}
 				\end{equation*}
 
@@ -253,100 +251,106 @@
 
 				% TODO: add citations
 				% TODO: make clear that these terms are to be minimized
+				% TODO: explain how the MVC fairness reduces unnecessary inflection points, etc.
 
 				Many different fairness measures for plane curves have been proposed throughout history. Most of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band, arriving at the following functional describing the minimum energy curve (MEC):
 				\begin{equation*}
-					\int_{0}^{1}\apply{\kappa}{t}^2\;\mathrm{d}t
+					\integral{0}{1}{\apply{\chi}{t}^2}{t}
 				\end{equation*}
 				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when constrained by co-circular points.
 
 				Thus, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC), whose functional is given below:
 				\begin{equation*}
-					\int_{0}^{1}\apply{\kappa'}{t}^2\;\mathrm{d}t
+					\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
 				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square of the derivative of the curvature. Because of these appealing properties, the MVC fairness measure was chosen.
 
 		\subsection{Curve Derivation}
 		\label{section:curve_derivation}
 
-			Having decided on a specification language and a fairness measure in section \ref{section:description_language}, the only thing missing from the process described in section \ref{section:description-based_curves} is a way of turning specifications into actual curves. In order to achieve this goal, we decided to use nonlinear optimization on polynomial splines, that is, the curves are splines built from parametric polynomial curves whose parameters are determined using nonlinear optimization based on the specification and the fairness measure.
+			Implementing the approach presented in section \ref{section:description-based_curves} requires a way of turning descriptions into actual curves. We chose to use nonlinear optimization on polynomial splines in order to achieve this goal.
+
+			Nonlinear optimization allowed us to stay relatively flexible with respect to the description language and enabled us to experiment with different specification languages and fairness measures, assessing their usability before settling on the choices presented in section \ref{section:description_language}.
+
+			Polynomial parametric curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and are well-suited to approximate a variety of smooth curves. We opted to use polynomial splines since they allow approximating more complex curves without involving polynomials of excessively high degree, which are known to have poor stability.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
 
-				Nonlinear optimization problems are usually expressed using an objective function \(f : \mathbb{R}^n \rightarrow \mathbb{R}\), a constraint function \(g : \mathbb{R}^n \rightarrow \mathbb{R}^m\) and constraint bounds \(g_l, g_u \in \mathbb{R}^m\). The optimization problem is then given by the task of finding an \(x^* \in \mathbb{R}^n\) such that:
+				Nonlinear optimization problems are usually expressed using an objective function \(f : \function{\R{n}}{\RR}\), a constraint function \(g : \function{\R{n}}{\R{m}}\) and constraint bounds \(g_l, g_u \in \R{m}\). The optimization problem is then given by the task of finding an \(x^* \in \R{n}\) such that:
 				\begin{equation*}
-					\begin{aligned}
-						x^* = \min_{x \in \mathbb{R}^n} \apply{f}{x}\\
+					\begin{gathered}
+						x^* = \argmin_{x \in \R{n}} \apply{f}{x}\\
 						g_l \leq \apply{g}{x^*} \leq g_u
-					\end{aligned}
+					\end{gathered}
 				\end{equation*}
 				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term is zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
-				In the following sections, we will introduce the optimization goals that enable us to use nonlinear optimization for building curves based on specifications using the specification language and fairness measure established in section \ref{section:description_language}. We will also state how they are expressed using constraint function and bounds as well as objective function.
+				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the description language established in section \ref{section:description_language}.
+
+				% TODO: proper explanation of how segments are put together to a spline (wrt. parameter t)
+				When using polynomial splines, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. Let \(m\) be the number of segments. In the following, we will denote the vector of coefficients of the \(i\)th polynomial by \(c_i\), and the vector of all coefficients by \(c\). The functions defined in section \ref{section:parametric_plane_curves} are used with subscripts (\(\apply{\phi_c}{t}\)) to indicate their dependence on the coefficient vector \(c\). They may also be used with an indexed coefficient vector (\(\apply{\phi_{c_i}}{t}\)) when referring to the \(i\)th segment of the spline.
+
+				Let \(n\) be the number of specification items, with the \(i\)th item being at position \(\hat{t}_i\). If the \(i\)th item is a point specification, the point is denoted \(\hat{\phi}_i\), if it is a direction specification, the direction is denoted \(\hat{\delta}_i\) and if it is a curvature specification, the curvature is doneted \(\hat{\chi}_i\). The specified total arc length for the curve is denoted \(\hat{\lambda}\).
 
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is difficult to state in a smooth optimization problem. Another issue is the need to incorporate the specification of the total arc length of the curve into the optimization goals, which is also related to the covered arc length function. In order to address these problems, the following error term is used:
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. In order to address these problems, the following error term is used:
 				\begin{equation*}
-					\apply{e_s}{c} = \max \left\{\left|\apply{s_c}{t} - l^*\right| \; \middle| \; t \in \left[0, 1\right]\right\}
+					\apply{e_a}{c} = \max_{t \in \unit} \xa{\apply{\sigma_c}{t} - \hat{\lambda}}
 				\end{equation*}
-				For polynomial splines with sufficient degree and segment count, this term will be brought close to zero in the optimization, making the speed approximately constant with value \(l^*\). This, in turn, makes the covered arc length function approximately linear (\(\apply{l_c}{t} \approx l^*t\)) which causes the inverse of the covered arc length function \(l_c^{-1}\) to be approximately linear as well, facilitating the simple statement of the optimization goals for the specification items as well as fixing the segment for each specification item. It also causes the total arc length of the curve to be approximately equal to \(l^*\), as requested by the specification.
+				For polynomial splines with sufficient degree and segment count, this term will be brought close to zero in the optimization, making the speed approximately constant with value \(\hat{\lambda}\). This, in turn, makes the covered arc length function approximately linear (\(\apply{\lambda_c}{t} \approx \hat{\lambda}t\)) which causes the inverse of the covered arc length function \(\lambda_c^{-1}\) to be approximately linear as well, facilitating the simple statement of the optimization goals for the specification items as well as fixing the segment for each specification item. It also causes the total arc length of the curve to be approximately equal to \(\hat{\lambda}\), as requested by the specification.
 
-				Since this goal can only be fulfilled approximately by polynomial curves, it is impossible to state it as a zero-error constraint. It could however be stated as both an upper bound on errors and a minimization goal. Both approaches were implemented and tested, with the latter proving to yield a more stable optimization process.
+				Since this goal can only be fulfilled approximately by polynomial curves, it is impossible to use the error term given above in a zero-error constraint. It could however be used in both an upper bound on errors and in a minimization goal. Both approaches were implemented and tested, with the latter yielding a more stable optimization process.
 
-				Since the error term given above is not well-suited for smooth optimization, the following approximation was finally used as part of the objective function:
+				The error term given above is not well-suited for smooth optimization because it incorporates finding a maximum. Since the optimization problem will allow the original error term to be brought close to zero, we can approximate it using the following error term:
 				\begin{equation*}
-					\apply{e_s}{c} = \int_{0}^{1}\left(\apply{s_c}{t} - l^*\right)^2\;\mathrm{d}t
+					\apply{e_b}{c} = \integral{0}{1}{\xp{\apply{\sigma_c}{t} - \hat{\lambda}}^2}{t}
 				\end{equation*}
+				This term is then finally used as part of the objective function, thus making it a minimization goal.
 
 			\subsubsection{Continuity Connections}
 			\label{section:continuity_connections}
 
-				As mentioned in section \ref{section:specification_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\mathrm{G}^2\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\mathrm{C}^\infty\)), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\mathrm{G}^2\) continuity for the whole curve, it is sufficient to ensure \(\mathrm{G}^2\) continuity at the segment connection points. Since the constant speed requirement introduced in the previous paragraph collapses \(\mathrm{C}^2\) continuity and \(\mathrm{G}^2\) continuity, ensuring \(\mathrm{C}^2\) continuity is equivalent, yet better suited for optimization. Thus, for each connection point (\(0 \leq k \leq n - 1\)), the following error terms are added:
+				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\contg{2}\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
 				\begin{equation*}
 					\begin{aligned}
-						\apply{e_a}{c} & = \apply{p_{c_k}}{1} - \apply{p_{c_{k+1}}}{0}\\
-						\apply{e_b}{c} & = \apply{p'_{c_k}}{1} - \apply{p'_{c_{k+1}}}{0}\\
-						\apply{e_c}{c} & = \apply{p''_{c_k}}{1} - \apply{p''_{c_{k+1}}}{0}
+						\apply{e_c}{c} & = \apply{\phi_{c_i}}{1} - \apply{\phi_{c_{i+1}}}{0}\\
+						\apply{e_d}{c} & = \apply{\phi'_{c_i}}{1} - \apply{\phi'_{c_{i+1}}}{0}\\
+						\apply{e_e}{c} & = \apply{\phi''_{c_i}}{1} - \apply{\phi''_{c_{i+1}}}{0}
 					\end{aligned}
 				\end{equation*}
+				These error terms being zero implies \(\contp{2}\) continuity. However, since the constant speed requirement introduced in the previous paragraph collapses \(\contp{2}\) continuity and \(\contg{2}\) continuity, this is equivalent to the original requirement of ensuring only \(\contg{2}\) continuity, yet better suited for optimization. 
+
+				Since it is not acceptable for the curve segments to not touch, have sharp corners or curvature discontinuities, the error terms above are added as zero-error constraints.
 
 			\subsubsection{Specification Items}
 			\label{section:specification_items}
 
-				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items:
+				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. For each specification item (\(0 \leq i \leq n\)), we add one of the following error terms, depending on the type of the specification item:
 				\begin{equation*}
 					\begin{aligned}
-						\apply{e_d}{c} & = \apply{p_c}{t_s} - p_s\\
-						\apply{e_e}{c} & = \apply{\theta_c}{t_s} - \theta_s\\
-						\apply{e_f}{c} & = \apply{\kappa_c}{t_s} - \kappa_s
+						\apply{e_f}{c} & = \apply{\phi_c}{\hat{t}_i} - \hat{\phi}_i\\
+						\apply{e_g}{c} & = \apply{\delta_c}{\hat{t}_i} - \hat{\delta}_i\\
+						\apply{e_h}{c} & = \apply{\chi_c}{\hat{t}_i} - \hat{\chi}_i
 					\end{aligned}
 				\end{equation*}
+
+				The user usually wants to specify exact curve behavior rather than indirectly influencing its properties, so these error terms are also added as zero-error constraints.
 
 			\subsubsection{Fairness Error}
 			\label{section:fairness_error}
 
-				Finally, the error term for the MVC fairness measure as defined in section \ref{section:fairness_measure}:
+				Finally, the error term for the MVC fairness measure as defined in section \ref{section:fairness_measure} is used:
 				\begin{equation*}
-					\apply{e_f}{c} = \int_{0}^{1}\apply{\kappa'_c}{t}^2\;\mathrm{d}t
+					\apply{e_i}{c} = \integral{0}{1}{\apply{\chi'_c}{t}^2}{t}
 				\end{equation*}
+
+				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal.
 
 			\subsubsection{Complete Formalization}
 			\label{section:complete_formalization}
-
-				Since polynomials of very high degree usually don't behave very well, an approach where multiple polynomial parametric curves are connected to a spline seems advisable. This way, the optimization domain is a vector consisting of all the coefficients of all the polynomials that make up the spline. In the following, we will denote the \(i\)th coefficient of the \(k\)th polynomial by \(c_{k,i}\), and the vector of all coefficients by \(c\).
-
-				% TODO: proper explanation of how segments are put together to a spline (wrt. parameter t)
-				% TODO: figure out proper names, use asterisks consistently
-				% TODO: where to use squares in errors terms, absolute values, etc.
-
-				The continuity connections need exhibit zero error, since it is not acceptable if the curve segments don't touch, have sharp corners or curvature discontinuities. The specification item error terms should also have zero error, since the user usually wants to specify exact curve behavior rather than indirectly influence its properties. It's clear that in many cases, the fairness error term will not be zero, and in fact, may be arbitrarily large, so the fairness error term is best stated as an optimization goal rather than a hard bound on the error. 
-
-				Using definitions from section \ref{section:parametric_plane_curves}...
-
-				Given specification items ..., total arc length \(l^*\)...
 
 				% give objective and constraints function
 				% check code to see if anything was left out

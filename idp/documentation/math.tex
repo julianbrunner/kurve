@@ -1,0 +1,31 @@
+% functions
+\DeclareMathOperator{\atan2}{atan2}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+% braces
+\newcommand{\xp}[1]{\left(#1\right)}   % parentheses
+\newcommand{\xb}[1]{\left[#1\right]}   % brackets
+\newcommand{\xc}[1]{\left\{#1\right\}} % curly braces
+\newcommand{\xa}[1]{\left|#1\right|}   % absolute value
+\newcommand{\xn}[1]{\left\|#1\right\|} % vector norm
+
+% types
+\newcommand{\function}[2]{#1 \rightarrow #2}
+\newcommand{\R}[1]{\mathbb{R}^{#1}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\unit}{\xb{0,1}}
+
+% complex terms
+\newcommand{\apply}[2]{#1\!\xp{#2}}
+\newcommand{\integral}[4]{\int_{#1}^{#2} #3 \; \mathrm{d}#4}
+\newcommand{\powerset}[1]{\apply{\mathcal{P}}{#1}}
+
+% continuity
+\newcommand{\contp}[1]{\mathrm{C}^{#1}}
+\newcommand{\contg}[1]{\mathrm{G}^{#1}}
+
+% vectors
+\newcommand{\vectorA}[1]{\begin{pmatrix}#1\end{pmatrix}}
+\newcommand{\vectorB}[2]{\begin{pmatrix}#1\\\linebreak{}#2\end{pmatrix}}
+\newcommand{\vectorC}[3]{\begin{pmatrix}#1\\\linebreak{}#2\\\linebreak{}#3\end{pmatrix}}
