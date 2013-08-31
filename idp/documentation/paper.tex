@@ -164,6 +164,38 @@
 
 				Unfortunately, as can be seen in example 3, this scenario does not handle modifications very well. For instance, increasing the curvature of segment c has to be done indirectly by moving a control point. Unfortunately, in this case, this also changes the tangent angle of the curve at that point, such that additional modifications would be needed to correct this. The change also adversely affects segment a, since the curvature there was not specified directly but instead relied on the rather fragile configuration of the 4 control points.
 
+	\section{Definitions}
+	\label{section:definitions}
+
+		TODO
+
+		\subsection{Parametric Plane Curves}
+		\label{section:parametric_plane_curves}
+
+			In order to be able to reason about curves, a few basic definitions are needed.
+
+			Definitions about vectors in the euclidean plane:
+			\begin{align*}
+				\overline{\cdot} & : \mathbb{R}^2 \rightarrow \mathbb{R}^2     & \overline{v}      & = \vectorB{-v_2}{v_1}                     && \text{orthogonal vector}\\
+				\alpha           & : \mathbb{R}^2 \rightarrow \mathbb{R}       & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1}                && \text{polar coordinate angle}
+			\end{align*}
+
+			Definitions about parametric curves:
+			\begin{align*}
+				p                & : \left[0,1\right] \rightarrow \mathbb{R}^2 &                   &                                           && \text{point}\\
+				s                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{s}{t}      & = \left\|\apply{p'}{t}\right\|            && \text{speed}\\
+				l                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{l}{t}      & = \int_{0}^{t}\apply{s}{u}\;\mathrm{d}u   && \text{covered arc length}\\
+				\theta           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\theta}{t} & = \apply{\alpha}{\apply{p'}{t}}           && \text{direction}\\
+				\kappa           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\kappa}{t} & = \frac{\apply{\theta'}{t}}{\apply{s}{t}} && \text{curvature}
+			\end{align*}
+
+			Using these definitions, the direction \(\apply{\theta}{t}\) is equal to the tangent angle at the point \(\apply{p}{t}\) and the curvature \(\apply{\kappa}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{p}{t}\) or \(0\) if the curve is locally a straight line at the point \(\apply{p}{t}\).
+
+		\subsection{Continuity}
+		\label{section:continuity}
+
+			% TODO: introduce parametric and geometric continuity
+
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
 
@@ -184,38 +216,6 @@
 			\end{figure}
 
 			Figure \ref{figure:description-based_curves} shows such a process. Note that many specifics are still left undetermined in this approach since the previous usability analysis didn't give a complete answer as to what the optimal curve design tool looks like. It has yet to be determined what the description language should be, as well as how to derive curves from them.
-
-		\subsection{Definitions}
-		\label{section:definitions}
-
-			TODO
-
-			\subsubsection{Parametric Plane Curves}
-			\label{section:parametric_plane_curves}
-
-				In order to be able to reason about curves, a few basic definitions are needed.
-
-				Definitions about vectors in the euclidean plane:
-				\begin{align*}
-					\overline{\cdot} & : \mathbb{R}^2 \rightarrow \mathbb{R}^2     & \overline{v}      & = \vectorB{-v_2}{v_1}                     && \text{orthogonal vector}\\
-					\alpha           & : \mathbb{R}^2 \rightarrow \mathbb{R}       & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1}                && \text{polar coordinate angle}
-				\end{align*}
-
-				Definitions about parametric curves:
-				\begin{align*}
-					p                & : \left[0,1\right] \rightarrow \mathbb{R}^2 &                   &                                           && \text{point}\\
-					s                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{s}{t}      & = \left\|\apply{p'}{t}\right\|            && \text{speed}\\
-					l                & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{l}{t}      & = \int_{0}^{t}\apply{s}{u}\;\mathrm{d}u   && \text{covered arc length}\\
-					\theta           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\theta}{t} & = \apply{\alpha}{\apply{p'}{t}}           && \text{direction}\\
-					\kappa           & : \left[0,1\right] \rightarrow \mathbb{R}   & \apply{\kappa}{t} & = \frac{\apply{\theta'}{t}}{\apply{s}{t}} && \text{curvature}
-				\end{align*}
-
-				Using these definitions, the direction \(\apply{\theta}{t}\) is equal to the tangent angle at the point \(\apply{p}{t}\) and the curvature \(\apply{\kappa}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{p}{t}\) or \(0\) if the curve is locally a straight line at the point \(\apply{p}{t}\).
-
-			\subsubsection{Continuity}
-			\label{section:continuity}
-
-				% TODO: introduce parametric and geometric continuity
 
 		\subsection{Description Language}
 		\label{section:description_language}
