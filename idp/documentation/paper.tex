@@ -25,7 +25,6 @@
 % TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
 % TODO: expand n't contractions
 % TODO: check if all quotations are done `like this'
-% TODO: maybe extract topical project progress from log
 % TODO: consistent use of polynomial, planar, plane, parametric, curve
 
 \begin{document}
@@ -43,15 +42,14 @@
 
 		These days, vector graphics are widely used in both artistic and industrial design. Artists create illustrations, character designs and even fully animated cartoons using vector graphics software. Vector graphics are also used in industrial design, allowing for the smooth, aerodynamic shapes observed in modern cars and airplanes.
 
-		Raster graphics images (for instance, digital photos and most digitally painted artworks) consist of a finite number of pixels (picture elements) which discretely specify the colors at each point of the image. In contrast, vector graphics designs consist of primitives like curves and surfaces, which describe the shapes present in the design using continuous mathematical functions. This has various advantages over the raster approach, since designs do not suffer from discretization artifacts and can, for instance, be arbitrarily scaled without any loss of quality.
+		Raster graphics images (for instance, digital photos and most digitally painted artworks) consist of a finite number of pixels (picture elements) which discretely specify the colors at each point of the image. In contrast, vector graphics designs consist of primitives like curves and surfaces, which describe the shapes present in the design using mathematical functions. This has various advantages over the raster approach, since designs do not suffer from discretization artifacts and can, for instance, be arbitrarily scaled or repeatedly modified without any loss of quality.
 
-		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available through current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software. Thus, the objective of this project is to identify the exact nature and cause of these inadequacies and then specify and implement curve design tools that do not exhibit them.
+		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software.
 
-		% TODO: make sure introduction does not overlap with start of next section regarding both content and wording
-		% TODO: quote raphael levien on usability of Bézier splines
-		% TODO: comment on that although there has been some research into better curves (quote MVC curves), it was less focused on usability and hasn't had much impact on actual vector graphics software which continues to almost exclusively use bézier splinse to this day
+		While there has been some promising research into improving curve design tools \cite{thesis-mvc} \cite{thesis-spiro}, it focuses mostly on the aspect of improving the fairness of curves, rather than usability as a whole. Unfortunately, it has not had much of an impact on actual vector graphics software used in practice, which continues to focus almost exclusively on Bézier splines to this day.
 
-	% TODO: maybe we don't want to mention G^n and C^n until formally introduced later, doesn't add much value to the usability discussion anyways
+		Thus, the objective of this project is to identify the exact nature and cause of the shortcomings of current curve design tools in order to use this knowledge to develop a curve design tool that does not exhibit them.
+
 	\section{Problem Analysis}
 	\label{section:problem_analysis}
 
@@ -72,7 +70,7 @@
 
 			Step 1 is of course independent of any software that may be used by the designer. Step 2 and 3 are strongly influenced by the choice of design tool, in that the software dictates which properties it accepts as specifications for curves (the specification language the software uses). Unless the properties the designer conveyed to the software in step 3 uniquely identify the curve, in step 4, the design tool will have to choose the curve that the user was most likely describing from a possibly infinite set of curves that exhibit the supplied properties. This notion of `most likely' is usually modelled in terms of a fairness measure, fairer curves being regarded as more likely. Fairness ususally encodes intuitive notions such as smoothness using mathematical concepts such as continuity and change in curvature. Here, the software has another opporunity to influence the design process both positively and negatively depending on how the fairness measure is chosen as well as by how good the software is at reliably finding a curve that has a high fairness.
 
-			Note that there may be multiple ways to describe a given curve design tool in terms of this process. Instead of modelling the selection of the most likely curve using some fairness measure, one may also propose an alternate view on the process in which the user implicitly specifies the exact curve they want in the properties they specify. For example, in a curve design tool which takes two points from the user and connects them using a straight line, one may say that the user provides the start and the end point of the curve, and the fairness measure is designed to always select the straight line as the fairest curve. Another way of looking at this process is to say that the user, by supplying \(p_0\) and \(p_1\), specified the coefficients of the linear term \(p_0 + \xp{p_1 - p_0} t\), thus uniquely identifying the desired curve. Modelling the process in such a way that the user supplies only the minimum amount of implicit information, relying on the fairness measure for everything else, is usually closer to reality when analyzing usability of some curve design tool. In a similar fashion, one may consider shortcomings (for instance insufficient continuity) as either shortcomings of the specification language (the language does not allow the user to request \(\contg{2}\) continuity) or as shortcomings of the fairness measure (the fairness measure does not select sufficiently smooth curves).
+			Note that there may be multiple ways to describe a given curve design tool in terms of this process. Instead of modelling the selection of the most likely curve using some fairness measure, one may also propose an alternate view on the process in which the user implicitly specifies the exact curve they want in the properties they specify. For example, in a curve design tool which takes two points from the user and connects them using a straight line, one may say that the user provides the start and the end point of the curve, and the fairness measure is designed to always select the straight line as the fairest curve. Another way of looking at this process is to say that the user, by supplying \(p_0\) and \(p_1\), specified the coefficients of the linear term \(p_0 + \xp{p_1 - p_0} t\), thus uniquely identifying the desired curve. Modelling the process in such a way that the user supplies only the minimum amount of implicit information, relying on the fairness measure for everything else, is usually closer to reality when analyzing usability of some curve design tool. In a similar fashion, one may consider shortcomings (for instance insufficient continuity) as either shortcomings of the specification language (the language does not allow the user to request curvature continuity) or as shortcomings of the fairness measure (the fairness measure does not select sufficiently smooth curves).
 
 		\subsection{Usability Criteria for Curve Design Tools}
 		\label{section:usability_criteria_curve_design_tools}
@@ -96,28 +94,30 @@
 
 			Using the model of the curve design process as well as the criteria for usability of curve design software that were established in the previous section, various tools available in current vector graphics software can be analyzed.
 
+		% TODO: quote raphael levien on usability of Bézier splines
 			\subsubsection{Bézier Splines}
 			\label{section:bézier_splines}
 
-				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\function{\unit}{\R{2}}\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(\phi\) of degree \(n\) consists of \(n + 1\) coefficients \(c_i \in \R{2}\). The curve will always go through the first and the last coefficient point (\(\apply{\phi}{0} = c_0, \apply{\phi}{1} = c_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together such that the resulting spline is \(\contg{1}\) continuous.
+				Bézier splines are probably the most widely used type of curve in two-dimensional vector graphics. Bézier splines are defined piecewise using Bézier curves, which are planar parametric curves (functions \(\function{\unit}{\R{2}}\)) realized using polynomials (usually cubic) in Bernstein form. A Bézier curve \(\phi\) of degree \(n\) consists of \(n + 1\) coefficients \(c_i \in \R{2}\). The curve will always go through the first and the last coefficient point (\(\apply{\phi}{0} = c_0, \apply{\phi}{1} = c_n\)) and stay within the convex hull of the coefficient points at all other times. Bézier curves in a Bézier spline are usually pieced together such that the resulting spline exhibits continuous direction.
 
 				% TODO: explain velocity
-				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the \(\contg{1}\) continuity of the spline by automatically modifying adjacent coefficient points accordingly. They usually do not ensure \(\contg{2}\) continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
+				In existing vector graphics software, Bézier splines are edited by more or less directly modifying the coefficient points of the underlying Bézier curves. In the case of cubic Bézier curves, the first and the last coefficient points represent the curve's start and end points, while the differences between the second and the first as well as the fourth and the third coefficient points are proportional to the velocity of the curve at the start and end points, respectively. In that sense, the user can specify start end end points of the curve, as well as start and end velocities of the curve using the coefficient points. Most vector graphics tools have functions that allow preserving the direction continuity of the spline by automatically modifying adjacent coefficient points accordingly. They usually do not ensure curvature continuity though. Some tools can also modify existing coefficient points in such a way that the curve passes through a point that is chosen by the user without adding more Bézier curves to the spline.
 
 				When applying the model introduced in section \ref{section:curve_design_process} to Bézier spline design tools, there are two possibilities for modelling the fairness measure. One way to view things is to assume that the user, in supplying the four coefficient points of each curve segment, uniquely specifies each segment and thus the entire curve, leaving no room for choosing a curve according to some fairness measure. Since users usually don't think about Bézier splines that way, it is more practical to assume that the user only supplies both point and velocity at the start and end of each curve segment, with a fairness measure designed to always choose the cubic polynomial that is uniquely specified by the given properties as the fairest curve.
 
 				Applying the criteria established in section \ref{section:usability_criteria_curve_design_tools}, we conclude that the design tools for Bézier splines work sufficiently well in terms of humans trying to read and/or speak their specification language (criteria 2 and 3), a skill that can be acquired with some practice. Bézier splines are furthermore very simple to derive from their specification, fulfilling the 5th criterion perfectly. Design tools for Bézier splines have some issues with both the fairness measure (criterion 4) and the expressiveness of the specification language (criterion 1), both of which shall be analyzed in the following paragraphs.
 
-				The issue with the fairness measure is that it always selects the uniquely determined cubic polynomial, thus not guaranteeing \(\contg{2}\) continuity. It is difficult for humans to choose the coefficient points in such a way that \(\contg{2}\) continuity is established, making it hard to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature discontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request \(\contg{2}\) continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with specification language expressiveness.
+				The issue with the fairness measure is that it always selects the uniquely determined cubic polynomial, thus not guaranteeing curvature continuity. It is difficult for humans to choose the coefficient points in such a way that curvature continuity is established, making it hard to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature discontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request curvature continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with specification language expressiveness.
 
-				The specification language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for \(\contg{2}\) continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
+				The specification language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for curvature continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
 
 				% TODO: consider moving away from the 'source image is traced' samples and use the actual vector graphics leading to those curves
 				% TODO: make sure the size of the node visualization is consistent, use visible colors for node visualization, maybe get rid of circles for handles
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
-					\caption{Usability Analysis of Bézier Splines (left: \cite{Fluttershy}, right: \cite{Lugia})}
+					% TODO: silent citation or not?
+					\caption{Usability Analysis of Bézier Splines (left: \cite{fluttershy}, right: \cite{lugia})}
 					\label{figure:usability_bézier}
 				\end{figure}
 
@@ -134,20 +134,20 @@
 			\subsubsection{Spiro Splines}
 			\label{section:spiro_splines}
 
-				Spiro splines were added to Inkscape in 2009. Even though they were integrated using path effects and thus have a somewhat cumbersome user interface, they constitute a commendable effort of incorporating results from curve research into vector graphics software, something that has hardly happened this far. More information on Spiro splines can be found in the dissertation of Raphael Levien \cite{Levien2009}.
+				Spiro splines were added to Inkscape in 2009. Even though they were integrated using path effects and thus have a somewhat cumbersome user interface, they constitute a commendable effort of incorporating results from curve research into vector graphics software, something that has hardly happened this far. More information on Spiro splines can be found in the dissertation of Raphael Levien \cite{thesis-spiro}.
 
-				Spiro splines consist of parts of the Euler spiral, which is a curve whose curvature changes linearly with the curve's arc length. The user can specify control points through which the software puts an interpolating spline. There is no way to directly specify tangent angle and/or curvature. The splines are guaranteed to have \(\contg{2}\) continuity.
+				Spiro splines consist of parts of the Euler spiral, which is a curve whose curvature changes linearly with the curve's arc length. The user can specify control points through which the software puts an interpolating spline. There is no way to directly specify tangent angle and/or curvature. The splines are guaranteed to have curvature continuity.
 
-				Again, the model from section \ref{section:curve_design_process} is applied. With Spiro splines, the modelling is fairly straightforward. The user supplies a set of points for which the software computes an interpolating spline. The fairness measure chooses the segments of this spline to be parts of the Euler spiral and makes sure that there is \(\contg{2}\) continuity and no excessive winding.
+				Again, the model from section \ref{section:curve_design_process} is applied. With Spiro splines, the modelling is fairly straightforward. The user supplies a set of points for which the software computes an interpolating spline. The fairness measure chooses the segments of this spline to be parts of the Euler spiral and makes sure that there is curvature continuity and no excessive winding.
 
 				We analyze Spiro splines in terms of the criteria presented in section \ref{section:usability_criteria_curve_design_tools}. The specification language of Spiro splines being simply points on the curve, plus the fact that on sufficiently smooth curves, not very many of them being needed, the language is well-suited to be read and spoken by humans (criteria 2 and 3). The fairness measure leads to beautifully smooth curves that are ususally sufficiently close to what a human would expect given the control points (criterion 4). The software is also good and sufficiently quick at constructing these curves (there are some cases where the algorithm fails to find a meaningful curve, but these cases are fairly artificial and can usually be avoided when designing actual curves) and thus fulfills criterion 5 well enough.
 
-				The only real issue lies in the insufficient expressiveness of the specification language. Section \ref{section:bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify tangent angle nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of tangent angle and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to describing circular arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed \(\contg{2}\) continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying tangent angle and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
+				The only real issue lies in the insufficient expressiveness of the specification language. Section \ref{section:bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify tangent angle nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of tangent angle and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to describing circular arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed curvature continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying tangent angle and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
 
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}
-					\caption{Usability Analysis of Spiro Splines (left: \cite{Fluttershy}, right: \cite{Lugia})}
+					\caption{Usability Analysis of Spiro Splines (left: \cite{fluttershy}, right: \cite{lugia})}
 					\label{figure:usability_spiro}
 				\end{figure}
 
@@ -168,7 +168,7 @@
 		\subsection{Description-Based Curves}
 		\label{section:description-based_curves}
 
-			Seeing how the description language almost completely determine all usability aspects of the resulting curve design tool, it seems unwise to choose them based on low-level mathematical aspects of the curve as is the case with Bézier splines. Spiro splines are much better in that a lot of effort was put into the fairness measure. Unfortunately, the project has set out to solve the problem of constructing interpolating splines, thereby committing to a very restricted specification language right from the start.
+			Seeing how the description language almost completely determines all usability aspects of the resulting curve design tool, it seems unwise to base it on low-level mathematical aspects of the curve as is the case with Bézier splines. Spiro splines are much better in that a lot of effort was put into the fairness measure. Unfortunately, the project has set out to solve the problem of constructing interpolating splines, thereby committing to a very restricted specification language right from the start.
 
 			We think that in order to get the best usability, using a good specification language which does not rely on implementation details has to be the top priority. Together with a good fairness measure, it forms a description language that, if it allows for reliable and efficient derivation of curves, will then lead to usable curve design tools. Since it is not immediately clear which description language is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables the creation of curves based on descriptions.
 
@@ -270,7 +270,7 @@
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. In order to address these problems, the following error term is used:
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is naturally an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address these problems, the following error term is used:
 				\begin{equation*}
 					\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
 				\end{equation*}
@@ -401,16 +401,19 @@
 		% possibility to have curves without fixed length? could be useful for curves which only have specifications at the start and/or end of the curve
 		% investigate into the calculus of variations and whether there may be a possibility to construct MVC curves based on our specification format, once the format itsself has proven to be useful
 
+	\clearpage
+
 	\appendix
 
 	\section{Definitions}
 	\label{section:definitions}
 
-		This section contains basic definitions used in the rest of the document.
+		This section contains definitions used in the rest of the document.
 
 		\subsection{Plane Vectors}
 		\label{section:plane_vectors}
 
+			A few basic definitions about vectors in the euclidean plane are needed:
 			\begin{align*}
 				\overline{\cdot} & : \function{\R{2}}{\R{2}} & \overline{v}      & = \vectorB{-v_2}{v_1}      && \text{orthogonal vector}\\
 				\alpha           & : \function{\R{2}}{\RR} i & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1} && \text{polar coordinate angle}
@@ -444,19 +447,26 @@
 
 			It follows immediately that every parametric curve that is \(\contp{n}\) continuous is also \(\contg{n}\) continuous. One may also observe that \(\contp{0}\) continuity and \(\contg{0}\) continuity are equivalent, since discontinuities in the parametrization function itsself manifest themselves directly in the curve it represents, and thus have to exist in all parametrizations of this curve. In the case of parametric plane curves, using the definitions from section \ref{section:parametric_plane_curves}, we can equate \(\contg{0}\) continuity with \(\phi\) being continuous, \(\contg{1}\) continuity with \(\delta\) being continuous and \(\contg{2}\) continuity with \(\chi\) being continuous.
 
+	\clearpage
+
 	\begin{thebibliography}{}
 
-		\bibitem{Levien2009}
+		\bibitem{thesis-mvc}
+			\emph{Minimum Curvature Variation Curves, Networks, and Surfaces for Fair Free-Form Shape Design}\\
+			Hentry Packard Moreton\\
+			University of California, Berkeley, 1992
+
+		\bibitem{thesis-spiro}
 			\emph{From Spiral to Spline: Optimal Techniques in Interactive Curve Design}\\
 			Raphael Linus Levien\\
 			University of California, Berkeley, Fall 2009
 
-		\bibitem{Fluttershy}
+		\bibitem{fluttershy}
 			\emph{Fluttershy}\\
 			Hasbro, Inc.\\
 			My Little Pony: Friendship is Magic, 2010
 
-		\bibitem{Lugia}
+		\bibitem{lugia}
 			\emph{Lugia}\\
 			Nintendo Co., Ltd.\\
 			Pokémon, 1999
