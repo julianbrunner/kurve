@@ -248,7 +248,7 @@
 
 				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
 
-			\subsubsection{Sgementation and Notation}
+			\subsubsection{Segmentation and Notation}
 			\label{section:segmentation_notation}
 
 				Since the polynomial spline is uniquely determined by the coefficients of each polynomial segment, the optimization domain is a vector consisting of all these coefficients. Let \(m\) be the number of segments that make up the polynomial spline. We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
@@ -310,9 +310,9 @@
 
 				Since constant speed was established in section \ref{section:constant_speed}, stating the error term for the fairness chosen in section \ref{section:fairness_measure} is fairly straightforward:
 				\begin{equation*}
-					\hat{\lambda}^3\integral{0}{1}{\apply{\chi'}{t}^2}{t}
+					\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
-				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal. Note that similar to the error term for constant speed, we added the factor \(\hat{\lambda}^3\), which causes the fairness measure to be invariant under scaling of the whole curve, enabling static weighting of error terms in the objective function.
+				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal. Note that similar to the error term for constant speed, we added the factor \(\hat{\lambda}^2\), which causes the fairness measure to be invariant under scaling of the whole curve, enabling static weighting of error terms in the objective function.
 
 			\subsubsection{Final Assembly}
 			\label{section:final_assembly}
@@ -427,7 +427,7 @@
 				\chi    & : \function{\unit}{\RR}   & \apply{\chi}{t}    & = \frac{\apply{\delta'}{t}}{\apply{\sigma}{t}} && \text{curvature}
 			\end{align*}
 
-			Using these definitions, the direction \(\apply{\delta}{t}\) is equal to the tangent angle at the point \(\apply{\phi}{t}\) and the curvature \(\apply{\chi}{t}\) is equal to the inverse of the radius of the osculating circle at the point \(\apply{\phi}{t}\) and it is \(0\) if the curve is locally a straight line at the point \(\apply{\phi}{t}\).
+			Using these definitions, the direction \(\apply{\delta}{t}\) is equal to the tangent angle at the point \(\apply{\phi}{t}\). If the curve is locally a straight line at the point \(\apply{\phi}{t}\), the curvature \(\apply{\chi}{t}\) is equal to \(0\). Otherwise, the curvature \(\apply{\chi}{t}\) is equal (up to sign) to the inverse the radius of the osculating circle at the point \(\apply{\phi}{t}\).
 
 		\subsection{Continuity}
 		\label{section:continuity}
