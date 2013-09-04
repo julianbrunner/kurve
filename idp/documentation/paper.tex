@@ -180,7 +180,7 @@
 			
 			After establishing the general approach to curve design tools in section \ref{section:description-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first step is to choose a description language, consisting of both a specification language and a fairness measure.
 
-			The human visual system seems to be fairly insensitive to properties beyond the third derivative of the curve, that is, beyond variation of curvature. Based on that premise, we chose to let the user specify properties up to the second derivative of the curve using the specification language, while designing the fairness measure to choose curves whose third derivative is minimal from the set of curves that fulfill the specification's requirements.
+			The human visual system seems to be fairly insensitive to properties beyond the second derivative of the curve, that is, beyond curvature. Based on that premise, we chose to let the user specify properties up to the second derivative of the curve using the specification language. The fairness measure will then select the curve whose third derivative is minimal from the set of curves that fulfill the specification's requirements.
 
 			\subsubsection{Specification Language}
 			\label{section:specification_language}
@@ -230,7 +230,7 @@
 
 			Nonlinear optimization allowed us to stay relatively flexible with respect to the description language and enabled us to experiment with different specification languages and fairness measures, assessing their usability before settling on the choices presented in section \ref{section:description_language}.
 
-			Polynomial parametric curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and are well-suited to approximate a variety of smooth curves. We opted to use polynomial splines since they allow approximating more complex curves without involving polynomials of excessively high degree, which are known to have poor stability.
+			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. We opted to use polynomial splines since they allow approximating more complex curves without involving polynomials of excessively high degree, which are known to have poor stability.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
@@ -244,14 +244,16 @@
 				\end{equation*}
 				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
-				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the description language established in section \ref{section:description_language}.
+				Our implementation of choice uses smooth optimization, or, more specifically, an interior point method. This type of algorithm further requires the functions \(f\) and \(g\) to be at least once, ideally twice continuously differentiable.
+
+				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
 
 			\subsubsection{Sgementation and Notation}
 			\label{section:segmentation_notation}
 
-				Since the polynomial spline is uniquely determined by the coefficients of each polynomial segment, the optimization domain is a vector consisting of all these coefficients. Let \(m\) be the number of segments that make up the polynomial spline. The parametric curve functions are used with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
+				Since the polynomial spline is uniquely determined by the coefficients of each polynomial segment, the optimization domain is a vector consisting of all these coefficients. Let \(m\) be the number of segments that make up the polynomial spline. We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
 				\begin{equation*}
-					\apply{\phi_i}{t} = \apply{\phi}{i + \frac{t}{m}}
+					\apply{\phi}{\frac{i + t}{m}} = \apply{\phi_i}{t}
 				\end{equation*}
 				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static.
 
@@ -260,24 +262,24 @@
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way to tell on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is naturally an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address these problems, the following error term is used:
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way of telling on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is naturally an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address all these problems, the following error term is used:
 				\begin{equation*}
 					\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
 				\end{equation*}
-				For polynomial splines with sufficient degree and segment count, this term will be brought close to zero in the optimization, making the speed approximately constant with value \(\hat{\lambda}\). This, in turn, makes the covered arc length function approximately linear (\(\apply{\lambda}{t} \approx \hat{\lambda}t\)) which causes the inverse of the covered arc length function \(\lambda^{-1}\) to be approximately linear as well, facilitating the simple statement of the optimization goals for the specification items as well as fixing the segment for each specification item. It also causes the total arc length of the curve to be approximately equal to \(\hat{\lambda}\), as requested by the specification.
+				For polynomial splines with sufficient degree and segment count, this term will be brought close to zero in the optimization, making the speed approximately constant with value \(\hat{\lambda}\). This, in turn, makes the covered arc length function approximately linear (\(\apply{\lambda}{t} \approx \hat{\lambda}t\)), facilitating the simple statement of the optimization goals for the specification items and the fairness measure as well as fixing the segment for each specification item. It also causes the total arc length of the curve to be approximately equal to \(\hat{\lambda}\), as requested by the specification.
 
 				Since this goal can only be fulfilled approximately by polynomial curves, it is impossible to use the error term given above in a zero-error constraint. It could however be used in both an upper bound on errors and in a minimization goal. Both approaches were implemented and tested, with the latter yielding a more stable optimization process.
 
 				The error term given above is not well-suited for smooth optimization because it incorporates finding a maximum. Since the optimization problem will allow the original error term to be brought close to zero, we can approximate it using the following error term:
 				\begin{equation*}
-					\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
+					\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 				\end{equation*}
-				This term is then finally used as part of the objective function, thus making it a minimization goal.
+				Since this term is intended to be used as a minimization goal, the factor \(\hat{\lambda}^{-2}\) was added, which makes it scale invariant. This enables the error term to be statically weighted against other terms in the objective function without this weighting being shifted because of curve scaling.
 
 			\subsubsection{Continuity Connections}
 			\label{section:continuity_connections}
 
-				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\contg{2}\) continuity for the whole spline. While the polynomial curve segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
+				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\contg{2}\) continuity for the whole spline. While the polynomial curves used as segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
 				\begin{equation*}
 					\begin{gathered}
 						\apply{\phi_i}{1} - \apply{\phi_{i + 1}}{0}\\
@@ -292,7 +294,7 @@
 			\subsubsection{Specification Items}
 			\label{section:specification_items}
 
-				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. For each specification item (\(0 \leq i \leq n\)), we add one of the following error terms, depending on the type of the specification item:
+				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. Since the optimization goal in section \ref{section:constant_speed} makes sure that \(\apply{\lambda}{t} \approx \hat{\lambda}t\), we know that the whole spline is parametrized in such a way that the parameter \(t\) is a fraction of the curve's total arc length. This fits perfectly with the fact that the position of each specification item is also specified as a fraction of the curve's total arc length. Thus, for each specification item (\(0 \leq i \leq n\)), we add one of the following error terms, depending on the type of the specification item:
 				\begin{equation*}
 					\begin{gathered}
 						\apply{\phi}{\hat{t}_i} - \hat{\phi}_i\\
@@ -306,19 +308,18 @@
 			\subsubsection{Fairness Error}
 			\label{section:fairness_error}
 
-				Finally, the error term for the MVC fairness measure as defined in section \ref{section:fairness_measure} is used:
+				Since constant speed was established in section \ref{section:constant_speed}, stating the error term for the fairness chosen in section \ref{section:fairness_measure} is fairly straightforward:
 				\begin{equation*}
-					\integral{0}{1}{\apply{\chi'}{t}^2}{t}
+					\hat{\lambda}^3\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
-
-				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal.
+				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal. Note that similar to the error term for constant speed, we added the factor \(\hat{\lambda}^3\), which causes the fairness measure to be invariant under scaling of the whole curve, enabling static weighting of error terms in the objective function.
 
 			\subsubsection{Final Assembly}
 			\label{section:final_assembly}
 
-				Having gathered all the necessary error terms, it's time to put them together. Terms with zero-error constraints, as well as terms with upper bounds on the error are added as component functions of the constraint function \(g\) together with appropriate bounds in \(g_l\) and \(g_u\).
+				Having gathered all the necessary error terms, it's time to put them together. Terms with zero-error constraints, as well as terms with upper bounds on the error are added as component functions of the constraint function \(g\) together with appropriate bound components in \(g_l\) and \(g_u\).
 
-				Minimization goals, on the other hand, are assembled in a weighted sum which defines the the objective function \(f\).
+				Minimization goals, on the other hand, are assembled in a weighted sum which defines the the objective function \(f\). Since the error terms were designed to be scale invariant, this weighting can be done statically. The exact values of the weights are to be determined empirically.
 
 	\section{Implementation}
 
