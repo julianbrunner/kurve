@@ -180,16 +180,16 @@
 			
 			After establishing the general approach to curve design tools in section \ref{section:description-based_curves}, it's time to decide on the specifics in order to create an instance of this model. The first step is to choose a description language, consisting of both a specification language and a fairness measure.
 
-			% TODO: talk about insensitivity of the human visual system to properties beyond the second derivative in both sections, build everything on that premise
+			The human visual system seems to be fairly insensitive to properties beyond the third derivative of the curve, that is, beyond variation of curvature. Based on that premise, we chose to let the user specify properties up to the second derivative of the curve using the specification language, while designing the fairness measure to choose curves whose third derivative is minimal from the set of curves that fulfill the specification's requirements.
 
 			\subsubsection{Specification Language}
 			\label{section:specification_language}
 
-				The specification language we propose uses differential geometric properties of curves and is thus decoupled from specifics of the underlying curve model, hopefully leading to a specification language that is easier to learn and use. The human visual system seems to be fairly insensitive to curve properties beyond the second derivative, so the specification language will focus on the properties point, direction and curvature as defined in \ref{section:parametric_plane_curves}. In order to provide the maximum flexibility, the specification language should allow to specify any combination of these three properties at any number of positions on the curve.
+				The specification language we propose uses differential geometric properties of parametric curves and is thus decoupled from specifics of the underlying curve model, hopefully leading to a specification language that is easier to learn and use. The specification language will focus on the properties point, direction and curvature as defined in \ref{section:parametric_plane_curves}. In order to provide maximal flexibility, the specification language should allow to specify any combination of these three properties at any number of positions on the curve.
 
-				With point specifications, it's sometimes enough to require the curve to go through all of them in order, although sometimes, this will lead to undesirable results. Even with the curve preserving the order in which the points are visited, it is unspecified how much arc length the curve will spend between each pair of points. When specifying direction and/or curvature without an associated point, it becomes a necessity to associate this specification with some kind of positional information in order to anchor it to some point on the curve. If this was not done, the specification could move freely along the curve and would thus behave very unpredictably. We thus chose to associate each combination of point, direction and curvature with a position on the curve.
+				When only concerned with point specifications, it's sometimes enough to require the curve to go through all of them in order, although sometimes, this will lead to undesirable results. Even with the curve preserving the order in which the points are visited, it is unspecified how much arc length the curve will spend between each pair of points. When specifying direction and/or curvature without an associated point, it becomes a necessity to associate this specification with some kind of positional information in order to anchor it to some point on the curve. If this was not done, the specification could move freely along the curve and would thus behave very unpredictably. We thus chose to associate each combination of point, direction and curvature with a position on the curve.
 
-				With that in mind, it is now possible to abandon this notion of a combination of point, direction and curvature and instead talk about specification items, a specification item being either a positioned point, a positioned direction or a positioned curvature. A combination of point and curvature at some position thus splits up into a point specification item at this position and a curvature specification item at the same position.
+				With that in mind, it is now possible to abandon this notion of a combination of point, direction and curvature and instead talk about specification items, a specification item being either a positioned point, a positioned direction or a positioned curvature. For example, a combination of point and curvature at some position thus splits up into a point specification item at this position and a curvature specification item at the same position.
 
 				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
 
@@ -211,21 +211,17 @@
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
 
-				% TODO: add citations
-				% TODO: make clear that these terms are to be minimized
-				% TODO: explain how the MVC fairness reduces unnecessary inflection points, etc.
-
-				Many different fairness measures for plane curves have been proposed throughout history. Most of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band, arriving at the following functional describing the minimum energy curve (MEC):
+				Different fairness measures for plane curves have been proposed throughout history. Many of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band to minimize, arriving at the following functional describing the minimum energy curve (MEC) \cite{paper-mec}:
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi}{t}^2}{t}
 				\end{equation*}
-				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when constrained by co-circular points.
+				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would prefer one large circular arc over five small bumps on the curve anytime.
 
-				Thus, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC), whose functional is given below:
+				In order to adress these issues, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, whose functional is given below:
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
-				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvture, since that will make the derivation of the curvature a constant and thereby minimize the integral over the square of the derivative of the curvature. Because of these appealing properties, the MVC fairness measure was chosen.
+				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvature, since that will make the derivative of the curvature a constant and thereby minimize the integral over its square. In general, the MVC fairness measure is very good at avoiding bumps and inflection points when possible. Because of these appealing properties, the MVC fairness measure was chosen as part of our description language.
 
 		\subsection{Curve Derivation}
 		\label{section:curve_derivation}
@@ -454,6 +450,11 @@
 			\emph{From Spiral to Spline: Optimal Techniques in Interactive Curve Design}\\
 			Raphael Linus Levien\\
 			University of California, Berkeley, Fall 2009
+
+		\bibitem{paper-mec}
+			\emph{The Curve of Least Energy}\\
+			B. K. P. Horn\\
+			Massachusetts Institute of Technology, January 1981
 
 		\bibitem{fluttershy}
 			\emph{Fluttershy}\\
