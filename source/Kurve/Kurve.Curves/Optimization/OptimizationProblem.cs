@@ -39,19 +39,23 @@ namespace Kurve.Curves.Optimization
 			
 			ValueTerm targetSpeed = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
 
-			ValueTerm speedError = Terms.Sum
+			ValueTerm speedError = Terms.Scaling
 			(
-				from segment in optimizationSegments.Segments
-				let position = Terms.Variable("t")
-				let curve = segment.LocalCurve
-				let speed = curve.Speed.Apply(position)
-				let error = Terms.Square(Terms.Difference(speed, targetSpeed))
-				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				Terms.Exponentiation(targetSpeed, Terms.Constant(-2)),
+				Terms.Sum
+				(
+					from segment in optimizationSegments.Segments
+					let position = Terms.Variable("t")
+					let curve = segment.LocalCurve
+					let speed = curve.Speed.Apply(position)
+					let error = Terms.Square(Terms.Difference(speed, targetSpeed))
+					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
+				)
 			);
 
 			ValueTerm fairnessError = Terms.Scaling
 			(
-				Terms.Exponentiation(targetSpeed, Terms.Constant(-6)),
+				Terms.Exponentiation(targetSpeed, Terms.Constant(-4)),
 				Terms.Sum
 				(
 					from segment in optimizationSegments.Segments
@@ -64,11 +68,10 @@ namespace Kurve.Curves.Optimization
 				)
 			);
 
-			// TODO: figure out how to do weighting that is independent of curve size
 			ValueTerm objectiveValue = Terms.Sum
 			(
-				Terms.Product(Terms.Constant(1.0), speedError),
-				Terms.Product(Terms.Constant(100000.0), fairnessError)
+				Terms.Product(Terms.Constant(100000.0), speedError),
+				Terms.Product(Terms.Constant(1), fairnessError)
 			)
 			.Simplify();
 
