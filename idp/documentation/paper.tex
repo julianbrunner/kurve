@@ -154,6 +154,7 @@
 				% TODO: improve example index numbers
 				Figure \ref{figure:usability_spiro} illustrates some of these issues by showing some examples of Spiro splines as they appear in common design tools. Control points are displayed as filled dots.
 
+				% TODO: note that it's still less information than with bézier splines
 				Example 1 shows a shape that is in principle well-suited for being represented by parts of the Euler spiral. Unfortunately, describing the curve using Spiro splines still requires many control points. In contrast to the corresponding example in section \ref{section:bézier_splines}, the curve in this example is close to a perfect spiral an thus does not match the source image perfectly. Additional control points would have to be added in order to approximate the imperfect spiral in the source image better.
 
 				Example 2 shows how some shapes can be described using Spiro splines by placing only very few control points. In this case, the shape consists of a circular arc with low curvature (segment a), a segment of linearly increasing curvature (segment b) and finally a circular arc with high curvature (segment c). This shape can be described conveniently using a Spiro spline with just 4 control points.
