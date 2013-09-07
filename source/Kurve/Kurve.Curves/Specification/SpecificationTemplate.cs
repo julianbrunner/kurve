@@ -70,17 +70,21 @@ namespace Kurve.Curves
 					(
 						segments,
 						segmentWeights,
-						(segment, segmentWeight) => Terms.Scaling(segmentWeight, Terms.Difference(segment.GlobalCurve.Point.Apply(position), point))
+						(segment, segmentWeight) => Terms.Scaling
+						(
+							segmentWeight,
+							Terms.Difference(segment.GlobalCurve.Point.Apply(position), point)
+						)
 					)
 				)
 			);
 
 			return new SpecificationTemplate(position, point, segmentWeights, constraint);
 		}
-		public static SpecificationTemplate CreateDirectionSpecificationTemplate(IEnumerable<Segment> segments, int index)
+		public static SpecificationTemplate CreateDirectionSpecificationTemplate(IEnumerable<Segment> segments, ValueTerm speed, int index)
 		{
 			ValueTerm position = Terms.Variable(string.Format("d_{0}_position", index));
-			ValueTerm direction = Terms.Variable(string.Format("d_{0}_direction", index), 2);
+			ValueTerm direction = Terms.Variable(string.Format("d_{0}_direction", index), 1);
 			IEnumerable<ValueTerm> segmentWeights =
 			(
 				from segmentIndex in Enumerable.Range(0, segments.Count())
@@ -95,14 +99,26 @@ namespace Kurve.Curves
 					(
 						segments,
 						segmentWeights,
-						(segment, segmentWeight) => Terms.Scaling(segmentWeight, Terms.Difference(segment.GlobalCurve.NormalizedVelocity.Apply(position), direction))
+						(segment, segmentWeight) => Terms.Scaling
+						(
+							segmentWeight,
+							Terms.Difference
+							(
+								Terms.Scaling
+								(
+									Terms.Exponentiation(speed, Terms.Constant(-1)),
+									segment.GlobalCurve.Velocity.Apply(position)
+								),
+								Terms.Direction(direction)
+							)
+						)
 					)
 				)
 			);
 
 			return new SpecificationTemplate(position, direction, segmentWeights, constraint);
 		}
-		public static SpecificationTemplate CreateCurvatureSpecificationTemplate(IEnumerable<Segment> segments, int index)
+		public static SpecificationTemplate CreateCurvatureSpecificationTemplate(IEnumerable<Segment> segments, ValueTerm speed, int index)
 		{
 			ValueTerm position = Terms.Variable(string.Format("c_{0}_position", index));
 			ValueTerm curvature = Terms.Variable(string.Format("c_{0}_curvature", index), 1);
@@ -120,7 +136,19 @@ namespace Kurve.Curves
 					(
 						segments,
 						segmentWeights,
-						(segment, segmentWeight) => Terms.Scaling(segmentWeight, Terms.Difference(segment.GlobalCurve.Curvature.Apply(position), curvature))
+						(segment, segmentWeight) => Terms.Scaling
+						(
+							segmentWeight,
+							Terms.Difference
+							(
+								Terms.Scaling
+								(
+									Terms.Exponentiation(speed, Terms.Constant(-3)),
+									Terms.DotProduct(segment.GlobalCurve.Acceleration.Apply(position), Terms.Normal(segment.GlobalCurve.Velocity.Apply(position)))
+								),
+								curvature
+							)
+						)
 					)
 				)
 			);

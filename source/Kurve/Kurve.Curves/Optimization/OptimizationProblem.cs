@@ -37,25 +37,25 @@ namespace Kurve.Curves.Optimization
 
 			IEnumerable<ValueTerm> variables = optimizationSegments.Parameters; 
 			
-			ValueTerm targetSpeed = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
+			ValueTerm segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
 
 			ValueTerm speedError = Terms.Scaling
 			(
-				Terms.Exponentiation(targetSpeed, Terms.Constant(-2)),
+				Terms.Exponentiation(segmentLength, Terms.Constant(-2)),
 				Terms.Sum
 				(
 					from segment in optimizationSegments.Segments
 					let position = Terms.Variable("t")
 					let curve = segment.LocalCurve
 					let speed = curve.Speed.Apply(position)
-					let error = Terms.Square(Terms.Difference(speed, targetSpeed))
+					let error = Terms.Square(Terms.Difference(speed, segmentLength))
 					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
 				)
 			);
 
 			ValueTerm fairnessError = Terms.Scaling
 			(
-				Terms.Exponentiation(targetSpeed, Terms.Constant(-4)),
+				Terms.Exponentiation(segmentLength, Terms.Constant(-4)),
 				Terms.Sum
 				(
 					from segment in optimizationSegments.Segments
@@ -84,13 +84,13 @@ namespace Kurve.Curves.Optimization
 			this.directionSpecificationTemplates =
 			(
 				from directionSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is DirectionCurveSpecification))
-				select SpecificationTemplate.CreateDirectionSpecificationTemplate(optimizationSegments.Segments, directionSpecificationIndex)
+				select SpecificationTemplate.CreateDirectionSpecificationTemplate(optimizationSegments.Segments, curveLength, directionSpecificationIndex)
 			)
 			.ToArray();
 			this.curvatureSpecificationTemplates =
 			(
 				from curvatureSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is CurvatureCurveSpecification))
-				select SpecificationTemplate.CreateCurvatureSpecificationTemplate(optimizationSegments.Segments, curvatureSpecificationIndex)
+				select SpecificationTemplate.CreateCurvatureSpecificationTemplate(optimizationSegments.Segments, curveLength, curvatureSpecificationIndex)
 			)
 			.ToArray();
 
@@ -131,6 +131,11 @@ namespace Kurve.Curves.Optimization
 						segment0CurveAcceleration.Apply(Terms.Constant(1)),
 						segment1CurveAcceleration.Apply(Terms.Constant(0))
 					)
+
+//					from segment in optimizationSegments.Segments
+//					from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
+//					let speed = segment.LocalCurve.Speed.Apply(Terms.Constant(position))
+//					select Constraints.CreateError(speed, segmentLength, Terms.Constant(0.001))
 				)
 			)
 			.ToArray();

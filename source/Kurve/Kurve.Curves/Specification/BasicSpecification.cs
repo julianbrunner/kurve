@@ -47,7 +47,7 @@ namespace Kurve.Curves
 			this.segmentTemplate = segmentTemplate;
 			this.curveSpecifications = curveSpecifications;
 		}
-		public BasicSpecification() : this(1, 1, new PolynomialFunctionTermCurveTemplate(1), Enumerables.Create<CurveSpecification>()) { }
+		public BasicSpecification() : this(1, 1, new PolynomialFunctionTermCurveTemplate(2), Enumerables.Create<CurveSpecification>()) { }
 		public BasicSpecification(XElement source)
 		{
 			if (source == null) throw new ArgumentNullException("source");

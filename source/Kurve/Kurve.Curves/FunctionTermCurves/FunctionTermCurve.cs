@@ -14,7 +14,6 @@ namespace Kurve.Curves
 		readonly FunctionTerm acceleration;
 		readonly FunctionTerm jerk;
 		readonly FunctionTerm speed;
-		readonly FunctionTerm normalizedVelocity;
 		readonly FunctionTerm direction;
 		readonly FunctionTerm curvature;
 
@@ -23,7 +22,6 @@ namespace Kurve.Curves
 		public FunctionTerm Acceleration { get { return acceleration; } }
 		public FunctionTerm Jerk { get { return jerk; } }
 		public FunctionTerm Speed { get { return speed; } }
-		public FunctionTerm NormalizedVelocity { get { return normalizedVelocity; } }
 		public FunctionTerm Direction { get { return direction; } }
 		public FunctionTerm Curvature { get { return curvature; } }
 
@@ -33,29 +31,21 @@ namespace Kurve.Curves
 			if (function.DomainDimension != 1) throw new ArgumentException("parameter 'function' has wrong domain dimension.");
 			if (function.CodomainDimension != 2) throw new ArgumentException("parameter 'function' has wrong codomain dimension.");
 
-			ValueTerm position = Terms.Variable("t");
+			this.point = function;
+			this.velocity = point.GetDerivatives().Single();
+			this.acceleration = velocity.GetDerivatives().Single();
+			this.jerk = acceleration.GetDerivatives().Single();
 			
-			ValueTerm point = function.Apply(position);
-			ValueTerm velocity = function.GetDerivatives().Single().Apply(position);
-			ValueTerm acceleration = function.GetDerivatives().Single().GetDerivatives().Single().Apply(position);
-			ValueTerm jerk = function.GetDerivatives().Single().GetDerivatives().Single().GetDerivatives().Single().Apply(position);
+			ValueTerm position = Terms.Variable("t");
 
-			this.point = point.Abstract(position);
-			this.velocity = velocity.Abstract(position);
-			this.acceleration = acceleration.Abstract(position);
-			this.jerk = jerk.Abstract(position);
+			ValueTerm speedValue = Terms.Norm(velocity.Apply(position));
+			this.speed = speedValue.Abstract(position);
 
-			ValueTerm speed = Terms.Norm(velocity);
-			this.speed = speed.Abstract(position);
+			ValueTerm directionValue = Terms.Angle(velocity.Apply(position));
+			this.direction = directionValue.Abstract(position);
 
-			ValueTerm normalizedVelocity = Terms.Scaling(Terms.Invert(speed), velocity);
-			this.normalizedVelocity = normalizedVelocity.Abstract(position);
-
-			ValueTerm direction = Terms.Angle(velocity);
-			this.direction = direction.Abstract(position);
-
-			ValueTerm curvature = Terms.Quotient(this.direction.GetDerivatives().Single().Apply(position), speed);
-			this.curvature = curvature.Abstract(position);
+			ValueTerm curvatureValue = Terms.Quotient(direction.GetDerivatives().Single().Apply(position), speedValue);
+			this.curvature = curvatureValue.Abstract(position);
 		}
 
 		public override Vector2Double GetPoint(double position)

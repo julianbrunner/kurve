@@ -90,7 +90,7 @@ namespace Kurve.Curves.Optimization
 					DirectionCurveSpecification directionCurveSpecification = directionCurveSpecifications.ElementAt(directionSpecificationTemplateIndex);
 
 					ValueTerm position = Terms.Constant(directionCurveSpecification.Position);
-					ValueTerm value = Terms.Direction(Terms.Constant(directionCurveSpecification.Direction));
+					ValueTerm value = Terms.Constant(directionCurveSpecification.Direction);
 
 					foreach (Substitution substitution in directionSpecificationTemplate.GetSubstitutions(optimizationSegments.Segments, directionCurveSpecification.Position, position, value))
 						yield return substitution;
