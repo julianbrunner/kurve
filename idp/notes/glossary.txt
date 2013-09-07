@@ -1,0 +1,24 @@
+vector graphics software: the whole software (inkscape, adobe illustrator)
+curve design tool: the tool which is used to design curves (bézier tool, pen tool, spiro tool)
+
+description language
+	specification language
+	fairness measure
+description
+	specification
+	fairness measure
+description-based curve
+
+specification item: point specification, direction specification or curvature specification
+
+nonlinear optimization on polynomial splines
+
+curve
+plane curve
+parametric curve
+parametric plane curve
+
+polynomial curve: implies parametric
+polynomial spline: spline made from polynomial curves
+
+smooth optimization
