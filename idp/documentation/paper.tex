@@ -407,13 +407,13 @@
 			A few basic definitions about vectors in the euclidean plane are needed:
 			\begin{align*}
 				\overline{\cdot} & : \function{\R{2}}{\R{2}} & \overline{v}      & = \vectorB{-v_2}{v_1}      && \text{orthogonal vector}\\
-				\alpha           & : \function{\R{2}}{\RR} i & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1} && \text{polar coordinate angle}
+				\alpha           & : \function{\R{2}}{\RR}   & \apply{\alpha}{v} & = \apply{\atan2}{v_2, v_1} && \text{polar coordinate angle}
 			\end{align*}
 
 		\subsection{Parametric Curves}
 		\label{section:parametric_curves}
 
-			Parametric curves are functions \(\phi : \function{\unit}{\R{n}}\), called the parametrization function. The represented curve is then the list of points that are traversed by this function. While there are many ways to parametrize a given curve, that is, represent it using a parametrization function, we are usually interested in those which yield a sufficiently smooth parametrization function, allowing for the concise description of curve properties using differential geometry.
+			Parametric curves are described using functions \(\phi : \function{\unit}{\R{n}}\), called the parametrization function. The represented curve is then the image of this function. While there are many ways to parametrize a given curve, that is, represent it using a parametrization function, we are usually interested in those which yield a sufficiently smooth parametrization function, allowing for the concise description of curve properties using differential geometry.
 
 		\subsection{Parametric Plane Curves}
 		\label{section:parametric_plane_curves}
@@ -427,14 +427,14 @@
 				\chi    & : \function{\unit}{\RR}   & \apply{\chi}{t}    & = \frac{\apply{\delta'}{t}}{\apply{\sigma}{t}} && \text{curvature}
 			\end{align*}
 
-			Using these definitions, the direction \(\apply{\delta}{t}\) is equal to the tangent angle at the point \(\apply{\phi}{t}\). If the curve is locally a straight line at the point \(\apply{\phi}{t}\), the curvature \(\apply{\chi}{t}\) is equal to \(0\). Otherwise, the curvature \(\apply{\chi}{t}\) is equal (up to sign) to the inverse the radius of the osculating circle at the point \(\apply{\phi}{t}\).
+			Using these definitions, the direction \(\apply{\delta}{t}\) is equal to the tangent angle at the point \(\apply{\phi}{t}\). If the curve is locally a straight line at the point \(\apply{\phi}{t}\), the curvature \(\apply{\chi}{t}\) is equal to \(0\). Otherwise, the curvature \(\apply{\chi}{t}\) is equal (up to sign) to the inverse of the radius of the osculating circle at the point \(\apply{\phi}{t}\).
 
 		\subsection{Continuity}
 		\label{section:continuity}
 
 			The first way to define continuity of parametric curves is by simply transferring the notion of continuity from calculus as applied to the parametrization function. This leads to the notion of parametric continuity, denoted by \(\contp{n}\), stating that the \(n\)th derivative of the parametrization function is continuous.
 
-			One may notice that this notion of continuity is a little too strict. A curve may be arbitrarily smooth, while its parametrization does not even have \(\contp{1}\) continuity, since the derivatives of the parametrization function may have discontinuities that do not manifest themselves in the curve that they represent. If that is the case, one can always find a different parametrization of the same curve that does not have these discontinuities. This insight gives rise to the definition of geometric continuity, denoted by \(\contg{n}\), which only requires that there exists a reparametrization of the parametric curve which is \(\contp{n}\) continuous.
+			One may notice that this notion of continuity is a little too strict. A curve may look arbitrarily smooth, while its parametrization does not even have \(\contp{1}\) continuity, since the derivatives of the parametrization function may have discontinuities that do not manifest themselves in the curve that they represent. If that is the case, one can always find a different parametrization of the same curve that does not have these discontinuities. This insight gives rise to the definition of geometric continuity, denoted by \(\contg{n}\), which only requires that there exists a reparametrization of the parametric curve which is \(\contp{n}\) continuous.
 
 			It follows immediately that every parametric curve that is \(\contp{n}\) continuous is also \(\contg{n}\) continuous. One may also observe that \(\contp{0}\) continuity and \(\contg{0}\) continuity are equivalent, since discontinuities in the parametrization function itsself manifest themselves directly in the curve it represents, and thus have to exist in all parametrizations of this curve. In the case of parametric plane curves, using the definitions from section \ref{section:parametric_plane_curves}, we can equate \(\contg{0}\) continuity with \(\phi\) being continuous, \(\contg{1}\) continuity with \(\delta\) being continuous and \(\contg{2}\) continuity with \(\chi\) being continuous.
 
