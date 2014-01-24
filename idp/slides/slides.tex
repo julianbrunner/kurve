@@ -4,6 +4,10 @@
 \usepackage[T1]{fontenc}
 \usepackage{times}
 \usepackage{graphicx}
+\usepackage{amsmath}           % ams math module
+\usepackage{amssymb}           % ams math symbols
+\usepackage{mathtools}         % fixes a few quirks with the ams packages
+\input{math.tex}               % some math helper macros
 
 %\usetheme[hideothersubsections, width = 28mm]{Berkeley}
 %\usecolortheme{seahorse}
@@ -105,29 +109,137 @@
 				% the user can effectively specify start and end points as well as start and end velocities (which are proportional to the distance between the second and the first as well as the fourth and third point)
 				% user supplies start and end point and velocity; fairness measure always chooses cubic Bézier spline.
 				% which is uniquely specified
-				\item most criteria fulfilled nicely except
-				\item the fairness measure's smoothness 
-				\begin{itemize}
-					\item curvature continuity is not guaranteed across segments
-					\item it is very hard to choose coefficient points in a way that results in curvature continuity.
-				\end{itemize}
-				\item the expressiveness of the specification language
-				\begin{itemize}
-					\item curvature cannot be specified directly
-					\item constant/linearly changing curvature cannot be specified
-					\item circular arcs/spirals are very hard to specify
-				\end{itemize}
+				\item most criteria fulfilled nicely
+				% curvature continuity is not guaranteed
+				% it is very hard to choose coefficient points in a way that results in curvature continuity.
+				\item problem: fairness measure's smoothness 
+				% curvature cannot be specified directly
+				% constant/linearly changing curvature cannot be specified
+				% circular arcs/spirals are very hard to specify
+				\item problem: expressiveness of the specification language
 			\end{itemize}
 		\end{frame}
 		
 		\begin{frame}
-			\frametitle{Introduction}
+			\frametitle{Usability Analysis of Bézier Splines}
+			\begin{centering}
+				\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}\\
+			\end{centering}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Spiro Splines}
 			\begin{itemize}
-				\item Foo
+				\item constructed from segments of the Euler spiral
+				\item can only specify points (no direction or curvature)
+				\item guarantees curvature continuity
+				\item only major problem is insufficient expressiveness of specification language
 			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Usability Analysis of Spiro Splines}
+			\begin{centering}
+				\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}\\
+			\end{centering}
+		\end{frame}
+	
+	\section{Proposed Solution}
+	
+		\begin{frame}
+			\frametitle{Description-Based Curves}
+			\begin{itemize}
+				\item description language has huge effect on usability
+				\item we need a good specification language and fairness measure
+			\end{itemize}
+		\end{frame}
+	
+		\begin{frame}
+			\frametitle{Description-Based Curves}
 			\begin{centering}
 				\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}\\
 			\end{centering}
 		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Specification Language}
+			\begin{itemize}
+				\item decoupled from underlying curve model
+				\item allows specification of geometric properties
+				\item point, direction, curvature
+				\item any combination, any position
+				\item positioning via fraction of arc length of curve
+			\end{itemize}
+		\end{frame}
 
+		\begin{frame}
+			\frametitle{Specification Language}
+			\begin{equation*}
+				\begin{alignedat}{2}
+					& \mathrm{Positions}          && = \unit\\
+					& \mathrm{Points}             && = \R{2}\\
+					& \mathrm{Directions}         && = \RR\\
+					& \mathrm{Curvatures}         && = \RR\\
+					& \mathrm{SpecificationItems} && = \mathrm{Positions} \times \left(\mathrm{Points} \cup \mathrm{Directions} \cup \mathrm{Curvatures}\right)\\
+					& \mathrm{CurveLengths}       && = \RR\\
+					& \mathrm{Specifications}     && = \powerset{\mathrm{SpecificationItems}} \times \mathrm{CurveLengths}
+				\end{alignedat}
+			\end{equation*}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Fairness Measure}
+			\begin{itemize}
+				\item chosen fairness measure: minimum variation curves
+				\item good at avoiding bumps
+			\end{itemize}
+			 \begin{equation*}
+				 \integral{0}{1}{\apply{\chi'}{t}^2}{t}
+			 \end{equation*}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Curve Derivation}
+			\begin{itemize}
+				\item uses nonlinear optimization on polynomial splines
+				\item nonlinear optimization: flexible, allows experimentation
+				\item polynomial curves: simple yet flexible % through choice of degree
+			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Optimization Problem}
+			\begin{itemize}
+				\item expressed using:
+				\begin{itemize}
+					\item objective function \(f : \function{\R{n}}{\RR}\)
+					\item constraint function \(g : \function{\R{n}}{\R{m}}\)
+					\item constraint bounds \(g_l, g_u \in \R{m}\)
+				\end{itemize} 
+				\item tries to find an \(x^* \in \R{n}\) such that 
+			\end{itemize}
+			\begin{equation*}
+				\begin{gathered}
+					x^* = \argmin_{x \in \R{n}} \apply{f}{x}\\
+					g_l \leq \apply{g}{x^*} \leq g_u
+				\end{gathered}
+			\end{equation*}
+		\end{frame}
+		
+		
+		\begin{frame}
+			\frametitle{Segmentation}
+			\begin{itemize}
+				\item polynomial spline is determined by the coefficients of each polynomial segment
+				\item all coefficients are the optimization domain
+				\item segments laid out consecutively with equal length
+			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{}
+			\begin{itemize}
+			\end{itemize}
+		\end{frame}
+		
 \end{document}
