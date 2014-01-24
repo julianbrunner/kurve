@@ -46,7 +46,7 @@
 
 		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software.
 
-		While there has been some promising research into improving curve design tools \cite{thesis-mvc} \cite{thesis-spiro}, it focuses mostly on the aspect of improving the fairness of curves, rather than usability as a whole. Unfortunately, it has not had much of an impact on actual vector graphics software used in practice, which continues to focus almost exclusively on Bézier splines to this day.
+		While there has been some promising research into improving curve design tools \cite{thesis-mvc} \cite{thesis-spiro}, it focuses mostly on the aspect of improving the fairness of curves, rather than usability as a whole. Unfortunately, it also has not had much of an impact on actual vector graphics software used in practice, which continues to focus almost exclusively on Bézier splines to this day.
 
 		Thus, the objective of this project is to identify the exact nature and cause of the shortcomings of current curve design tools in order to use this knowledge to develop a curve design tool that does not exhibit them.
 
@@ -193,6 +193,7 @@
 
 				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
 
+				% TODO: explain this in more detail (o--o----------------o, pull last specification, makes wobbly segment at beginning) 
 				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length.
 
 				Thus, the final specification language is as follows:
@@ -215,7 +216,7 @@
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi}{t}^2}{t}
 				\end{equation*}
-				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would prefer one large circular arc over five small bumps on the curve anytime.
+				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would always prefer one large circular arc over five small bumps on the curve.
 
 				In order to adress these issues, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, whose functional is given below:
 				\begin{equation*}
@@ -230,6 +231,7 @@
 
 			Nonlinear optimization allowed us to stay relatively flexible with respect to the description language and enabled us to experiment with different specification languages and fairness measures, assessing their usability before settling on the choices presented in section \ref{section:description_language}.
 
+			% TODO: make it clear that splines imply segmentation
 			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. We opted to use polynomial splines since they allow approximating more complex curves without involving polynomials of excessively high degree, which are known to have poor stability.
 
 			\subsubsection{Optimization Problem}
@@ -242,7 +244,7 @@
 						g_l \leq \apply{g}{x^*} \leq g_u
 					\end{gathered}
 				\end{equation*}
-				This allows expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
+				This allows for the expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
 				Our implementation of choice uses smooth optimization, or, more specifically, an interior point method. This type of algorithm further requires the functions \(f\) and \(g\) to be at least once, ideally twice continuously differentiable.
 
@@ -262,7 +264,7 @@
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way of telling on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is naturally an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address all these problems, the following error term is used:
+				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth opimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way of telling on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is often an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address all these problems, the following error term is used:
 				\begin{equation*}
 					\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
 				\end{equation*}
@@ -564,40 +566,75 @@
 					\end{itemize}
 		
 	\section{Evaluation}
+	\label{section:evaluation}
 
-		% were the goals met? (TODO: systematic approach for describing expressiveness and new features)
-		%   controlling length is actually a very nice thing to have
-		%     a good way to control circular arcs in terms of radius (fluttershy's ear, mouth)
-		%     a good way to pull curves in place when they don't have direction specifications
-		%   fluttershy's mane
-		%     spirals done this way are guaranteed to be smooth and not have any unintentional bumps
-		%     comparison with bézier
-		%       source image is in flash, already made of bézier splines, easy to trace
-		%       still many more nodes needed
-		%       hard to get actual, perfect spirals right
-		%       curvature incontinuities, small bumps
-		%     somewhat hampered by poor performance and optimization stability issues, concept seems very powerful though
-		%   some curves are more easily described in terms of curvature than points and/or direction
-		% problems
-		%   local optima
-		%   bad stability, infeasible for numeric optimization
-		%   performance
-		%     possible improvements
-		%       make sure substitutions only happen where and when necessary
-		%       cache partially instantiated IpoptProblem? such that fewer substitutions have to happen when changing a single specification
-		%       use better linear solver with ipopt
-		%       properly configure ipopt options
-		%       adaptive segment density
-		%       adaptive velocity/fairness trapezoid sum
+		The goal of this project was to explore possible improvements concerning the usability of curve design tools. The following sections discuss the results in this area.
 
-		% demonstrate euler spirals and bézier curves being embedded
-		%   minimization of normal jerk squares prefers linear change in curvature
-		% take examples from demo
-		% revisit examples made when analyzing Bézier splines and Spiro splines
-		% a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
+		\subsection{Usability Analysis}
+		\label{section:usability_analysis}
+
+			Having applied the usability criteria from section \ref{section:usability_criteria_curve_design_tools} to Bézier splines and Spiro splines, we will now use them to evaluate usability aspects of our approach.
+
+			\subsubsection{Expressiveness of the Specification Language}
+
+				One of the primary goals of this project was to explore more expressive specification languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that describe the curve in the most concise fashion.
+
+				The ability to specify curvature constitues a significant improvement over common curve design tools, where this is usually not possible. Using this functionality, the user can specify curves which are best expressed in terms of curvature in a natural and concise way. Not only does this make the curve design process less tedious, but it may also lead to better curves, since only the essential information about the curve is given to the software. This allows the fairness measure to choose the best possible curve, something that is not possible if lots of auxiliary information is supplied to the software in order to indirectly influence the curvature.
+
+				Section \ref{section:specification_language} describes why it makes sense to specify the curve's total arc length. While fixing the arc length of the curve (and thus also the arc length between each specification item) may seem a little restrictive at first, there are actually quite a few upsides. For instance, by adjusting the arc length of a curve with a point specifications on each end, one can conveniently produce arcs between two points, since increasing the arc length will make the curve bulge out, with the fairness making sure that a smooth arc is produced. Using common vector graphics software, one usually has to either risk an asymmetric and/or bumpy arc by specifying it using Bézier splines, or deal with some cumbersome tool for constructing elliptical arcs.
+
+				% expressiveness of the specification language
+				%   much more expressive than Bézier and Spiro splines, allows specification of curvature, length
+				%     controlling length is actually a very nice thing to have
+				%       a good way to control circular arcs in terms of radius (fluttershy's ear, mouth)
+				%         compare to using elliptical arcs in inkscape
+				%       a good way to pull curves in place when they don't have direction specifications
+				%       benign behavior
+				%   doesn't allow *not* expressing length, may pose a problem
+				%   demonstrate euler spirals and bézier curves being embedded
+				%     demonstrates expressiveness
+				%     minimization of normal jerk squares prefers linear change in curvature
+				%   a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
+
+			% human ability to `read' the specification language from curves
+			%   familiar differential geometric properties
+			% human ability to `speak' the specification language to the software
+			%   familiar differential geometric properties
+			% smoothness of curves selected by the fairness measure
+			%   very good, thanks to MVC
+			% minimality of curves selected by the fairness measure
+			%   not guaranteed by optimization, but may usually be obtained by pushing the curve into a different optimum
+			% software's ability to derive curves from descriptions
+			%   optimization is slow and sometimes unstable, still needs some work before it becomes practical
+			%   local optima
+			%   bad stability, infeasible for numeric optimization
+			%   performance
+			%   adjustment of segment count and degree by the user is not desirable
+
+		\subsection{Examples}
+		\label{section:examples}
+
+			% fluttershy's mane
+			%   spirals done this way are guaranteed to be smooth and not have any unintentional bumps
+			%   comparison with bézier
+			%     source image is in flash, already made of bézier splines, easy to trace
+			%     still many more nodes needed
+			%     hard to get actual, perfect spirals right
+			%     curvature incontinuities, small bumps
+			%     a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
+			%   somewhat hampered by poor performance and optimization stability issues, concept seems very powerful though
+			% lugia profile view / lugia's back line (curled up)
+			%   profits from global fairness optimization and curvature continuity guarantees
+			%   some curves are more easily described in terms of curvature than points and/or direction
+			% example of stability issues
+
+		\subsection{Verdict}
+		\label{section:verdict}
 
 	\section{Conclusion}
+	\label{section:conclusion}
 
+		% most issues stem from the optimization approach
 		% distinguish between further research work and turning the project into practical software)	
 		% further possibilities to instantiate overall structure (different and/or combined spline primitives, constructive instead of optimization approach)
 		% adaptive line segments, adaptive bézier approximation
@@ -607,6 +644,15 @@
 		%   inkscape plugin
 		% possibility to have curves without fixed length? could be useful for curves which only have specifications at the start and/or end of the curve
 		% investigate into the calculus of variations and whether there may be a possibility to construct MVC curves based on our specification format, once the format itsself has proven to be useful
+		% performance
+
+		%   possible improvements
+		%     make sure substitutions only happen where and when necessary
+		%     cache partially instantiated IpoptProblem? such that fewer substitutions have to happen when changing a single specification
+		%     use better linear solver with ipopt
+		%     properly configure ipopt options
+		%     adaptive segment density
+		%     adaptive velocity/fairness trapezoid sum
 
 	\clearpage
 
