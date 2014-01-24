@@ -349,29 +349,6 @@
 			
 				 Kurve has strong requirements for both libraries: Terms used in the functions that need to be optimized in Kurve are quite large and plentiful, but differentiation and optimization still need to be performed in a short period of time to allow real-time editing of curves. Fortunately, CasADi and Ipopt are very efficient and allow Kurve to offer close to real time editing of curves.
 
-		% choice of platform
-		%   C#: platform independent, high-level, possibility to interface with native code, familarity, good UI frameworks (GTK#)
-		%   ipopt
-		%   casadi
-		%   link to googlecode page
-		% numeric optimization
-		%   trapezoid sum to approximate integrals
-		%   formalization of model using symbolic functions in casadi
-		%   optimization using ipopt
-		%   caching
-		%   keeping track of disambiguation information
-		%   input is a set of specifications, disambiguation, etc.
-		%   result is a curve whose segmentation is no longer visible
-		% user interface (include screenshots)
-		%   goal: proof of concept
-		%   interacts with numeric optimizer
-		%   specify any combination of point, direction and curvature at positions on the curve
-		%   change position of a specification
-		%     in case of pointspecifications optionally moving the point along the curve accordingly
-		%   insert/remove curve length at or between specifications
-		%   displays deviation from set velocity, such that the user knows when a segment is over-stretched, or where the curve degree/segment count is too low
-		%   loading/saving of documents
-		%     specification can be serialized from/to XML
 				For Kurve's user interface, GTK\#\footnote{http://www.mono-project.com/GtkSharp} was used. GTK\# is used to draw the curves and controls into a window, as well as handling keyboard and mouse events.
 				
 			\subsubsection{Subsystem Decomposition}	
@@ -531,7 +508,7 @@
 					
 					The position of the control can be modified by pressing the control key while using the mouse wheel. Keep in mind that when changing the position of a specification control that does not specify a point, the control itself will most likely move (and change its point).
 					
-					To achieve more fine-grained control, it is possible to press the alt key while performing any of the actions described above. This changes the affected property of the specification control more slowly. For exa^mple, if you press alt while dragging a specification control, it will move very slowly.
+					To achieve more fine-grained control, it is possible to press the alt key while performing any of the actions described above. This changes the affected property of the specification control more slowly. For example, if you press alt while dragging a specification control, it will move very slowly.
 					
 					As an experimental feature, it is also possible to change the position of a specification control by dragging it with the mouse while pressing shift. The position is calculated by the current state of the curve.
 				
@@ -585,31 +562,7 @@
 							\item[Drag] Moves any point specifications delimiting the segment. (Only possible if at leats one of the specification controls has the point specification enabled.)
 						\end{description}
 					\end{itemize}
-					
-		% choice of platform
-		%   C#: platform independent, high-level, possibility to interface with native code, familarity, good UI frameworks (GTK#)
-		%   ipopt
-		%   casadi
-		%   link to googlecode page
-		% numeric optimization
-		%   trapezoid sum to approximate integrals
-		%   formalization of model using symbolic functions in casadi
-		%   optimization using ipopt
-		%   caching
-		%   keeping track of disambiguation information
-		%   input is a set of specifications, disambiguation, etc.
-		%   result is a curve whose segmentation is no longer visible
-		% user interface (include screenshots)
-		%   goal: proof of concept
-		%   interacts with numeric optimizer
-		%   specify any combination of point, direction and curvature at positions on the curve
-		%   change position of a specification
-		%     in case of pointspecifications optionally moving the point along the curve accordingly
-		%   insert/remove curve length at or between specifications
-		%   displays deviation from set velocity, such that the user knows when a segment is over-stretched, or where the curve degree/segment count is too low
-		%   loading/saving of documents
-		%     specification can be serialized from/to XML
-
+		
 	\section{Evaluation}
 
 		% were the goals met? (TODO: systematic approach for describing expressiveness and new features)
