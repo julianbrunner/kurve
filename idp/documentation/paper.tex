@@ -327,14 +327,14 @@
 			
 			\subsubsection{Programming Language}
 			
-				The first step of the implementation of the proposed solution was the choice of the platform and development environment that would be used. 
-				As the programming language, C\# was the best option due to the following features:
+				The first step of the implementation of the proposed solution is the choice of the platform and development environment that will be used. 
+				As the programming language, C\# is the best option due to the following features:
 				
 				\begin{itemize}
 				  	\item Platform independence - the project is not bound to any specific platform and can be used on all major operating systems, provided the libraries Kurve depends on are available. 
-				  	\item C\# is a high-level language - his reduced overhead in the development process, for example spending time on manual memory management.
-					\item Ability to interface with native code - native code can be interfaced using reasonable amounts of boilerplate code. As it was clear that native libraries would be used, this is a key requirement.
-					\item Familiarity - the developers were familiar with this language. This choice eliminated overhead that would have been caused by adopting an unfamiliar language.
+				  	\item C\# is a high-level language - this reduces overhead in the development process, for example spending time on manual memory management.
+					\item Ability to interface with native code - native code can be interfaced with by using reasonable amounts of boilerplate code. As it was clear that native libraries would be used, this is a key requirement.
+					\item Familiarity - the developers are familiar with this language. This choice eliminates overhead that would be caused by adopting an unfamiliar language.
 					\item UI frameworks - part of the project is a proof of concept user interface to work with curves. Several UI frameworks are available that interface directly with C\#.
 				\end{itemize}
 			
@@ -401,13 +401,13 @@
 				To fully specify a curve, several different pieces of information are needed:
 				
 				\begin{itemize}
-					\item Any number of point, direction and and curvature specifications. A set of such CurveSpecifications is stored in a BasicSpecification.
+					\item Any number of point, direction and curvature specifications. A set of such CurveSpecifications is stored in a BasicSpecification.
 					\item The curve's total length is also part of a BasicSpecification.
 					\item The curves are represented using a number of segments, each of which is represented by some function, realized using the FunctionTermCurve class. Because of that, the number of segments as well as the function type that is used to represent each segment are part of the BasicSpecification as well. 
 					The type of function used is represented using a FunctionTermCurveTemplate object; this template allows the creation of FunctionTermCurve objects.  
-					However, this information is only used during optimization; if the number of segments and function template yield a curve with enough degrees of freedom in respect to the other specifications, roughly the same curve will be generated even if the number of segments and function template is changed. It is possible to specify the segment count and function template to modify the degrees of freedom that the resulting curves offers (ie. more degrees of freedom mean the curve can satisfy more curve specifications while maintaining constant speed and good fairness, but the optimization process takes longer).
-					\item Curves could be generated from a BasicSpecification alone. However, if there are multiple curves that fit a BasicSpecification very well (ie. the optimization problem has multiple local optima), different actual curves could be generated from a BasicSpecification. This results in a number of problems: for example, when saving a curve, if only the BasicSpecification were saved, it would be possible that a different curve is displayed when loading the curve, because a different local optimum was reached in the optimization process. This is clearly undesirable and a way to disambiguate between the different optima is required. 
-					For that reason, a full Specification consists of a BasicSpecification as well as some disambiguation information. That disambiguation information is the result of the optimization, which can be used as a starting position for the optimization process when a curve is loaded. This both ensures that the same curve will be generated and speeds the optimization process up as well.
+					However, this information is only used during optimization; if the number of segments and function template yield a curve with enough degrees of freedom with respect to the other specifications, roughly the same curve will be generated even if the number of segments and function template is changed. It is possible to specify the segment count and function template to modify the degrees of freedom that the resulting curves offers (i.e. more degrees of freedom mean the curve can satisfy more curve specifications while maintaining constant speed and good fairness, but the optimization process takes longer).
+					\item Curves could be generated from a BasicSpecification alone. However, if there are multiple curves that fit a BasicSpecification very well (i.e. the optimization problem has multiple local optima), different actual curves could be generated from a BasicSpecification. This results in a number of problems: for example, when saving a curve, if only the BasicSpecification were saved, it would be possible that a different curve is displayed when loading the curve, because a different local optimum was reached in the optimization process. This is clearly undesirable and a way to disambiguate between the different optima is required. 
+					For that reason, a full Specification consists of a BasicSpecification as well as some disambiguation information. That disambiguation information is the result of the optimization, which can be used as a starting position for the optimization process when a curve is loaded. This both ensures that the same curve will be generated and speeds up the optimization process as well.
 				\end{itemize}
 				
 				
@@ -428,16 +428,16 @@
 					The first step, OptimizationSegments, creates curve segments based on the number of segments and the segment template specified in the BasicSpecification. A list of parameters of all segments is created; by applying concrete values to each of the parameters, a concrete curve can be obtained. The generated segments are cached and do not have to be regenerated if the number of segments and segment template specified in the basic specification do not change.
 					
 				\subsubsection{Optimization Problem}
-					Next, the optimization problem is created. The optimization problem specifies an objective function which includes the speed error discussed in section \ref{section:constant_speed} as well as the fairness function discussed in section \ref{section:fairness_measure}. Furthermore the continuity connections discussed in section \ref{section:continuity_connections} and the satisfaction of the specifications of the curve are realized using a constraint function. The concrete values required by the curve specifications are not used; instead, placeholder variables are introduced. For the total length of the curve a placeholder is used as well. This allows the reuse of the optimization problem if curve specifications or curve length change. Thus, the optimization problem is cached and only rebuilt if the optimiztion segments change or if the number of each type of constraint on the curve changes. If the value that a constraint requires changes, but the type of constraint remains the same (eg. a point constraint requires the curve to pass through a different point than before), the optimization problem does not have to be rebuilt.
+					Next, the optimization problem is created. The optimization problem specifies an objective function which includes the speed error discussed in section \ref{section:constant_speed} as well as the fairness function discussed in section \ref{section:fairness_measure}. Furthermore the continuity connections discussed in section \ref{section:continuity_connections} and the satisfaction of the specifications of the curve are realized using a constraint function. This step also computes the first and second derivatives of those functions. The concrete values required by the curve specifications are not used; instead, placeholder variables are introduced. For the total length of the curve a placeholder is used as well. This allows the reuse of the optimization problem if curve specifications or curve length change; the derivatives do not have to be recomputed. Thus, the optimization problem is cached and only rebuilt if the optimiztion segments change or if the number of each type of constraint on the curve changes. If the value of a constraint changes, but the type of constraint remains the same (e.g. a point constraint requires the curve to pass through a different point than before), the optimization problem does not have to be rebuilt.
 					
 				\subsubsection{Substitutions}
-					In this step, substitutions for each of the placeholder variables (ie. for each curve specification and the curve length) are created. These substitutions, when applied to an optimization problem, remove all placeholder variables and yield the optimization problem that needs to be solved to obtain a concrete curve. The substitutions have to be rebuilt whenever a specification changes, the total curve length changes, or any of the previous steps had to be recomputed.
+					In this step, substitutions for each of the placeholder variables (i.e. for each curve specification and the curve length) are created. These substitutions, when applied to an optimization problem, remove all placeholder variables and yield the optimization problem that needs to be solved to obtain a concrete curve. The substitutions have to be rebuilt whenever a specification changes, the total curve length changes, or any of the previous steps had to be recomputed.
 					
 				\subsubsection{Solver}
 					In this step, a solver for the optimization problem is created. The solver used is provided by Ipopt. A new solver needs to be created whenever either the optimization problem or the substitutions change.
 				
 				\subsubsection{Position}
-					The position represents a result of an optimization process. To obtain this, the solver created in the previous step is run; as the starting position, the previous optimization's position is used. Using the obainted position, a concrete curve can be obtained from the optimization segments. This curve is the desired end result returned by the Optimizer. 
+					The position represents a result of an optimization process. To obtain this, the solver created in the previous step is run; as the starting position, the previous optimization's position is used. Using the obtained position, a concrete curve can be obtained from the optimization segments. This curve is the desired end result returned by the Optimizer. 
 				
 		\section{User Interface}
 			\subsection{Implementation}
@@ -448,35 +448,35 @@
 					\label{figure:ui_components_class_diagram}
 				\end{figure}
 				
-				Kurve's user interface constructed from Components. Components may contain a number of subcomponents, render themselves into a GTK context, and handle mouse and keyboards events. 
+				Kurve's user interface constructed from Components. Components may contain a number of subcomponents, render themselves into a GTK\# context, and handle mouse and keyboards events. 
 				\begin{itemize} 
-					\item MainWindow - The MainWindow is a GTK window that contains the RootComponent. It triggers redraws of the RootComponent when appropriate (eg. when the window is resized) and forwards mouse and keyboard events to the RootComponent.
-					\item Component - Component is the abstract base class of all components that make up Kurve's user interface. It provides default implementations for rendering components, handling mouse and keyboard events, and provides a mechanism to trigger redraws of components.
-					\item RootComponent - The RootComponent manages a list of CurveComponents and implements functionality to add and remove curve components. Additionaly, the RootComponent implements save and load functionality.
+					\item MainWindow - The MainWindow is a GTK\# window that contains the RootComponent. It triggers redraws of the RootComponent when appropriate (e.g. when the window is resized) and forwards mouse and keyboard events to the RootComponent.
+					\item Component - Component is the abstract base class of all components that make up Kurve's user interface. It provides default implementations for rendering components, handling mouse and keyboard events, and provides a mechanism to trigger redraws of subcomponents.
+					\item RootComponent - The RootComponent manages a list of CurveComponents and implements functionality to add and remove curve components. Additionally, the RootComponent implements save and load functionality.
 					\item BackgroundComponent - This component can display a background image. This can be used to trace existing images with the Kurve tools.
-					\item CurveComponent - This component represents a curve in the user interface. It consists of any number of PositionedControlComponents (any number of SpecificationComponents and a FixedPositionComponent at the start and the end of the curve each). This yields segments of the curve - one segment between each pair of PositionedControlComponents. These segments are represented by SegmentComponents. A CurveComponent uses a CurveOptimizer to create a curve from the specifications given by the SpecificationComponents. It implmenets functionality to add and remove SpecificationComponents and to change the curve template used (eg. change the degree of the polynomial template). 
+					\item CurveComponent - This component represents a curve in the user interface. It consists of any number of PositionedControlComponents (any number of SpecificationComponents and a FixedPositionComponent at both the start and the end of the curve). This yields segments of the curve - one segment between each pair of PositionedControlComponents. These segments are represented by SegmentComponents. A CurveComponent uses a CurveOptimizer to create a curve from the specifications given by the SpecificationComponents. It implements functionality to add and remove SpecificationComponents and to change the curve template used (e.g. change the degree of the polynomial template). 
 					\item LengthControlComponent - A LengthControlComponent is a Component that can modify the length of the Curve in a certain area.
 					\item PositionedControlComponent - A PositionedControlComponent is a component that has a specific position on the curve. 
 					\item SpecificationComponent - A SpecificationComponent allows to specify constraints on a curve. A point, direction and/or curvature can be specified for a given position using various mouse and keyboard commands. SpecificationComponents are visualized as a small black box that can be selected.
 					\item FixedPositionComponent - FixedPositionComponents represent the start and end of a CurveComponent.
 					\item SegmentComponent - A SegmentComponent represents a section of a curve delimited by two PositionedControlComponents. The SegmentComponent renders the curve in that segment, but it also allows to modify the length of the curve in that segment.
-					\item DiscreteCurve and DiscreteCurveItem - A DiscreteCurve represents the data necessary to render a curve in the user interface. It contains information about the curve's points, direction, and curvature. It is represented by a number of DiscreteCurveItems that sample a source curve's point, direction and curvature at a certain positions. 
-					The CurveOptimizer yields this type of curve. The reason why this kind of discrete curves are used is because the Curve objects and the Optimizer (from the Kurve.Curves subsystem) cannot be used at the same time. This, in turn, is caused by the CasADi library, which is not thread safe. However, CasADi is used for representing Curves internally, as well as for performing optimization tasks.
+					\item DiscreteCurve and DiscreteCurveItem - A DiscreteCurve represents the data necessary to render a curve in the user interface. It contains information about the curve's points, direction, and curvature. It is represented by a number of DiscreteCurveItems that sample a source curve's point, direction and curvature at certain positions. 
+					The CurveOptimizer yields this type of curve. The reason why this kind of discrete curve is used is because the Curve objects and the Optimizer (from the Kurve.Curves subsystem) cannot be used at the same time. This, in turn, is caused by the CasADi library, which is not thread safe. However, CasADi is used for representing Curves internally, as well as for performing optimization tasks.
 					As Kurve uses a background thread to optimize curves, it is not possible to use the Curve objects yieded by the optimizer to render the curves in the main thread at the same time. For that reason, Curve objects are converted to DiscreteCurve objects in that background process.
 					\item CurveOptimizer and OptimizationWorker - As the optimization process required to generate a curve from specifications takes too much time to perform in the main thread (the user interface would be blocked for too long), optimization is performed in a background thread. Each CurveComponent uses a CurveOptimizer to submit changed specifications. A single shared OptimizationWorker handles the synchronization and makes sure each submitted specification gets processed one by one. It is necessary to ensure that no optimization processes run in parallel, as the CasADi library (which is used in this process) is not thread safe.
 				\end{itemize}
 
 			\subsection{Usage}
 				
-				The user interface does not focus on user friendliness. It's purpose is to test the validity of the approach to curve design researched in this project. For that reason, most actions are performed using keyboard shortcuts. Many user interface elments can be selected with the mouse; this enables to use keyboard shortcuts that affect that component only. It is possible to interact with some components using the mouse. However, there is no toolbar or similar user interface elements that would make any of the features more accessible.
+				The user interface does not focus on user friendliness. Its purpose is to test the validity of the approach to curve design researched in this project. For that reason, most actions are performed using keyboard shortcuts. Many user interface elments can be selected with the mouse; this enables to use keyboard shortcuts that affect that component only. It is possible to interact with some components using the mouse. However, there is no toolbar or similar user interface elements that would make any of the features more accessible.
 				
 				The user interface allows the user to:
 				\begin{itemize}
 					\item add curves
-					\item add specification controls to curves (specifying point, direction and/or curvature at a certain position of the curve) 
+					\item add specification controls to curves (specifying point, direction and/or curvature at a certain position on the curve) 
 					\item control the curve's length (using specification and segment controls)
 					\item control the degree of the polynomial template and the number of internal segments of the curve
-					\item display a background image (eg. to trace curves in an existing image)
+					\item display a background image (e.g. to trace curves in an existing image)
 					\item save and load curves
 				\end{itemize}
 				
@@ -489,9 +489,9 @@
 				
 				\subsubsection{General Commands}
 				
-					A curve can be added by pressing `N'. A new Curve will appear in window that is initialized with a length of 100, and two specification controls specifying points. The curve uses one segment that uses a polynomial curve template with a degree of ten.
+					A curve can be added by pressing `N'. A new Curve will appear in window that is initialized with a length of 100, and two specification controls specifying points. The curve uses one segment that uses a polynomial curve template with a degree of 10.
 					
-					To save all curves in the window, press `S'. A save file dialogue will appear that allows you to specify a filename. Saved files can later be loaded by pressing `L' which displays an open file dialogue. Keep in mind that loading a file dismisses all curves in the current window.
+					To save all curves in the window, press `S'. A save file dialog will appear that allows the user to specify a filename. Saved files can later be loaded by pressing `L' which displays an open file dialog. Keep in mind that loading a file dismisses all curves in the current window.
 					
 					A background image can be displayed by passing a path to an image file when launching the Kurve application.
 					
@@ -501,13 +501,13 @@
 					
 					The length of the curve can be modified by selecting specification controls and segment controls and using the mouse wheel while pressing shift. If a specification control is selected, length is inserted to the left and right of the specification control; if a segment control is selected, that segment's length is changed.
 					
-					The current version of Kurve uses polynoms as the curve template. The template can be modified as follows:
+					The current version of Kurve uses polynomials functions in each segment. The template that generates the functions and the number of segments can be modified as follows:
 					
 					\begin{itemize}
-						\item To change the number of segments used, press `1' to decrease and `2' to increase the number of segments by one. (Keep in mind that these segments are not visible to the user and are used in the optimization process only. Adding more segments allows more complicated curves, but has negative effects on the performance.)
+						\item To change the number of segments used, press `1' to decrease and `2' to increase the number of segments by one. ()
 						\item To change the degree of the polynomial used in each segment, press alt + `1' to decrease, and alt + `2' to increase the degree by one.
 					\end{itemize}
-				
+					Keep in mind that the segment count and the degree of the polynomial are not directly visible to the user and are used in the optimization process only. Adding more segments or increasing the degree of the polynomial allows more complicated curves, but has negative effects on the performance.
 				\subsubsection{Specification Control}
 				\label{section:specification_control}
 				
@@ -519,19 +519,19 @@
 						\item `C' indicates that the curvature of the curve at that position is specified.
 					\end{itemize}
 					
-					Which attributes are specified can be toggled by selecting a specification component by clicking it and pressing the corresponding key on the keyboard. Which attributes are currently being specified is displayed in a label below the specification control. For example, if the label is empty, nothing is specified, while `PC' indicates that a point and a curvature are specified.
+					Which attributes are specified can be toggled by selecting a specification component by clicking it and pressing the corresponding key on the keyboard. Which attributes are currently being specified is displayed in a label below the specification control. For example, if the label shows `n/a', nothing is specified, while `PC' indicates that a point and a curvature are specified.
 					
 					When a geometric attribute is specified by a specification control, it can be modified:
 					
 					\begin{itemize}
-						\item Point: Thp point can be modified by dragging the specification control with the mouse.
+						\item Point: The point can be modified by dragging the specification control with the mouse.
 						\item Direction: The direction can be modified using the mouse wheel.
 						\item Curvature: The curvature can be modified by pressing the windows key while using the mouse wheel.
 					\end{itemize}
 					
-					The position of the control can be modified by pressing the control key while using the mouse wheel. Keep in mind that when changing the position of a specification control that does not specify a point, the control itself will most likely move (and change it's point).
+					The position of the control can be modified by pressing the control key while using the mouse wheel. Keep in mind that when changing the position of a specification control that does not specify a point, the control itself will most likely move (and change its point).
 					
-					To achieve more fine-grained control, it is possible to press the alt key while performing any of the actions described above. This changes the affected property of the specification control more slowly. For example, if you press alt while dragging a specification control, it will move very slowly.
+					To achieve more fine-grained control, it is possible to press the alt key while performing any of the actions described above. This changes the affected property of the specification control more slowly. For exa^mple, if you press alt while dragging a specification control, it will move very slowly.
 					
 					As an experimental feature, it is also possible to change the position of a specification control by dragging it with the mouse while pressing shift. The position is calculated by the current state of the curve.
 				
@@ -541,12 +541,12 @@
 					
 					If at least one of the delimiting controls specifies a point, segments can be moved by dragging them with the mouse.
 					
-					A segment also displays the speed of the curve if it differs from the optimal speed. Too high speed is indicated by a red hue; this can usually be fixed by inserting additional length. Too low speed is indicated by a blue hue; usually there will be both blue and red sections. this usually indicates that the curve is too complex (ie. there are too many specifications) to acchieve a good representation with the current curve template. This can be fixed by either removing specifications, adding internal segments to the curve, or increasing the degree of the polynomial function template used in the curve.
+					A segment also displays the speed of the curve if it differs from the optimal speed. Too high speed is indicated by a red hue; this can usually be fixed by inserting additional length. Too low speed is indicated by a blue hue; usually there will be both blue and red sections. This usually indicates that the curve is too complex (i.e. there are too many specifications) to achieve a good representation with the current curve template. This can be fixed by either removing specifications, adding internal segments to the curve, or increasing the degree of the polynomial function template used in the curve.
 				
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{../resources/ui_speeds.pdf}
-					\caption{Example of a Curve that is `Overspecified' (ie. the speed of the curve cannot be kept constant due to the high amount of constraints)}
+					\caption{Example of a Curve that is `Overspecified' (i.e. the speed of the curve cannot be kept constant due to the high amount of constraints)}
 					\label{figure:ui_speeds}
 				\end{figure}
 				
@@ -557,27 +557,27 @@
 							\item[`N'] Add a new curve
 							\item[`L'/`S'] Load/Save
 							\item[`1'/`2'] decrease/increase internal segment count
-							\item[alt + `1'/`2'] decrease/increase polynomial template degree
+							\item[Alt + `1'/`2'] decrease/increase polynomial template degree
 						\end{description}
 						\item All Controls
 						\begin{description}
 							\item[Click] Selects a control 
 							\item[Shift + Click] Select multiple controls
-							\item[Shift + Scroll (+ alt)] Insert length at component (slowly)
+							\item[Shift + Scroll (+ Alt)] Insert length at component (slowly)
 						\end{description}
 						\item Specification Control
 						\begin{description}
-							\item[Ctrl + Scroll (+ alt)] Change the position of the specification (slowly)
-							\item[Shift + Drag] Change position of specification (Adjusts the point of the specification)
+							\item[Ctrl + Scroll (+ Alt)] Change the position of the specification (slowly)
+							\item[Shift + Drag] Change position of specification (adjusts the point of the specification)
 							\item[`R'] Removes the specification
 							\item[`P'] Triggers point specification
-							\item[Drag (+ alt)] Move point (slowly). Only possible when point specification is enabled.
+							\item[Drag (+ Alt)] Move point (slowly). Only possible when point specification is enabled.
 							\item[`D'] Triggers direction specification
-							\item[Scroll (+ alt)] Changes the direction (slowly). Only possible when direction specification is enabled.
+							\item[Scroll (+ Alt)] Changes the direction (slowly). Only possible when direction specification is enabled.
 							\item[`C'] Triggers curvature specification
-							\item[Win + Scroll (+ alt)] Changes the curvature (slowly). Only possible when curvature specification is enabled.
+							\item[Win + Scroll (+ Alt)] Changes the curvature (slowly). Only possible when curvature specification is enabled.
 							\item[Shift + Click] Select multiple controls
-							\item[Shift + Scroll (+ alt)] Insert length at component (slowly)
+							\item[Shift + Scroll (+ Alt)] Insert length at component (slowly)
 						\end{description}
 						\item Segment Control
 						\begin{description}
