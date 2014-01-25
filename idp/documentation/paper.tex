@@ -23,7 +23,7 @@
 \date{\today}
 
 % TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
-% TODO: expand n't contractions
+% TODO: expand n't and *'s contractions
 % TODO: check if all quotations are done `like this'
 % TODO: consistent use of polynomial, planar, plane, parametric, curve
 
@@ -590,20 +590,32 @@
 
 				As a final way of demonstrating the high expressiveness, it may be noted that it is actually possible to specify segments of the Euler spiral using the specification language. As described in section \ref{section:fairness_measure}, the MVC fairness measure prefers constant or linearly changing curvature. Since every curve with linearly changing curvature is some segment of the Euler spiral, it is easy to specify those using the specification language by leaving the curve otherwise unconstrained.
 
-			% human ability to `read' the specification language from curves
-			%   familiar differential geometric properties
-			% human ability to `speak' the specification language to the software
-			%   familiar differential geometric properties
-			% smoothness of curves selected by the fairness measure
-			%   very good, thanks to MVC
-			% minimality of curves selected by the fairness measure
-			%   not guaranteed by optimization, but may usually be obtained by pushing the curve into a different optimum
-			% software's ability to derive curves from descriptions
-			%   optimization is slow and sometimes unstable, still needs some work before it becomes practical
-			%   local optima
-			%   bad stability, infeasible for numeric optimization
-			%   performance
-			%   adjustment of segment count and degree by the user is not desirable
+			\subsubsection{Human Interaction with the Specification Language}
+			\label{section:human_interaction_specification_language}
+
+				The specification language is based on the familiar differential geometric properties point, direction, curvature and arc length, all of which have a simple geometric interpretation and are thus easy to understand.
+
+				Points, directions and curvatures are easy to extract from some source curve. While extracting the arc length of a long curve may be somewhat difficult, this is usually not required since the arc length is mostly adjusted locally, where it is fairly easy to estimate.
+
+				Since curves can usually be described using only a few specificaitons, communicating this information to the curve design tool is not too difficult either. Points are well-suited to be specified using the mouse pointer. The current prototype curve design tool only supports very basic input facilities for direction and curvature, making it somewhat difficult to create and modify these specifications. This is easily fixed though by utilizing their geometric interpretation, letting the user specify tangent lines and osculating circles instead of raw numeric values. Arc lengths are usually specified locally and by repeatedly making small adjustments, making them relatively easy to handle.
+
+			\subsubsection{Smoothness and Minimality of Curves Selected by the Fairness Measure}
+			\label{section:smoothness_minimality_curves_selected_fairness_measure}
+
+				As described in section \ref{section:fairness_measure}, the MVC fairness measure the intuitive notion of smoothness very well, resulting in aesthetically pleasing curves.
+
+				Unfortunately, the nonlinear optimization approach to finding the best curve can only find local optima, such that in many cases, the curve is not minimal, often containing loops and unnecessary inflection points. However, this is usually easy to fix by adjusting the specifications in such a way that the global optimum is found. For instance, a loop in the curve can often be removed by placing an additional point specification on the loop, pulling it away from the curve until the curve is forced to straighten out and finally removing the point specification again. Once the curve has been pushed into the global optimum like this, it is usually very stable.
+
+			\subsubsection{Ability to Derive Curves from Descriptions}
+			\label{section:ability_derive_curves_descriptions}
+
+				As mentioned in section \ref{section:curve_derivation}, using nonlinear optimization has many advantages for research and proof of concept projects like this one. Unfortunately, the flexibility it grants comes with a price, in that it is much slower and also less reliable than unique mathematical constructions like the ones used for Bézier splines.
+
+				Even on very powerful computers, running nonlinear optimization on splines with many segments and/or polynomials of high degree is too slow for interactive curve design, with updates taking more than 5 seconds. Most curves are very simple and do not need this kind of complexity, but for those that do, the bad performance can be very disruptive.
+
+				Another issue is reliability. For some descriptions, the iterative optimization algorithm may converge extremely slowly or not at all, thus not producing a curve. In some cases, it is possible that small changes in the description restore the ability to converge on a solution, but sometimes one simply has to start over. There are also cases where the optimization gets stuck in a pathological local optimum, in which case one usually has to start over aswell.
+
+				All these issues cause the prototype curve design tool to be somewhat impractical for actual curve design work, making this the primary issue with the chosen approach.
 
 		\subsection{Examples}
 		\label{section:examples}
@@ -629,6 +641,7 @@
 	\label{section:conclusion}
 
 		% most issues stem from the optimization approach
+		%  may make it hard to actually rate usability of the idea behind this
 		% distinguish between further research work and turning the project into practical software)	
 		% further possibilities to instantiate overall structure (different and/or combined spline primitives, constructive instead of optimization approach)
 		% adaptive line segments, adaptive bézier approximation
