@@ -201,7 +201,7 @@
 		\begin{frame}
 			\frametitle{Curve Derivation}
 			\begin{itemize}
-				\item uses nonlinear optimization on polynomial splines
+				\item uses nonlinear optimization on polynomial splines % ie. segments described by polynomial curves
 				\item nonlinear optimization: flexible, allows experimentation
 				\item polynomial curves: simple yet flexible % through choice of degree
 			\end{itemize}
@@ -235,11 +235,156 @@
 				\item segments laid out consecutively with equal length
 			\end{itemize}
 		\end{frame}
+
 		
 		\begin{frame}
-			\frametitle{}
+			\frametitle{Constant Speed}
 			\begin{itemize}
+				% specification's positions given as fraction of arc length; doesn't work very well in optimization process
+				\item function mapping arc length to parameter value of curve needed
+				% that function varies with coefficients, hence
+				\item it is not possible to predict on which segment a specification will end up on
+				% fairness measure is integral over arc length of curve, hence
+				\item fairness measure depends on mapping function
+				\item solution: use following error term
+			\end{itemize}
+			
+			\begin{equation*}
+				\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
+			\end{equation*}
+			% cannot be fullfilled exactly by polynomials; hence no zero-error constraints. Implementations using an upper bound on errors and minimization goal were done; the latter yielded better results.
+			
+			\begin{itemize}
+				\item approximation using:
+			\end{itemize}
+			% because finding a maximum is not very suitable for smooth optimization
+			\begin{equation*}
+				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
+			\end{equation*}
+			% includes scaling in the beginning to make the error term scale invariant
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Continuity Connections}
+			\begin{itemize}
+				\item whole spline has \(\contg{2}\) continuity
+				\item each segment is smooth
+				\item resulting spline is not
+				\item continuity at the segment connection points needs to be ensured
+				\item hence, we use constraints:
+			\end{itemize}
+			\begin{equation*}
+				\begin{gathered}
+					\apply{\phi_i}{1} - \apply{\phi_{i + 1}}{0}\\
+					\apply{\phi'_i}{1} - \apply{\phi'_{i + 1}}{0}\\
+					\apply{\phi''_i}{1} - \apply{\phi''_{i + 1}}{0}
+				\end{gathered}
+			\end{equation*}
+			
+			(\(\phi_i\) refers to the points of the i-th segment)
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Specification Items}
+			\begin{itemize}
+				\item represeneted as zero-error constraints
+				\item for each specification, one of the following error terms is added:
+			\end{itemize}
+			\begin{equation*}
+				\begin{gathered}
+					\apply{\phi}{\hat{t}_i} - \hat{\phi}_i\\
+					\apply{\delta}{\hat{t}_i} - \hat{\delta}_i\\
+					\apply{\chi}{\hat{t}_i} - \hat{\chi}_i
+				\end{gathered}
+			\end{equation*}
+		\end{frame}
+		
+		
+		\begin{frame}
+			\frametitle{Fairness Error}
+			\begin{equation*}
+				\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
+			\end{equation*}
+			\begin{itemize}
+				\item can be arbitrarily large
+				\item hence, it is a minimization goal
+				\item scaled by \(\hat{\lambda}^2\) for invariance under scaling of the curve
+				% enables static weighting of minimization goals
 			\end{itemize}
 		\end{frame}
 		
+		\begin{frame}
+			\frametitle{Final Assembly}
+			\begin{itemize}
+				\item zero-error constraints and upper bounds: 
+				\begin{itemize}
+					\item added as component to \(g\)
+					\item bounds added to \(g_l\) and \(g_u\)
+				\end{itemize}
+				\item minimization goals: 
+				\begin{itemize}
+					\item combined in weighted sum
+					\item yields objective function \(f\)
+				\end{itemize}
+			\end{itemize}
+		\end{frame}
+		
+	\section{Implementation}
+	
+		\begin{frame}
+			\frametitle{Architecture}
+			\begin{itemize}
+				\item programming language: C\#
+				\begin{itemize}
+					% familiar, high level
+					\item platform independent
+					\item interfaces with native code
+					\item UI frameworks available
+				\end{itemize}
+				\item libraries
+				\begin{itemize}
+					\item IPopt: numeric nonlinear optimization
+					\item CasADi: automatic differentiation of terms
+					\item GTK\#: UI library
+				\end{itemize}
+			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Subsystems}
+			\begin{itemize}
+				\item Kurve: ui prototype
+				\item Kurve.Curves: optimization of curves
+				\item Wrappers.Casadi and Wrappers.Casadi.Native: APIs for CasADi and IPopt
+			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Optimization Steps}
+			\begin{itemize}
+				\item segments
+				\item optimization problem
+				\item substitutions
+				\item solver
+				\item position
+			\end{itemize}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Demo}
+		\end{frame}
+		
+		\begin{frame}
+			\frametitle{Conclusion}
+			\begin{itemize}
+				\item it works
+				\item we are awesome
+				\item `The most promising research in curve design tools in decades' - Albert Einstein
+				\item future work
+				\begin{itemize}
+					\item test with users
+					\item integrate into Incscape
+				\end{itemize}
+			\end{itemize}
+		\end{frame}
 \end{document}
