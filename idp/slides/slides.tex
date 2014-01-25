@@ -63,7 +63,7 @@
 			\frametitle{Usability Criteria for Curve Design Tools}
 			\begin{itemize}
 				% curve design tools can affect the design process by choosing specification language and fairness measure, and practical ability to derive curves from them
-				\item specification language + fairness measure = description language
+				\item description language := specification language + fairness measure
 				\item specification language should be
 				\begin{itemize}
 					\item expressive
@@ -79,28 +79,12 @@
 					% select curves that are minimal in respect to the specification
 					\item select minimal curves
 				\end{itemize}
+				\item ability to derive curves from descriptions
 			\end{itemize}
 		\end{frame}
 		
-		\begin{frame}
-			\frametitle{Criteria for Assessing the Usability of a Curve Design Tool}
-			\begin{enumerate}
-				% expressiveness of the specification language
-				\item expressiveness
-				% human ability to `read' the specification language from curves
-				\item simplicity of finding specifications of curves
-				% human ability to `speak' the specification language to the software
-				\item simplicity of communicating intent
-				% smoothness of curves selected by the fairness measure
-				\item smoothness
-				% minimality of curves selected by the fairness measure
-				\item minimality
-				% software's ability to derive curves from descriptions
-				\item ability to derive curves from descriptions
-			\end{enumerate}
-		\end{frame}
-		
 	\section{Existing Curve Design Tools}
+	
 		\begin{frame}
 			\frametitle{Bézier Splines}
 			\begin{itemize}
@@ -112,11 +96,14 @@
 				\item most criteria fulfilled nicely
 				% curvature continuity is not guaranteed
 				% it is very hard to choose coefficient points in a way that results in curvature continuity.
-				\item problem: fairness measure's smoothness 
-				% curvature cannot be specified directly
-				% constant/linearly changing curvature cannot be specified
-				% circular arcs/spirals are very hard to specify
-				\item problem: expressiveness of the specification language
+				\item problems
+				\begin{itemize}
+					\item curvature continuity
+					% curvature cannot be specified directly
+					% constant/linearly changing curvature cannot be specified
+					% circular arcs/spirals are very hard to specify
+					\item problem: expressiveness of the specification language
+				\end{itemize}
 			\end{itemize}
 		\end{frame}
 		
@@ -131,9 +118,10 @@
 			\frametitle{Spiro Splines}
 			\begin{itemize}
 				\item constructed from segments of the Euler spiral
+				\item constructs interpolating splines
 				\item can only specify points (no direction or curvature)
 				\item guarantees curvature continuity
-				\item only major problem is insufficient expressiveness of specification language
+				\item problem: insufficient expressiveness of specification language
 			\end{itemize}
 		\end{frame}
 		
@@ -150,6 +138,8 @@
 			\frametitle{Description-Based Curves}
 			\begin{itemize}
 				\item description language has huge effect on usability
+				\item should not be based on low-level mathematical aspects % beziere
+				\item do not impose limitations on specification language prematurely % spiro
 				\item we need a good specification language and fairness measure
 			\end{itemize}
 		\end{frame}
@@ -369,6 +359,20 @@
 				\item position
 			\end{itemize}
 		\end{frame}
+		
+		% topics of the demo
+		%
+		% 1. explain features
+		% 2. example mane fluttershy: specifying curvature is awesome. compare with beziere
+		% 3. circle arcs via arc length (fluttershy chin/mouth/ear)
+		% 4. maybe example for why fixed length might be undesirable
+		% 5. euler spiral (we're doing it LIVE!)
+		% 6. fairness: demonstrate with S-curve
+		% 7. many local potentially shitty optima, can be fixed by stretching/dragging etc.
+		% 8. Problem: slow
+		% 9. May converge slowly or not at all
+		% 10. Pathological local minima
+		% 
 		
 		\begin{frame}
 			\frametitle{Demo}
