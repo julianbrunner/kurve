@@ -576,25 +576,19 @@
 			Having applied the usability criteria from section \ref{section:usability_criteria_curve_design_tools} to Bézier splines and Spiro splines, we will now use them to evaluate usability aspects of our approach.
 
 			\subsubsection{Expressiveness of the Specification Language}
+			\label{section:expressiveness_specification_language}
 
-				One of the primary goals of this project was to explore more expressive specification languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that describe the curve in the most concise fashion.
+				One of the primary goals of this project was to explore more expressive specification languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that can describe the curve in the most concise fashion.
 
 				The ability to specify curvature constitues a significant improvement over common curve design tools, where this is usually not possible. Using this functionality, the user can specify curves which are best expressed in terms of curvature in a natural and concise way. Not only does this make the curve design process less tedious, but it may also lead to better curves, since only the essential information about the curve is given to the software. This allows the fairness measure to choose the best possible curve, something that is not possible if lots of auxiliary information is supplied to the software in order to indirectly influence the curvature.
 
-				Section \ref{section:specification_language} describes why it makes sense to specify the curve's total arc length. While fixing the arc length of the curve (and thus also the arc length between each specification item) may seem a little restrictive at first, there are actually quite a few upsides. For instance, by adjusting the arc length of a curve with a point specifications on each end, one can conveniently produce arcs between two points, since increasing the arc length will make the curve bulge out, with the fairness making sure that a smooth arc is produced. Using common vector graphics software, one usually has to either risk an asymmetric and/or bumpy arc by specifying it using Bézier splines, or deal with some cumbersome tool for constructing elliptical arcs.
+				Section \ref{section:specification_language} describes why it makes sense to specify the curve's total arc length. While fixing the arc length of the curve (and thus also the arc length between each specification item) may seem a little restrictive at first, there are actually quite a few upsides. For instance, by adjusting the arc length of a curve with a point specifications on each end, one can conveniently produce arcs between two points, since increasing the arc length will make the curve bulge out, with the fairness making sure that a smooth arc is produced.
+				% Using common vector graphics software, one usually has to either risk an asymmetric and/or bumpy arc by specifying it using Bézier splines, or deal with some cumbersome tool for constructing elliptical arcs.
+				Generally speaking, having control over the arc length of the curve results in benign and predictable curve behavior and is often useful for pulling it in place, not unlike the way one would handle a mechanical spline.
 
-				% expressiveness of the specification language
-				%   much more expressive than Bézier and Spiro splines, allows specification of curvature, length
-				%     controlling length is actually a very nice thing to have
-				%       a good way to control circular arcs in terms of radius (fluttershy's ear, mouth)
-				%         compare to using elliptical arcs in inkscape
-				%       a good way to pull curves in place when they don't have direction specifications
-				%       benign behavior
-				%   doesn't allow *not* expressing length, may pose a problem
-				%   demonstrate euler spirals and bézier curves being embedded
-				%     demonstrates expressiveness
-				%     minimization of normal jerk squares prefers linear change in curvature
-				%   a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
+				On the other hand though, it is not possible not to specify the curve's arc length, and there may be cases where the user wants to leave it to the fairness measure to choose the best arc length for the curve. While it is sometimes possible to work around this issue by placing direction and/or curvature specifications instead of point specifications, that may not always be the case and further investigation into how arc length specification can be made optional while avoiding the problems mentioned in section \ref{section:specification_language} seems advisable.
+
+				As a final way of demonstrating the high expressiveness, it may be noted that it is actually possible to specify segments of the Euler spiral using the specification language. As described in section \ref{section:fairness_measure}, the MVC fairness measure prefers constant or linearly changing curvature. Since every curve with linearly changing curvature is some segment of the Euler spiral, it is easy to specify those using the specification language by leaving the curve otherwise unconstrained.
 
 			% human ability to `read' the specification language from curves
 			%   familiar differential geometric properties
