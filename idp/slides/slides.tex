@@ -188,14 +188,6 @@
 		\begin{frame}
 			\frametitle{Fairness Measure}
 			\center{\includegraphics[width=\textwidth]{../resources/fairness_measures.pdf}}
-%			\begin{itemize}
-%				\item chosen fairness measure: minimum variation curves
-%				\item captures intuitive notion of smoothness
-%			\end{itemize}
-%			\begin{equation*}
-%				\integral{0}{1}{\apply{\chi'}{t}^2}{t}
-%			\end{equation*}
-%			 % TODO diagram comparing MVC and MEC
 		\end{frame}
 		
 		\begin{frame}
@@ -237,14 +229,17 @@
 
 			segmentation:
 			\center{\includegraphics[width=\textwidth]{../resources/segmentation.pdf}}
-			\vspace{5mm}
+
+			\bigskip
 
 			optimization: Domain is coefficients \(a_{i,j}\)
 		\end{frame}
 
 		\begin{frame}
-			\frametitle{Constant Speed: Arc Length Issues}
+			\frametitle{Covered Arc Length Function}
+			% to state error terms for specifications with arc length positioning, the following has to be done
 			example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
+			% \lambda gives relation between positions and arc lengths
 			\center{\includegraphics[width=50mm]{../resources/inverse_covered_arc_length.pdf}}
 			\begin{itemize}
 				\item requires finding \(\apply{\lambda^{-1}}{\hat{t}}\)
@@ -255,8 +250,12 @@
 		\end{frame}
 
 		\begin{frame}
-			\frametitle{Constant Speed: The Solution}
+			\frametitle{Constant Speed}
 			solution: add constant speed as optimization goal
+
+			\bigskip
+
+			error term:
 			\begin{equation*}
 				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 			\end{equation*}
@@ -280,8 +279,6 @@
 					\apply{\phi''_i}{1} - \apply{\phi''_{i + 1}}{0}
 				\end{gathered}
 			\end{equation*}
-			
-			(\(\phi_i\) refers to the points of the i-th segment)
 		\end{frame}
 		
 		\begin{frame}
