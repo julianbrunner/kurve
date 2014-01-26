@@ -6,7 +6,6 @@
 \usepackage{a4wide}            % reduces page margins
 \usepackage{parskip}           % replaces hanging paragraphs with spacing between paragraphs
 \usepackage{times}             % replaces Computer Modern font with something resembling Times
-\usepackage{textcomp}          % adds symbols like \textdegree
 \usepackage{graphicx}          % enables including graphics
 \usepackage{amsmath}           % ams math module
 \usepackage{amssymb}           % ams math symbols
@@ -248,10 +247,15 @@
 
 				Our implementation of choice uses smooth optimization, or, more specifically, an interior point method. This type of algorithm further requires the functions \(f\) and \(g\) to be at least once, ideally twice continuously differentiable.
 
-				In the following, we will describe how nonlinear optimization can be used for building polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
+				In the following, we will describe how nonlinear optimization can be used for finding polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
 
+			% TODO: consider structuring and naming this section similarly to the slides
 			\subsubsection{Segmentation and Notation}
 			\label{section:segmentation_notation}
+
+				%\begin{equation*}
+				%	\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
+				%\end{equation*}
 
 				Since the polynomial spline is uniquely determined by the coefficients of each polynomial segment, the optimization domain is a vector consisting of all these coefficients. Let \(m\) be the number of segments that make up the polynomial spline. We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
 				\begin{equation*}

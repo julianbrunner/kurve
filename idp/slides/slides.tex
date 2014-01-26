@@ -1,9 +1,9 @@
-\documentclass{beamer}
+\documentclass[mathserif]{beamer}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{times}
-\usepackage{graphicx}
+\usepackage[utf8]{inputenc}    % enables use of utf8 characters in the input file
+\usepackage[T1]{fontenc}       % enables proper output of unicode characters such that text can be copy-pasted from the pdf file
+\usepackage{times}             % replaces Computer Modern font with something resembling Times
+\usepackage{graphicx}          % enables including graphics
 \usepackage{amsmath}           % ams math module
 \usepackage{amssymb}           % ams math symbols
 \usepackage{mathtools}         % fixes a few quirks with the ams packages
@@ -111,7 +111,7 @@
 		\begin{frame}
 			\frametitle{Usability Analysis of Bézier Splines}
 			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}\\
+				\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
 			\end{centering}
 		\end{frame}
 		
@@ -129,7 +129,7 @@
 		\begin{frame}
 			\frametitle{Usability Analysis of Spiro Splines}
 			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}\\
+				\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}
 			\end{centering}
 		\end{frame}
 	
@@ -159,7 +159,7 @@
 		\begin{frame}
 			\frametitle{Description-Based Curves}
 			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}\\
+				\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}
 			\end{centering}
 		\end{frame}
 		
@@ -233,13 +233,21 @@
 		
 		
 		\begin{frame}
-			\frametitle{Segmentation}
-			\begin{itemize}
-				\item polynomial spline is determined by the coefficients of each polynomial segment
-				\item all coefficients are the optimization domain
-				\item segments laid out consecutively with equal length
-			\end{itemize}
-			% TODO: illustration
+			\frametitle{Finding Curves as Optimization Problem}
+
+			Polynomials:
+			\begin{equation*}
+				\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
+			\end{equation*}
+
+			Segmentation:
+			\begin{centering}
+				\includegraphics[width=\textwidth]{../resources/segmentation.pdf}
+			\end{centering}
+
+			\vspace{5mm}
+
+			Optimization: Domain is coefficients \(a_{i,j}\)
 		\end{frame}
 
 		
