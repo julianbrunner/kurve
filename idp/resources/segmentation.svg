@@ -13,7 +13,7 @@
    height="1024"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="segmentation.svg">
   <defs
      id="defs4">
@@ -39,13 +39,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="463.83871"
-     inkscape:cy="825.30934"
+     inkscape:cx="1063.9068"
+     inkscape:cy="586.60785"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1280"
-     inkscape:window-height="748"
+     inkscape:window-width="1920"
+     inkscape:window-height="1028"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1">
@@ -72,22 +72,24 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="helpers"
+     style="display:none">
+    <path
+       transform="translate(0,-28.362183)"
+       id="path3070"
+       style="fill:none;stroke:#0000ff;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 118.01453,388.17712 c 24.02426,-198.05562 75.81744,-229.50423 162.09199,-212.38485 74.18748,14.72096 173.87144,65.35445 303.31988,76.84729 102.04626,9.05998 222.58941,-6.20367 363.72032,-82.55897"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+  </g>
+  <g
+     inkscape:label="illustration"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-28.362183)">
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot3765"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(73.36477,18.852392)"><flowRegion
-         id="flowRegion3767"><rect
-           id="rect3769"
-           width="49.497475"
-           height="51.51778"
-           x="64.649765"
-           y="497.71051" /></flowRegion><flowPara
-         id="flowPara3771" /></flowRoot>    <g
+    <g
        transform="matrix(2.8386656,0,0,2.8386656,-750.98896,-5.2849357)"
        id="g3248">
       <path
