@@ -95,6 +95,7 @@ namespace Kurve.Component
 				case Kurve.Interface.Key.N: AddCurve(); break;
 				case Kurve.Interface.Key.L: Load(); break;
 				case Kurve.Interface.Key.S: Save(); break;
+				case Kurve.Interface.Key.E: Export(); break;
 			}
 
 			base.KeyUp(key);
@@ -133,6 +134,36 @@ namespace Kurve.Component
 						select curveComponent.Specification.XElement
 					)
 					.Save(fileChooser.Filename);
+				}
+				
+				fileChooser.Destroy();
+			}
+		}
+		
+		void DoExport(IEnumerable<CurveOptimizer> optimizers, String filename) {			
+			XAttribute style = new XAttribute("style", "fill:none; stroke:black; stroke-width:2");
+			XNamespace @namespace = "http://www.w3.org/2000/svg";
+			XNamespace noNamespace = "";
+			new XElement(
+				@namespace + "svg",
+		        new XAttribute("viewBox", "0 0 500 400"),
+				new XAttribute("version", "1.1"),
+				from optimizer in optimizers
+				select new XElement(@namespace+"path", style, new XAttribute("d", optimizer.GetSvgAttributeString(1000)))
+			)
+			.Save(filename);
+		}
+		void Export() {
+			using (FileChooserDialog fileChooser = new FileChooserDialog("Export", parentWindow, FileChooserAction.Save, "Cancel", ResponseType.Cancel, "Save", ResponseType.Accept))
+			{
+				if ((ResponseType)fileChooser.Run() == ResponseType.Accept) 
+				{
+						
+					IEnumerable<CurveOptimizer> optimizers = 
+						from curveComponent in curveComponents
+						select curveComponent.CurveOptimizer;
+					
+					this.optimizationWorker.SubmitTask(this, () => DoExport(optimizers, fileChooser.Filename));
 				}
 				
 				fileChooser.Destroy();
