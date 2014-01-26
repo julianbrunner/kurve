@@ -90,6 +90,7 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;
 			case Gdk.Key.l: key = Kurve.Interface.Key.L; break;
 			case Gdk.Key.s: key = Kurve.Interface.Key.S; break;
+			case Gdk.Key.e: key = Kurve.Interface.Key.E; break;
 			case Gdk.Key.p: key = Kurve.Interface.Key.P; break;
 			case Gdk.Key.d: key = Kurve.Interface.Key.D; break;
 			case Gdk.Key.c: key = Kurve.Interface.Key.C; break;
@@ -117,6 +118,7 @@ public partial class MainWindow : Gtk.Window
 			case Gdk.Key.n: key = Kurve.Interface.Key.N; break;
 			case Gdk.Key.l: key = Kurve.Interface.Key.L; break;
 			case Gdk.Key.s: key = Kurve.Interface.Key.S; break;
+			case Gdk.Key.e: key = Kurve.Interface.Key.E; break;
 			case Gdk.Key.p: key = Kurve.Interface.Key.P; break;
 			case Gdk.Key.d: key = Kurve.Interface.Key.D; break;
 			case Gdk.Key.c: key = Kurve.Interface.Key.C; break;

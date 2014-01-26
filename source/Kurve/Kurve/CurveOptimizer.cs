@@ -38,9 +38,37 @@ namespace Kurve.Component
 
 		public void Submit(BasicSpecification basicSpecification)
 		{
-			optimizationWorker.SubmitTask(this, basicSpecification);
+			optimizationWorker.SubmitTask(this, () => this.Optimize(basicSpecification));
 		}
-		public void Optimize(BasicSpecification basicSpecification)
+		public String GetSvgAttributeString(int numberOfSegments) 
+		{
+			Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
+			IEnumerable<Tuple<double, double>> ranges = Scalars.GetIntermediateValuesSymmetric(0, 1, numberOfSegments).GetRanges();
+			
+			string svgString = "M"+PointToSvgString(curve.GetPoint(ranges.First().Item1));
+			string svgComponents = 
+			(
+				from range in ranges
+				let controlPoint2 = curve.GetPoint(range.Item1) + 0.33*(1.0/numberOfSegments)*Velocity(curve.GetDirection(range.Item1), curve.GetSpeed(range.Item1))
+				let controlPoint3 = curve.GetPoint(range.Item2) - 0.33*(1.0/numberOfSegments)*Velocity(curve.GetDirection(range.Item2), curve.GetSpeed(range.Item2))
+				let controlPoint4 = curve.GetPoint(range.Item2)
+				select " C"+PointToSvgString(controlPoint2)+" "+PointToSvgString(controlPoint3)+" "+PointToSvgString(controlPoint4)
+			)
+			.AggregateString();
+			
+			return svgString+" "+svgComponents;
+		}
+		
+		String PointToSvgString(Vector2Double point) 
+		{
+			return point.X+","+point.Y;
+		}
+		Vector2Double Velocity(double direction, double speed) 
+		{
+			return new Vector2Double(Math.Cos(direction), Math.Sin(direction)) * speed;
+		}
+		
+		void Optimize(BasicSpecification basicSpecification)
 		{
 			if (specification == null) specification = new Specification(basicSpecification);
 

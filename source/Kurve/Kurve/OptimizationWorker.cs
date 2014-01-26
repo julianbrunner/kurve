@@ -7,7 +7,6 @@ using Cairo;
 using Kurve.Curves.Optimization;
 using Kurve.Curves;
 using System.Threading;
-using Gtk;
 using Kurve.Interface;
 using Kurve.Component;
 
@@ -17,7 +16,7 @@ namespace Kurve
 	{
 		readonly ManualResetEvent workAvailable;
 		readonly Thread workerThread;
-		readonly Dictionary<CurveOptimizer, BasicSpecification> optimizationTasks;
+		readonly Dictionary<object, Action> optimizationTasks;
 
 		bool disposed = false;
 		bool running = true;
@@ -27,7 +26,7 @@ namespace Kurve
 			this.workAvailable = new ManualResetEvent(false);
 			this.workerThread = new Thread(Work);
 			this.workerThread.Start();
-			this.optimizationTasks = new Dictionary<CurveOptimizer, BasicSpecification>();
+			this.optimizationTasks = new Dictionary<object, System.Action>();
 		}
 
 		public void Dispose()
@@ -45,11 +44,11 @@ namespace Kurve
 				GC.SuppressFinalize(this);
 			}
 		}
-		public void SubmitTask(CurveOptimizer curveOptimizer, BasicSpecification basicSpecification)
+		public void SubmitTask(object key, Action action)
 		{
 			lock (optimizationTasks)
 			{
-				optimizationTasks[curveOptimizer] = basicSpecification;
+				optimizationTasks[key] = action;
 
 				workAvailable.Set();
 			}
@@ -63,18 +62,18 @@ namespace Kurve
 
 				if (!running) break;
 
-				KeyValuePair<CurveOptimizer, BasicSpecification> item;
+				KeyValuePair<object, Action> task;
 
 				lock (optimizationTasks)
 				{
-					item = optimizationTasks.First();
-
-					optimizationTasks.Remove(item.Key);
-
+					task = optimizationTasks.First();
+					
+					optimizationTasks.Remove(task.Key);
+					
 					if (!optimizationTasks.Any()) workAvailable.Reset();
 				}
 
-				item.Key.Optimize(item.Value);
+				task.Value();
 			}
 		}
 	}

@@ -18,7 +18,9 @@ namespace Kurve.Component
 	class CurveComponent : Component
 	{
 		readonly CurveOptimizer curveOptimizer;
-
+		
+		public CurveOptimizer CurveOptimizer { get { return curveOptimizer; } }
+		
 		readonly List<SpecificationComponent> specificationComponents;
 		readonly List<SegmentComponent> segmentComponents;
 		readonly FixedPositionComponent curveStartComponent;
