@@ -10,7 +10,7 @@
 
 \input{../common/math.tex}     % some math helper macros
 
-\useoutertheme{miniframes}
+\useoutertheme[subsection=false]{miniframes}
 \useinnertheme{default}
 \usecolortheme{default}
 \setbeamertemplate{navigation symbols}
@@ -110,9 +110,7 @@
 		
 		\begin{frame}
 			\frametitle{Usability Analysis of Bézier Splines}
-			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}
-			\end{centering}
+			\center{\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}}\\
 		\end{frame}
 		
 		\begin{frame}
@@ -128,9 +126,7 @@
 		
 		\begin{frame}
 			\frametitle{Usability Analysis of Spiro Splines}
-			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}
-			\end{centering}
+			\center{\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}}\\
 		\end{frame}
 	
 	\section{Proposed Solution}
@@ -158,13 +154,12 @@
 	
 		\begin{frame}
 			\frametitle{Description-Based Curves}
-			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}
-			\end{centering}
+			\center{\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}}\\
 		\end{frame}
 		
 		\begin{frame}
 			\frametitle{Specification Language}
+			% contains all the reasoning about the specification language
 			\begin{itemize}
 				\item decoupled from underlying curve model
 				\item allows specification of geometric properties
@@ -192,14 +187,15 @@
 		
 		\begin{frame}
 			\frametitle{Fairness Measure}
-			\begin{itemize}
-				\item chosen fairness measure: minimum variation curves
-				\item captures intuitive notion of smoothness
-			\end{itemize}
-			 \begin{equation*}
-				 \integral{0}{1}{\apply{\chi'}{t}^2}{t}
-			 \end{equation*}
-			 % TODO diagram comparing MVC and MEC
+			\center{\includegraphics[width=\textwidth]{../resources/fairness_measures.pdf}}
+%			\begin{itemize}
+%				\item chosen fairness measure: minimum variation curves
+%				\item captures intuitive notion of smoothness
+%			\end{itemize}
+%			\begin{equation*}
+%				\integral{0}{1}{\apply{\chi'}{t}^2}{t}
+%			\end{equation*}
+%			 % TODO diagram comparing MVC and MEC
 		\end{frame}
 		
 		\begin{frame}
@@ -230,54 +226,44 @@
 				\end{gathered}
 			\end{equation*}
 		\end{frame}
-		
-		
+
 		\begin{frame}
 			\frametitle{Finding Curves as Optimization Problem}
 
-			Polynomials:
+			polynomials:
 			\begin{equation*}
 				\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
 			\end{equation*}
 
-			Segmentation:
-			\begin{centering}
-				\includegraphics[width=\textwidth]{../resources/segmentation.pdf}
-			\end{centering}
-
+			segmentation:
+			\center{\includegraphics[width=\textwidth]{../resources/segmentation.pdf}}
 			\vspace{5mm}
 
-			Optimization: Domain is coefficients \(a_{i,j}\)
+			optimization: Domain is coefficients \(a_{i,j}\)
 		\end{frame}
 
-		
 		\begin{frame}
-			\frametitle{Constant Speed}
+			\frametitle{Constant Speed: Arc Length Issues}
+			example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
+			\center{\includegraphics[width=50mm]{../resources/inverse_covered_arc_length.pdf}}
 			\begin{itemize}
-				% specification's positions given as fraction of arc length; doesn't work very well in optimization process
-				\item function mapping arc length to parameter value of curve needed
-				% that function varies with coefficients, hence
-				\item it is not possible to predict which segment a specification will end up on
-				% fairness measure is integral over arc length of curve, hence
-				\item fairness measure depends on mapping function
-				\item solution: use following error term
+				\item requires finding \(\apply{\lambda^{-1}}{\hat{t}}\)
+				\item result determines segment for specification item
+				\item error terms unsuitable for smooth optimization
+				\item further complications: error terms for arc length and fairness measure
 			\end{itemize}
-			
+		\end{frame}
+
+		\begin{frame}
+			\frametitle{Constant Speed: The Solution}
+			solution: add constant speed as optimization goal
 			\begin{equation*}
-				\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
+				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 			\end{equation*}
 			% cannot be fullfilled exactly by polynomials; hence no zero-error constraints. Implementations using an upper bound on errors and minimization goal were done; the latter yielded better results.
-			
-			\begin{itemize}
-				\item covered arc length function is now linear
-			\end{itemize}
-			% because finding a maximum is not very suitable for smooth optimization
-			\begin{equation*}
-				\apply{\lambda}{t} \approx \hat{\lambda}t
-			\end{equation*}
-			% includes scaling in the beginning to make the error term scale invariant
+			covered arc length function approximately linear: \(\apply{\lambda}{t} \approx \hat{\lambda}t\)
 		\end{frame}
-		
+
 		\begin{frame}
 			\frametitle{Continuity Connections}
 			\begin{itemize}
@@ -352,7 +338,7 @@
 		
 		\begin{frame}
 			\frametitle{Optimization Steps}
-			\center{\includegraphics[width=35mm]{../resources/optimization_step_dag.pdf}}
+			\center{\includegraphics[width=35mm]{../resources/optimization_step_dag.pdf}}\\
 		\end{frame}
 		
 		% topics of the demo
