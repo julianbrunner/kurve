@@ -59,6 +59,22 @@ namespace Kurve.Component
 			return svgString+" "+svgComponents;
 		}
 		
+		public String GetCurvatureIndicators(int count) {
+			Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
+			
+			return (
+				from positions in Scalars.GetIntermediateValuesSymmetric(0, 1, 250).GetRanges()
+				let point = 0.5 * (curve.GetPoint(positions.Item1) + curve.GetPoint(positions.Item2))
+				let direction = curve.GetDirection((positions.Item1 + positions.Item2) / 2)
+				let directionVector = new Vector2Double(Scalars.Cosine(direction), Scalars.Sine(direction))
+				let angularDirection = new Vector2Double(directionVector.Y, -directionVector.X)
+				let curvature = curve.GetCurvature((positions.Item1 + positions.Item2) / 2)
+				let curvatureVector = 10000 * curvature * angularDirection
+				select "M "+PointToSvgString(point)+" "+PointToSvgString(point + curvatureVector)+" "
+			)
+			.AggregateString();
+		}
+		
 		String PointToSvgString(Vector2Double point) 
 		{
 			return point.X+","+point.Y;
