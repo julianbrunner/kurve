@@ -135,6 +135,17 @@
 	\section{Proposed Solution}
 	
 		\begin{frame}
+			\frametitle{Definitions}
+			\begin{align*}
+				\phi    & : \function{\unit}{\R{2}} && \text{point}\\
+				\sigma  & : \function{\unit}{\RR}   && \text{speed}\\
+				\lambda & : \function{\unit}{\RR}   && \text{covered arc length}\\
+				\delta  & : \function{\unit}{\RR}   && \text{direction}\\
+				\chi    & : \function{\unit}{\RR}   && \text{curvature}
+			\end{align*}
+		\end{frame}
+		
+		\begin{frame}
 			\frametitle{Description-Based Curves}
 			\begin{itemize}
 				\item description language has huge effect on usability
@@ -162,6 +173,7 @@
 			\end{itemize}
 		\end{frame}
 
+		% TODO replace with ui screenshot
 		\begin{frame}
 			\frametitle{Specification Language}
 			\begin{equation*}
@@ -181,19 +193,21 @@
 			\frametitle{Fairness Measure}
 			\begin{itemize}
 				\item chosen fairness measure: minimum variation curves
-				\item good at avoiding bumps
+				\item captures intuitive notion of smoothness
 			\end{itemize}
 			 \begin{equation*}
 				 \integral{0}{1}{\apply{\chi'}{t}^2}{t}
 			 \end{equation*}
+			 % TODO diagram comparing MVC and MEC
 		\end{frame}
 		
 		\begin{frame}
 			\frametitle{Curve Derivation}
 			\begin{itemize}
-				\item uses nonlinear optimization on polynomial splines % ie. segments described by polynomial curves
+				\item nonlinear optimization on polynomial splines % ie. segments described by polynomial curves
 				\item nonlinear optimization: flexible, allows experimentation
 				\item polynomial curves: simple yet flexible % through choice of degree
+				\item polynomial splines: avoid polynomials of high degree
 			\end{itemize}
 		\end{frame}
 		
@@ -224,6 +238,7 @@
 				\item all coefficients are the optimization domain
 				\item segments laid out consecutively with equal length
 			\end{itemize}
+			% TODO: illustration
 		\end{frame}
 
 		
@@ -233,7 +248,7 @@
 				% specification's positions given as fraction of arc length; doesn't work very well in optimization process
 				\item function mapping arc length to parameter value of curve needed
 				% that function varies with coefficients, hence
-				\item it is not possible to predict on which segment a specification will end up on
+				\item it is not possible to predict which segment a specification will end up on
 				% fairness measure is integral over arc length of curve, hence
 				\item fairness measure depends on mapping function
 				\item solution: use following error term
@@ -245,11 +260,11 @@
 			% cannot be fullfilled exactly by polynomials; hence no zero-error constraints. Implementations using an upper bound on errors and minimization goal were done; the latter yielded better results.
 			
 			\begin{itemize}
-				\item approximation using:
+				\item covered arc length function is now linear
 			\end{itemize}
 			% because finding a maximum is not very suitable for smooth optimization
 			\begin{equation*}
-				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
+				\apply{\lambda}{t} \approx \hat{\lambda}t
 			\end{equation*}
 			% includes scaling in the beginning to make the error term scale invariant
 		\end{frame}
@@ -275,22 +290,6 @@
 		\end{frame}
 		
 		\begin{frame}
-			\frametitle{Specification Items}
-			\begin{itemize}
-				\item represeneted as zero-error constraints
-				\item for each specification, one of the following error terms is added:
-			\end{itemize}
-			\begin{equation*}
-				\begin{gathered}
-					\apply{\phi}{\hat{t}_i} - \hat{\phi}_i\\
-					\apply{\delta}{\hat{t}_i} - \hat{\delta}_i\\
-					\apply{\chi}{\hat{t}_i} - \hat{\chi}_i
-				\end{gathered}
-			\end{equation*}
-		\end{frame}
-		
-		
-		\begin{frame}
 			\frametitle{Fairness Error}
 			\begin{equation*}
 				\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
@@ -298,24 +297,17 @@
 			\begin{itemize}
 				\item can be arbitrarily large
 				\item hence, it is a minimization goal
-				\item scaled by \(\hat{\lambda}^2\) for invariance under scaling of the curve
+				\item factor \(\hat{\lambda}^2\) for scale invariance
 				% enables static weighting of minimization goals
 			\end{itemize}
 		\end{frame}
 		
 		\begin{frame}
-			\frametitle{Final Assembly}
+			\frametitle{Summary}
 			\begin{itemize}
-				\item zero-error constraints and upper bounds: 
-				\begin{itemize}
-					\item added as component to \(g\)
-					\item bounds added to \(g_l\) and \(g_u\)
-				\end{itemize}
-				\item minimization goals: 
-				\begin{itemize}
-					\item combined in weighted sum
-					\item yields objective function \(f\)
-				\end{itemize}
+				\item construct optimization problem from error terms and constraints
+				\item compute coefficients with solver
+				\item build result curve from coefficients
 			\end{itemize}
 		\end{frame}
 		
@@ -343,7 +335,7 @@
 		\begin{frame}
 			\frametitle{Subsystems}
 			\begin{itemize}
-				\item Kurve: ui prototype
+				\item Kurve: UI prototype
 				\item Kurve.Curves: optimization of curves
 				\item Wrappers.Casadi and Wrappers.Casadi.Native: APIs for CasADi and IPopt
 			\end{itemize}
@@ -358,6 +350,7 @@
 				\item solver
 				\item position
 			\end{itemize}
+			% diagram for dependencies
 		\end{frame}
 		
 		% topics of the demo
