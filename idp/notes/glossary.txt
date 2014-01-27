@@ -11,8 +11,6 @@ description-based curve
 
 specification item: point specification, direction specification or curvature specification
 
-nonlinear optimization on polynomial splines
-
 curve
 plane curve
 parametric curve
@@ -22,3 +20,4 @@ polynomial curve: implies parametric
 polynomial spline: spline made from polynomial curves
 
 smooth optimization
+nonlinear optimization on polynomial splines

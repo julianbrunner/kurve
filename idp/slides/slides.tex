@@ -27,6 +27,7 @@
 
 	\section{Introduction}
 
+		% A
 		\begin{frame}
 			\frametitle{Introduction}
 			\begin{itemize}
@@ -45,7 +46,8 @@
 		\end{frame}
 		
 	\section{Problem Analysis}
-	
+
+		% A
 		\begin{frame}
 			\frametitle{The Curve Design Process}
 			\begin{itemize}
@@ -59,7 +61,8 @@
 				% iteration over steps 2-4 to adjust the curve until satisfactory alignment with the source curve is reached
 			\end{itemize}
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Usability Criteria for Curve Design Tools}
 			\begin{itemize}
@@ -83,7 +86,8 @@
 				\item ability to derive curves from descriptions
 			\end{itemize}
 		\end{frame}
-			
+
+		% B	
 		\begin{frame}
 			\frametitle{Bézier Splines}
 			\begin{itemize}
@@ -105,12 +109,14 @@
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Usability Analysis of Bézier Splines}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}}\\
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Spiro Splines}
 			\begin{itemize}
@@ -121,14 +127,16 @@
 				\item problem: insufficient expressiveness of specification language
 			\end{itemize}
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Usability Analysis of Spiro Splines}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}}\\
 		\end{frame}
 	
 	\section{Proposed Solution}
-	
+
+		% A
 		\begin{frame}
 			\frametitle{Definitions}
 			\begin{align*}
@@ -139,7 +147,8 @@
 				\chi    & : \function{\unit}{\RR}   && \text{curvature}
 			\end{align*}
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Description-Based Curves}
 			\begin{itemize}
@@ -149,12 +158,14 @@
 				\item we need a good specification language and fairness measure
 			\end{itemize}
 		\end{frame}
-	
+
+		% A
 		\begin{frame}
 			\frametitle{Description-Based Curves}
 			\center{\includegraphics[width=\textwidth]{../resources/description-based_curves.pdf}}\\
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Specification Language}
 			% contains all the reasoning about the specification language
@@ -167,17 +178,20 @@
 			\end{itemize}
 		\end{frame}
 
-		% TODO replace with ui screenshot
+		% A
 		\begin{frame}
 			\frametitle{Specification Language}
 			\center{\includegraphics[width=\textwidth]{../resources/specification_example.pdf}}\\
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Fairness Measure}
 			\center{\includegraphics[width=\textwidth]{../resources/fairness_measures.pdf}}
+			% MEC doesn't work with curvature specifications
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Curve Derivation}
 			\begin{itemize}
@@ -187,7 +201,8 @@
 				\item polynomial splines: avoid polynomials of high degree
 			\end{itemize}
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Optimization Problem}
 			\begin{itemize}
@@ -207,50 +222,63 @@
 			\end{equation*}
 		\end{frame}
 
+		% B 
 		\begin{frame}
 			\frametitle{Finding Curves as Optimization Problem}
-
-			polynomials:
+			\begin{itemize}
+				\item curve polynomials
+			\end{itemize}
 			\begin{equation*}
 				\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
 			\end{equation*}
-
-			segmentation:
+			\begin{itemize}
+				\item segmentation
+			\end{itemize}
 			\center{\includegraphics[width=\textwidth]{../resources/segmentation.pdf}}
-
-			\bigskip
-
-			optimization: Domain is coefficients \(a_{i,j}\)
+			% these segments are invisible to the user, not related to the specification items
+			\begin{itemize}
+				\item optimization domain: coefficients \(a_{i,j}\)
+			\end{itemize}
+			% give error terms to optimizer, retrieve coefficients, construct curve from segments
 		\end{frame}
 
+		% B
 		\begin{frame}
 			\frametitle{Covered Arc Length Function}
 			% to state error terms for specifications with arc length positioning, the following has to be done
-			example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
+			\begin{itemize}
+				\item example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
+			\end{itemize}
 			% \lambda gives relation between positions and arc lengths
 			\center{\includegraphics[width=50mm]{../resources/inverse_covered_arc_length.pdf}}
 			\begin{itemize}
+				% so we have to find the t for a given \apply{\lambda}{t}
 				\item requires finding \(\apply{\lambda^{-1}}{\hat{t}}\)
 				\item result determines segment for specification item
+				% if it's \hat{t}_1, it's on the green segment
 				\item error terms unsuitable for smooth optimization
 				\item further complications: error terms for arc length and fairness measure
 			\end{itemize}
 		\end{frame}
 
+		% B
 		\begin{frame}
 			\frametitle{Constant Speed}
-			solution: add constant speed as optimization goal
-
-			\bigskip
-
-			error term:
+			\begin{itemize}
+				\item solution: add constant speed as optimization goal
+				\item error term
+			\end{itemize}
 			\begin{equation*}
 				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 			\end{equation*}
-			% cannot be fullfilled exactly by polynomials; hence no zero-error constraints. Implementations using an upper bound on errors and minimization goal were done; the latter yielded better results.
-			covered arc length function approximately linear: \(\apply{\lambda}{t} \approx \hat{\lambda}t\)
+			\begin{itemize}
+				\item covered arc length function approximately linear: \(\apply{\lambda}{t} \approx \hat{\lambda}t\)
+				% makes inverse covered arc length function linear, too, 
+				\item curve's total arc length approximately \(\hat{\lambda}\)
+			\end{itemize}
 		\end{frame}
 
+		% B
 		\begin{frame}
 			\frametitle{Continuity Connections}
 			\begin{itemize}
@@ -268,7 +296,8 @@
 				\end{gathered}
 			\end{equation*}
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Fairness Error}
 			\begin{equation*}
@@ -281,7 +310,8 @@
 				% enables static weighting of minimization goals
 			\end{itemize}
 		\end{frame}
-		
+
+		% B
 		\begin{frame}
 			\frametitle{Summary}
 			\begin{itemize}
@@ -290,9 +320,10 @@
 				\item build result curve from coefficients
 			\end{itemize}
 		\end{frame}
-		
+
 	\section{Implementation}
-	
+
+		% A
 		\begin{frame}
 			\frametitle{Architecture}
 			\begin{itemize}
@@ -311,7 +342,8 @@
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Subsystems}
 			\begin{itemize}
@@ -320,12 +352,15 @@
 				\item Wrappers.Casadi and Wrappers.Casadi.Native: APIs for CasADi and IPopt
 			\end{itemize}
 		\end{frame}
-		
+
+		% A
 		\begin{frame}
 			\frametitle{Optimization Steps}
 			\center{\includegraphics[width=35mm]{../resources/optimization_step_dag.pdf}}\\
 		\end{frame}
-		
+
+	\section{Demo}
+
 		% topics of the demo
 		%
 		% 1. explain features
@@ -338,27 +373,30 @@
 		% 8. Problem: slow
 		% 9. May converge slowly or not at all
 		% 10. Pathological local minima
-		% 
-		
-	\section{Demo}
-		
+
 		\begin{frame}
 			\frametitle{Demo}
 		\end{frame}
-	
+
 	\section{Conclusion}
-	
+
+		% B
 		\begin{frame}
 			\frametitle{Conclusion}
 			\begin{itemize}
-				\item it works
-				\item we are awesome
-				\item `The most promising research in curve design tools in decades' - Albert Einstein
+				\item description-based curves look promising
+				\item most problems of prototype caused by optimization
+				% optimization approach will not be pursued further, even though performance could be improved some more
 				\item future work
 				\begin{itemize}
-					\item test with users
-					\item integrate into Incscape
+					\item research more constructive approach for building curves
+					\item Inkscape integration
+					\item usability study with actual designers
+					\item add even more expressiveness to description language
+					\item more research on soft specifications
+					% for instance making specification of arc length optional
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
+
 \end{document}
