@@ -31,14 +31,14 @@
 		\begin{frame}
 			\frametitle{Introduction}
 			\begin{itemize}
-				\item vector grapics are widely used
+				\item vector graphics are widely used
 				\item 2D vector graphics primitives are curves
 				\item design process of curves is very important
 				\item designing curves with current tools can be frustrating
 				% artist has a hard time to make the curve look the way he wants to
 				% often unclear why
 				% it's hard to communicate intentions
-				\item research has been done in different direction with little impact
+				\item research has been done in different directions with little impact
 				\item our objective: improved curve design process
 				% identify nature and cause of shortcomings in current curve design tools 
 				% develop a better curve design tool
@@ -56,8 +56,8 @@
 				\item extract properties from the source curve 
 				\item provide them to the software
 				% strongly dependent on curve design tool - the software dictates which properties can be entered
-				\item the software derives a curve
-				% if the curve is not precisely specified, a fairment measure is used to derive the most likely result curve
+				\item the software constructs a curve
+				% if the curve is not precisely specified, a fairness measure is used to derive the most likely result curve
 				% iteration over steps 2-4 to adjust the curve until satisfactory alignment with the source curve is reached
 			\end{itemize}
 		\end{frame}
@@ -76,10 +76,10 @@
 					% allow efficient communication of intent
 					\item efficient
 				\end{itemize}
-				\item fairness measure should ensure
+				\item fairness measure should
 				\begin{itemize}
 					% capture intuitive notions of smoothness
-					\item smoothness
+					\item ensure smoothness
 					% select curves that are minimal in respect to the specification
 					\item select minimal curves
 				\end{itemize}
@@ -111,7 +111,7 @@
 
 		% B
 		\begin{frame}
-			\frametitle{Usability Analysis of Bézier Splines}
+			\frametitle{Bézier Splines - Examples}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}}\\
 			% nodes: red dots, handles: green tangent lines
 			% 1: circular arc
@@ -141,7 +141,7 @@
 
 		% B
 		\begin{frame}
-			\frametitle{Usability Analysis of Spiro Splines}
+			\frametitle{Spiro Splines - Examples}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}}\\
 			% control points: red dots
 			% 1: spiral
@@ -160,7 +160,6 @@
 		% A
 		\begin{frame}
 			\frametitle{Definitions}
-			% TODO: illustration?
 			\begin{align*}
 				\phi    & : \function{\unit}{\R{2}} && \text{point}\\
 				\sigma  & : \function{\unit}{\RR}   && \text{speed}\\
@@ -172,7 +171,7 @@
 
 		% A
 		\begin{frame}
-			\frametitle{Description-Based Curves}
+			\frametitle{Description-Based Curves - Motivation}
 			\begin{itemize}
 				\item description language has huge effect on usability
 				\item should not be based on low-level mathematical aspects % beziér
@@ -202,7 +201,7 @@
 
 		% A
 		\begin{frame}
-			\frametitle{Specification Language}
+			\frametitle{Specification Language - Example}
 			\center{\includegraphics[width=\textwidth]{../resources/specification_example.pdf}}\\
 		\end{frame}
 
@@ -210,8 +209,11 @@
 		\begin{frame}
 			\frametitle{Fairness Measure}
 			\center{\includegraphics[width=\textwidth]{../resources/fairness_measures.pdf}}
+			% MEC: derived from mechanical splines (steel band)
+			% MEC always tries to have zero curvature at endpoints
+			% generally: MVC tends to make curves with circular arcs/spirals, constant/linearly changing curvature
 			% MEC doesn't work with curvature specifications
-			% choose MVC for our approach
+			% we choose MVC for our approach
 		\end{frame}
 
 		% B
@@ -346,7 +348,7 @@
 
 		% B
 		\begin{frame}
-			\frametitle{Summary}
+			\frametitle{Overall Curve Derivation Process}
 			\begin{itemize}
 				\item construct optimization problem from error terms
 				\item compute coefficients with optimization solver
@@ -369,7 +371,7 @@
 				\end{itemize}
 				\item libraries
 				\begin{itemize}
-					\item IPopt: numeric nonlinear optimization
+					\item Ipopt: numeric nonlinear optimization
 					\item CasADi: automatic differentiation of terms
 					\item GTK\#: UI library
 				\end{itemize}
@@ -382,7 +384,7 @@
 			\begin{itemize}
 				\item Kurve: UI prototype
 				\item Kurve.Curves: optimization of curves
-				\item Wrappers.Casadi and Wrappers.Casadi.Native: APIs for CasADi and IPopt
+				\item Wrappers.Casadi and Wrappers.Casadi.Native: APIs for CasADi and Ipopt
 			\end{itemize}
 		\end{frame}
 

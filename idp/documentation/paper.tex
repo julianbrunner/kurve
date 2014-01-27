@@ -208,6 +208,7 @@
 					\end{alignedat}
 				\end{equation*}
 
+			% TODO: fairness measure integral is over the arc length of the curve
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
 
@@ -326,6 +327,8 @@
 				Having gathered all the necessary error terms, it's time to put them together. Terms with zero-error constraints, as well as terms with upper bounds on the error are added as component functions of the constraint function \(g\) together with appropriate bound components in \(g_l\) and \(g_u\).
 
 				Minimization goals, on the other hand, are assembled in a weighted sum which defines the the objective function \(f\). Since the error terms were designed to be scale invariant, this weighting can be done statically. The exact values of the weights are to be determined empirically.
+
+				% TODO: sketch overall curve derivation process similar to the summary slide
 
 	\section{Implementation}
 
