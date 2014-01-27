@@ -175,7 +175,7 @@
 			\frametitle{Description-Based Curves}
 			\begin{itemize}
 				\item description language has huge effect on usability
-				\item should not be based on low-level mathematical aspects % beziere
+				\item should not be based on low-level mathematical aspects % beziér
 				\item do not impose limitations on specification language prematurely % spiro
 				\item we need a good specification language and fairness measure
 			\end{itemize}
@@ -211,16 +211,20 @@
 			\frametitle{Fairness Measure}
 			\center{\includegraphics[width=\textwidth]{../resources/fairness_measures.pdf}}
 			% MEC doesn't work with curvature specifications
+			% choose MVC for our approach
 		\end{frame}
 
 		% B
 		\begin{frame}
 			\frametitle{Curve Derivation}
 			\begin{itemize}
-				\item nonlinear optimization on polynomial splines % ie. segments described by polynomial curves
-				\item nonlinear optimization: flexible, allows experimentation
-				\item polynomial curves: simple yet flexible % through choice of degree
-				\item polynomial splines: avoid polynomials of high degree
+				\item turn descriptions into actual curves
+				\item approach: nonlinear optimization on polynomial splines
+				\begin{itemize}
+					\item nonlinear optimization: flexible, allows for experimentation
+					\item polynomial curves: simple, versatile
+					\item polynomial splines: avoids polynomials of high degree
+				\end{itemize}
 			\end{itemize}
 		\end{frame}
 
@@ -228,7 +232,7 @@
 		\begin{frame}
 			\frametitle{Optimization Problem}
 			\begin{itemize}
-				\item expressed using:
+				\item using
 				\begin{itemize}
 					\item objective function \(f : \function{\R{n}}{\RR}\)
 					\item constraint function \(g : \function{\R{n}}{\R{m}}\)
@@ -242,6 +246,10 @@
 					g_l \leq \apply{g}{x^*} \leq g_u
 				\end{gathered}
 			\end{equation*}
+			% allows expressing soft optimization goals and hard constraints
+			\begin{itemize}
+				\item smooth optimization (interior point method)
+			\end{itemize}
 		\end{frame}
 
 		% B 
@@ -297,6 +305,7 @@
 				\item covered arc length function approximately linear: \(\apply{\lambda}{t} \approx \hat{\lambda}t\)
 				% makes inverse covered arc length function linear, too, 
 				\item curve's total arc length approximately \(\hat{\lambda}\)
+				\item error terms for specification items become trivial
 			\end{itemize}
 		\end{frame}
 
@@ -304,11 +313,10 @@
 		\begin{frame}
 			\frametitle{Continuity Connections}
 			\begin{itemize}
-				\item whole spline has \(\contg{2}\) continuity
-				\item each segment is smooth
-				\item resulting spline is not
-				\item continuity at the segment connection points needs to be ensured
-				\item hence, we use constraints:
+				\item require \(\contg{2}\) continuity
+				\item each segment is smooth, resulting spline may not be
+				\item ensure \(\contg{2}\) continuity at segment connection points
+				\item error terms
 			\end{itemize}
 			\begin{equation*}
 				\begin{gathered}
@@ -317,19 +325,22 @@
 					\apply{\phi''_i}{1} - \apply{\phi''_{i + 1}}{0}
 				\end{gathered}
 			\end{equation*}
+			% constant speed collapses G2 and C2 continuity, requiring C2 continuity isn't asking too much
 		\end{frame}
 
 		% B
 		\begin{frame}
 			\frametitle{Fairness Error}
+			\begin{itemize}
+				\item MVC fairness measure
+				\item error term
+			\end{itemize}
 			\begin{equation*}
 				\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 			\end{equation*}
 			\begin{itemize}
-				\item can be arbitrarily large
-				\item hence, it is a minimization goal
-				\item factor \(\hat{\lambda}^2\) for scale invariance
-				% enables static weighting of minimization goals
+				\item factor \(\hat{\lambda}^2\) causes scale invariance
+				% enables static weighting of error terms
 			\end{itemize}
 		\end{frame}
 
@@ -337,8 +348,8 @@
 		\begin{frame}
 			\frametitle{Summary}
 			\begin{itemize}
-				\item construct optimization problem from error terms and constraints
-				\item compute coefficients with solver
+				\item construct optimization problem from error terms
+				\item compute coefficients with optimization solver
 				\item build result curve from coefficients
 			\end{itemize}
 		\end{frame}
@@ -384,7 +395,6 @@
 	\section{Demo}
 
 		% topics of the demo
-		%
 		% 1. explain features
 		% 2. example mane fluttershy: specifying curvature is awesome. compare with beziere
 		% 3. circle arcs via arc length (fluttershy chin/mouth/ear)
