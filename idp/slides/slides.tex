@@ -102,8 +102,7 @@
 					% software support for curvature continuity sacrifices degrees of freedom
 					\item lack of expressiveness of the specification language
 					% curvature cannot be specified directly
-					% constant/linearly changing curvature cannot be specified
-					% circular arcs/spirals are hard to specify
+					% hard to get constant/linearly changing curvature ==> circular arcs/spirals are hard to specify
 					% high number of segments sacrifices smoothness
 				\end{itemize}
 			\end{itemize}
@@ -240,7 +239,7 @@
 					\item constraint function \(g : \function{\R{n}}{\R{m}}\)
 					\item constraint bounds \(g_l, g_u \in \R{m}\)
 				\end{itemize} 
-				\item tries to find an \(x^* \in \R{n}\) such that 
+				\item try to find an \(x^* \in \R{n}\) such that 
 			\end{itemize}
 			\begin{equation*}
 				\begin{gathered}
@@ -258,7 +257,7 @@
 		\begin{frame}
 			\frametitle{Finding Curves as Optimization Problem}
 			\begin{itemize}
-				\item curve polynomials
+				\item segment polynomials
 			\end{itemize}
 			\begin{equation*}
 				\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
@@ -271,7 +270,6 @@
 			\begin{itemize}
 				\item optimization domain: coefficients \(a_{i,j}\)
 			\end{itemize}
-			% give error terms to optimizer, retrieve coefficients, construct curve from segments
 		\end{frame}
 
 		% B
@@ -284,7 +282,6 @@
 			% \lambda gives relation between positions and arc lengths
 			\center{\includegraphics[width=50mm]{../resources/inverse_covered_arc_length.pdf}}
 			\begin{itemize}
-				% so we have to find the t for a given \apply{\lambda}{t}
 				\item requires finding \(\apply{\lambda^{-1}}{\hat{t}}\)
 				\item result determines segment for specification item
 				% if it's \hat{t}_1, it's on the green segment
@@ -301,7 +298,7 @@
 				\item error term
 			\end{itemize}
 			\begin{equation*}
-				\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
+				\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 			\end{equation*}
 			\begin{itemize}
 				\item covered arc length function approximately linear: \(\apply{\lambda}{t} \approx \hat{\lambda}t\)
@@ -338,12 +335,8 @@
 				\item error term
 			\end{itemize}
 			\begin{equation*}
-				\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
+				\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 			\end{equation*}
-			\begin{itemize}
-				\item factor \(\hat{\lambda}^2\) causes scale invariance
-				% enables static weighting of error terms
-			\end{itemize}
 		\end{frame}
 
 		% B
@@ -443,8 +436,8 @@
 					\item Inkscape integration
 					\item usability study with actual designers
 					\item add even more expressiveness to description language
-					\item more research on soft specifications
 					% for instance making specification of arc length optional
+					\item more research on soft specifications
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
