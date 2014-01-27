@@ -49,8 +49,8 @@ namespace Kurve.Component
 			string svgComponents = 
 			(
 				from range in ranges
-				let controlPoint2 = curve.GetPoint(range.Item1) + 0.33*(1.0/numberOfSegments)*Velocity(curve.GetDirection(range.Item1), curve.GetSpeed(range.Item1))
-				let controlPoint3 = curve.GetPoint(range.Item2) - 0.33*(1.0/numberOfSegments)*Velocity(curve.GetDirection(range.Item2), curve.GetSpeed(range.Item2))
+				let controlPoint2 = curve.GetPoint(range.Item1) + (1.0 / (3 * numberOfSegments)) * Velocity(curve.GetDirection(range.Item1), curve.GetSpeed(range.Item1))
+				let controlPoint3 = curve.GetPoint(range.Item2) - (1.0 / (3 * numberOfSegments)) * Velocity(curve.GetDirection(range.Item2), curve.GetSpeed(range.Item2))
 				let controlPoint4 = curve.GetPoint(range.Item2)
 				select " C"+PointToSvgString(controlPoint2)+" "+PointToSvgString(controlPoint3)+" "+PointToSvgString(controlPoint4)
 			)
