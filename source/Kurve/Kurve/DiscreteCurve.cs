@@ -21,7 +21,7 @@ namespace Kurve
 
 			this.items =
 			(
-				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 1000)
+				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 250)
 				select new DiscreteCurveItem
 				(
 					curve.GetPoint(position),
