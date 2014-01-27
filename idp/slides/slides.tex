@@ -91,21 +91,20 @@
 		\begin{frame}
 			\frametitle{Bézier Splines}
 			\begin{itemize}
-				\item most commonly used
-				\item edited by directly modifying coefficient points
-				% the user can effectively specify start and end points as well as start and end velocities (which are proportional to the distance between the second and the first as well as the fourth and third point)
-				% user supplies start and end point and velocity; fairness measure always chooses cubic Bézier spline.
-				% which is uniquely specified
-				\item most criteria fulfilled nicely
-				% curvature continuity is not guaranteed
-				% it is very hard to choose coefficient points in a way that results in curvature continuity.
-				\item problems
+				\item most popular curve type
+				\item specify point and velocity at start and end of each segment
+				\item fairness measure `chooses' unique cubic polynomial
+				% most criteria fulfilled sufficiently
+				\item usability problems
 				\begin{itemize}
-					\item curvature continuity
+					\item curvature continuity is not guaranteed
+					% hard to choose coefficient points in a way that results in curvature continuity
+					% software support for curvature continuity sacrifices degrees of freedom
+					\item lack of expressiveness of the specification language
 					% curvature cannot be specified directly
 					% constant/linearly changing curvature cannot be specified
-					% circular arcs/spirals are very hard to specify
-					\item problem: expressiveness of the specification language
+					% circular arcs/spirals are hard to specify
+					% high number of segments sacrifices smoothness
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
@@ -114,17 +113,29 @@
 		\begin{frame}
 			\frametitle{Usability Analysis of Bézier Splines}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_bezier.pdf}}\\
+			% nodes: red dots, handles: green tangent lines
+			% 1: circular arc
+			%   difference hard to see, frequent mistakes when doing circular arcs
+			% 2, 3: curves better described using curvature
+			%   many nodes, decreased smoothness
+			% 4: curvature discontinuity
+			%   upper part constant curvatur, lower part goes to zero curvature
+			%   would be even harder to spot if line wasn't vertical
 		\end{frame}
 
 		% B
 		\begin{frame}
 			\frametitle{Spiro Splines}
 			\begin{itemize}
-				\item constructed from segments of the Euler spiral
-				\item constructs interpolating splines
-				\item can only specify points (no direction or curvature)
-				\item guarantees curvature continuity
-				\item problem: insufficient expressiveness of specification language
+				% nice example of research incorporated into actual curve design tools
+				\item consist of parts of the Euler spiral
+				% Euler spiral: curvature changes linearly with arc length
+				\item construct interpolating splines
+				% can only specify points, no direction, no curvature
+				\item fairness measure guarantees curvature continuity
+				\item usability problem: lack of expressiveness of the specification language
+				% direction and curvature need to be specified indirectly (same problems as with Bézier splines)
+				% unfortunate: Euler spiral segments perfect for constant/linearly changing curvature
 			\end{itemize}
 		\end{frame}
 
@@ -132,6 +143,16 @@
 		\begin{frame}
 			\frametitle{Usability Analysis of Spiro Splines}
 			\center{\includegraphics[width=\textwidth]{../resources/usability_spiro.pdf}}\\
+			% control points: red dots
+			% 1: spiral
+			%   well-suited for parts of Euler spiral
+			%   many control points with Spiro spline, still less than with Bézier Spline
+			% 2: few carefully placed control points
+			%   low curvature, linear change, high curvature
+			%   only 4 control points
+			% 3: bad handling of modifications
+			%   indirectly increase curvature in segment c by moving control point
+			%   curvature in segment a is affected, relied on fragile configuration
 		\end{frame}
 	
 	\section{Proposed Solution}
@@ -139,6 +160,7 @@
 		% A
 		\begin{frame}
 			\frametitle{Definitions}
+			% TODO: illustration?
 			\begin{align*}
 				\phi    & : \function{\unit}{\R{2}} && \text{point}\\
 				\sigma  & : \function{\unit}{\RR}   && \text{speed}\\
