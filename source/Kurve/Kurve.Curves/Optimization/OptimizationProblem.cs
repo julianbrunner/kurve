@@ -34,47 +34,7 @@ namespace Kurve.Curves.Optimization
 			this.curveSpecifications = curveSpecifications;
 
 			this.curveLength = Terms.Variable("curveLength");
-
-			IEnumerable<ValueTerm> variables = optimizationSegments.Parameters; 
 			
-			ValueTerm segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
-
-			ValueTerm speedError = Terms.Scaling
-			(
-				Terms.Exponentiation(segmentLength, Terms.Constant(-2)),
-				Terms.Sum
-				(
-					from segment in optimizationSegments.Segments
-					let position = Terms.Variable("t")
-					let curve = segment.LocalCurve
-					let speed = curve.Speed.Apply(position)
-					let error = Terms.Square(Terms.Difference(speed, segmentLength))
-					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
-				)
-			);
-
-			ValueTerm fairnessError = Terms.Scaling
-			(
-				Terms.Exponentiation(segmentLength, Terms.Constant(-4)),
-				Terms.Sum
-				(
-					from segment in optimizationSegments.Segments
-					let position = Terms.Variable("t")
-					let curve = segment.LocalCurve
-					let jerk = curve.Jerk.Apply(position)
-					let normal = Terms.Normal(curve.Velocity.Apply(position))
-					let error = Terms.Square(Terms.DotProduct(jerk, normal))
-					select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
-				)
-			);
-
-			ValueTerm objectiveValue = Terms.Sum
-			(
-				Terms.Product(Terms.Constant(100000.0), speedError),
-				Terms.Product(Terms.Constant(1), fairnessError)
-			)
-			.Simplify();
-
 			this.pointSpecificationTemplates =
 			(
 				from pointSpecificationIndex in Enumerable.Range(0, curveSpecifications.Count(curveSpecification => curveSpecification is PointCurveSpecification))
@@ -93,6 +53,90 @@ namespace Kurve.Curves.Optimization
 				select SpecificationTemplate.CreateCurvatureSpecificationTemplate(optimizationSegments.Segments, curveLength, curvatureSpecificationIndex)
 			)
 			.ToArray();
+
+			IEnumerable<ValueTerm> variables = optimizationSegments.Parameters; 
+			
+			ValueTerm segmentLength = Terms.Quotient(curveLength, Terms.Constant(optimizationSegments.Segments.Count()));
+
+			ValueTerm speedError = Terms.Sum
+			(
+				from segment in optimizationSegments.Segments
+				let position = Terms.Variable("t")
+				let curve = segment.LocalCurve
+				let speed = curve.Speed.Apply(position)
+				let error = Terms.Square(Terms.Difference(speed, segmentLength))
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
+			);
+
+			ValueTerm fairnessError = Terms.Sum
+			(
+				from segment in optimizationSegments.Segments
+				let position = Terms.Variable("t")
+				let curve = segment.LocalCurve
+				let jerk = curve.Jerk.Apply(position)
+				let normal = Terms.Normal(curve.Velocity.Apply(position))
+				let error = Terms.Square(Terms.DotProduct(jerk, normal))
+				select Terms.IntegrateTrapezoid(error.Abstract(position), new OrderedRange<double>(0, 1), 100)
+			);
+
+//			ValueTerm pointSpecificationError = Terms.Sum
+//			(
+//				Enumerables.Concatenate
+//				(
+//					Enumerables.Create(Terms.Constant(0)),
+//					from specificationTemplate in Enumerables.Concatenate(pointSpecificationTemplates)
+//					select Terms.NormSquared
+//					(
+//						Terms.Difference
+//						(
+//							specificationTemplate.Constraint.Item,
+//				 			Terms.Vector(specificationTemplate.Constraint.Ranges.Select(range => range.Start))
+//						)
+//					)
+//				)
+//			);
+//			ValueTerm directionSpecificationError = Terms.Sum
+//			(
+//				Enumerables.Concatenate
+//				(
+//					Enumerables.Create(Terms.Constant(0)),
+//					from specificationTemplate in Enumerables.Concatenate(directionSpecificationTemplates)
+//					select Terms.NormSquared
+//					(
+//						Terms.Difference
+//						(
+//							specificationTemplate.Constraint.Item,
+//				 			Terms.Vector(specificationTemplate.Constraint.Ranges.Select(range => range.Start))
+//						)
+//					)
+//				)
+//			);
+//			ValueTerm curvatureSpecificationError = Terms.Sum
+//			(
+//				Enumerables.Concatenate
+//				(
+//					Enumerables.Create(Terms.Constant(0)),
+//					from specificationTemplate in Enumerables.Concatenate(curvatureSpecificationTemplates)
+//					select Terms.NormSquared
+//					(
+//						Terms.Difference
+//						(
+//							specificationTemplate.Constraint.Item,
+//				 			Terms.Vector(specificationTemplate.Constraint.Ranges.Select(range => range.Start))
+//						)
+//					)
+//				)
+//			);
+
+			ValueTerm objectiveValue = Terms.Sum
+			(
+				Terms.Product(Terms.Exponentiation(segmentLength, Terms.Constant(-2)),Terms.Constant(100000.0), speedError),
+				Terms.Product(Terms.Exponentiation(segmentLength, Terms.Constant(-4)), Terms.Constant(1), fairnessError)
+//				Terms.Product(Terms.Exponentiation(segmentLength, Terms.Constant(0)), Terms.Constant(0.1), pointSpecificationError),
+//				Terms.Product(Terms.Exponentiation(segmentLength, Terms.Constant(1)), Terms.Constant(10), directionSpecificationError),
+//				Terms.Product(Terms.Exponentiation(segmentLength, Terms.Constant(2)), Terms.Constant(100), curvatureSpecificationError)
+			)
+			.Simplify();
 
 			IEnumerable<Constraint<ValueTerm>> constraintValues =
 			(
@@ -131,11 +175,6 @@ namespace Kurve.Curves.Optimization
 						segment0CurveAcceleration.Apply(Terms.Constant(1)),
 						segment1CurveAcceleration.Apply(Terms.Constant(0))
 					)
-
-//					from segment in optimizationSegments.Segments
-//					from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
-//					let speed = segment.LocalCurve.Speed.Apply(Terms.Constant(position))
-//					select Constraints.CreateError(speed, segmentLength, Terms.Constant(0.001))
 				)
 			)
 			.ToArray();

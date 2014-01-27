@@ -157,7 +157,7 @@ namespace Kurve.Component
 				from optimizer in optimizers
 				from item in Enumerables.Create
 				(
-					new XElement(@namespace+"path", style, new XAttribute("d", optimizer.GetSvgAttributeString(1000))),
+					new XElement(@namespace+"path", style, new XAttribute("d", optimizer.GetSvgAttributeString(100))),
 					new XElement(@namespace+"path", curvatureStyle, new XAttribute("d", optimizer.GetCurvatureIndicators(250)))
 				)
 				select item
