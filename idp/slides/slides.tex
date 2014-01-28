@@ -94,7 +94,7 @@
 				\item most popular curve type
 				\item specify point and velocity at start and end of each segment
 				\item fairness measure `chooses' unique cubic polynomial
-				% most criteria fulfilled sufficiently
+				\item most usability criteria fulfilled sufficiently
 				\item usability problems
 				\begin{itemize}
 					\item curvature continuity is not guaranteed
@@ -116,7 +116,8 @@
 			% 1: circular arc
 			%   difference hard to see, frequent mistakes when doing circular arcs
 			% 2, 3: curves better described using curvature
-			%   many nodes, decreased smoothness
+			%   2: many nodes, decreased smoothness
+			%   3: hard to modify
 			% 4: curvature discontinuity
 			%   upper part constant curvatur, lower part goes to zero curvature
 			%   would be even harder to spot if line wasn't vertical
@@ -126,7 +127,6 @@
 		\begin{frame}
 			\frametitle{Spiro Splines}
 			\begin{itemize}
-				% nice example of research incorporated into actual curve design tools
 				\item consist of parts of the Euler spiral
 				% Euler spiral: curvature changes linearly with arc length
 				\item construct interpolating splines
@@ -145,7 +145,7 @@
 			% control points: red dots
 			% 1: spiral
 			%   well-suited for parts of Euler spiral
-			%   many control points with Spiro spline, still less than with Bézier Spline
+			%   many control points with Spiro spline, still less than with Bézier Spline (about 1/3 of the information)
 			% 2: few carefully placed control points
 			%   low curvature, linear change, high curvature
 			%   only 4 control points
@@ -275,13 +275,13 @@
 		% B
 		\begin{frame}
 			\frametitle{Covered Arc Length Function}
-			% to state error terms for specifications with arc length positioning, the following has to be done
 			\begin{itemize}
-				\item example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
+				\item \(\apply{\lambda}{t}\) relates parameter values to covered arc length
 			\end{itemize}
-			% \lambda gives relation between positions and arc lengths
 			\center{\includegraphics[width=50mm]{../resources/inverse_covered_arc_length.pdf}}
 			\begin{itemize}
+				% to state error terms for specifications with arc length positioning, the following has to be done
+				\item example: find \(\hat{t}\), such that \(\apply{\lambda}{\hat{t}} = 0.4\) and \(\apply{\delta}{\hat{t}} = 15^\circ\)
 				\item requires finding \(\apply{\lambda^{-1}}{\hat{t}}\)
 				\item result determines segment for specification item
 				% if it's \hat{t}_1, it's on the green segment
@@ -433,11 +433,11 @@
 				\item future work
 				\begin{itemize}
 					\item research more constructive approach for building curves
-					\item Inkscape integration
-					\item usability study with actual designers
 					\item add even more expressiveness to description language
 					% for instance making specification of arc length optional
 					\item more research on soft specifications
+					\item usability study with actual designers
+					\item Inkscape integration
 				\end{itemize}
 			\end{itemize}
 		\end{frame}
