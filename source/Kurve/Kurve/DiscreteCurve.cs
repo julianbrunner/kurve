@@ -15,13 +15,14 @@ namespace Kurve
 
 		public IEnumerable<DiscreteCurveItem> Items { get { return items; } }
 
-		public DiscreteCurve(Curve curve)
+		public DiscreteCurve(Curve curve, int segmentCount)
 		{
 			if (curve == null) throw new ArgumentNullException("curve");
+			if (segmentCount < 1) throw new ArgumentOutOfRangeException("segmentCount");
 
 			this.items =
 			(
-				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 250)
+				from position in Scalars.GetIntermediateValuesSymmetric(0, 1, segmentCount + 1)
 				select new DiscreteCurveItem
 				(
 					curve.GetPoint(position),

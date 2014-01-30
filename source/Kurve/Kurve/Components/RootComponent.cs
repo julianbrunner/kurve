@@ -10,6 +10,7 @@ using Kurve.Curves.Optimization;
 using Kurve.Interface;
 using Gtk;
 using System.Xml.Linq;
+using Krach.Formats.Svg;
 
 namespace Kurve.Component
 {
@@ -142,25 +143,17 @@ namespace Kurve.Component
 		
 		void DoExport(IEnumerable<CurveOptimizer> optimizers, String filename) 
 		{
-			Console.WriteLine("exporting to "+filename);
-			
-			XAttribute style = new XAttribute("style", "fill:none; stroke:black; stroke-width:2");
-			XAttribute curvatureStyle = new XAttribute("style", "fill:none; stroke:green; stroke-width:0.5");
-			XNamespace @namespace = "http://www.w3.org/2000/svg";
-			int width;
-			int height;
-			this.parentWindow.GetSize(out width, out height);
-			new XElement(
-				@namespace + "svg",
-		        new XAttribute("viewBox", "0 0 "+width+" "+height),
+			int width, height;
+			parentWindow.GetSize(out width, out height);
+
+			new XElement
+			(
+				Svg.Namespace + "svg",
+				new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, width, height)),
 				new XAttribute("version", "1.1"),
 				from optimizer in optimizers
-				from item in Enumerables.Create
-				(
-					new XElement(@namespace+"path", style, new XAttribute("d", optimizer.GetSvgAttributeString(100))),
-					new XElement(@namespace+"path", curvatureStyle, new XAttribute("d", optimizer.GetCurvatureIndicators(250)))
-				)
-				select item
+				from path in optimizer.GetSvgPaths()
+				select path
 			)
 			.Save(filename);
 		}
@@ -170,11 +163,14 @@ namespace Kurve.Component
 			{
 				if ((ResponseType)fileChooser.Run() == ResponseType.Accept) 
 				{
-					IEnumerable<CurveOptimizer> optimizers = 
+					IEnumerable<CurveOptimizer> optimizers =
+					(
 						from curveComponent in curveComponents
-						select curveComponent.CurveOptimizer;
+						select curveComponent.CurveOptimizer
+					);
+					string path = fileChooser.Filename;
 					
-					this.optimizationWorker.SubmitTask(this, () => DoExport(optimizers, fileChooser.Filename));
+					this.optimizationWorker.SubmitTask(new CurveOptimizer(optimizationWorker, null), curveOptimizer => DoExport(optimizers, path));
 				}
 				
 				fileChooser.Destroy();

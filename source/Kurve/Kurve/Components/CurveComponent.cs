@@ -18,9 +18,6 @@ namespace Kurve.Component
 	class CurveComponent : Component
 	{
 		readonly CurveOptimizer curveOptimizer;
-		
-		public CurveOptimizer CurveOptimizer { get { return curveOptimizer; } }
-		
 		readonly List<SpecificationComponent> specificationComponents;
 		readonly List<SegmentComponent> segmentComponents;
 		readonly FixedPositionComponent curveStartComponent;
@@ -100,9 +97,11 @@ namespace Kurve.Component
 		}
 
 		public event Action RemoveCurve;
-
+		
+		public CurveOptimizer CurveOptimizer { get { return curveOptimizer; } }
 		public BasicSpecification BasicSpecification { get { return basicSpecification; } }
 		public Curve Curve { get { return curve; } }
+		public int SegmentCount { get { return curveOptimizer.SegmentCount; } }
 		public Specification Specification { get { return curveOptimizer.Specification; } }
 
 		public CurveComponent(Component parent, OptimizationWorker optimizationWorker, Specification specification) : base(parent)
@@ -124,11 +123,13 @@ namespace Kurve.Component
 
 			curveOptimizer.Submit(nextSpecification);
 
-			IEnumerable<SpecificationComponent> specificationComponents = 
+			IEnumerable<SpecificationComponent> specificationComponents =
+			(
 				from spec in nextSpecification.CurveSpecifications
 				orderby spec.Position ascending
 				group spec by spec.Position into specificationGroup
-				select new SpecificationComponent(this, this, specificationGroup.Key, specificationGroup);
+				select new SpecificationComponent(this, this, specificationGroup.Key, specificationGroup)
+			);
 
 			foreach (SpecificationComponent component in specificationComponents) AddSpecificationComponent(component);
 		}
@@ -306,7 +307,6 @@ namespace Kurve.Component
 			}
 		}
 
-
 		void RebuildSegmentComponents()
 		{
 			IEnumerable<PositionedControlComponent> orderedSpecificationComponents =
@@ -350,6 +350,23 @@ namespace Kurve.Component
 			}
 		}
 
+		public override void Draw(Context context)
+		{
+			if (curve != null)
+				foreach (Tuple<double, double> positions in Scalars.GetIntermediateValuesSymmetric(0, 1, SegmentCount + 1).GetRanges())
+				{
+					double position = Enumerables.Average(positions.Item1, positions.Item2);
+
+					Vector2Double curvatureVector = CurveOptimizer.CurvatureMarkersFactor * curve.GetCurvature(position) * curve.GetNormalVector(position);
+					
+					Krach.Graphics.Color lineColor = StretchColor(curve.GetSpeed(position) / basicSpecification.CurveLength);
+
+					Drawing.DrawLine(context, curve.GetPoint(position), curve.GetPoint(position) + curvatureVector, 0.5, Colors.Blue);
+					Drawing.DrawLine(context, curve.GetPoint(positions.Item1), curve.GetPoint(positions.Item2), 2, lineColor);
+				}
+
+			base.Draw(context);
+		}
 		public override void KeyDown(Key key)
 		{
 			if (key == Key.Shift) isShiftDown = true;
@@ -384,6 +401,20 @@ namespace Kurve.Component
 			if (position > insertionPosition) return 1 - (1 - position) * lengthRatio;
 
 			throw new InvalidOperationException();
+		}
+		static Krach.Graphics.Color StretchColor(double stretchFactor)
+		{
+			Krach.Graphics.Color baseColor = Krach.Graphics.Color.FromHsv(0, 0, 0);
+
+			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
+			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
+		
+			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
+		
+			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
+			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
+
+			return baseColor;
 		}
 	}
 }

@@ -12,11 +12,16 @@ using Krach.Maps.Scalar;
 using Krach.Maps;
 using Kurve.Interface;
 using Gtk;
+using System.Xml.Linq;
+using Krach.Formats.Svg;
 
 namespace Kurve.Component
 {
 	class CurveOptimizer
 	{
+		public const double SegmentDensity = 0.2;
+		public const int CurvatureMarkersFactor = 5000;
+
 		readonly Optimizer optimizer;
 		readonly OptimizationWorker optimizationWorker;
 		
@@ -25,6 +30,7 @@ namespace Kurve.Component
 		public event Action<BasicSpecification, Kurve.Curves.Curve> CurveChanged;
 
 		public Specification Specification { get { return specification; } }
+		public int SegmentCount { get { return (int)(SegmentDensity * specification.BasicSpecification.CurveLength).Ceiling(); } }
 
 		public CurveOptimizer(OptimizationWorker optimizationWorker, Specification specification)
 		{
@@ -38,50 +44,33 @@ namespace Kurve.Component
 
 		public void Submit(BasicSpecification basicSpecification)
 		{
-			optimizationWorker.SubmitTask(this, () => this.Optimize(basicSpecification));
+			optimizationWorker.SubmitTask(this, curveOptimizer => curveOptimizer.Optimize(basicSpecification));
 		}
-		public String GetSvgAttributeString(int numberOfSegments) 
+		public IEnumerable<XElement> GetSvgPaths()
 		{
 			Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
-			IEnumerable<Tuple<double, double>> ranges = Scalars.GetIntermediateValuesSymmetric(0, 1, numberOfSegments).GetRanges();
 			
-			string svgString = "M"+PointToSvgString(curve.GetPoint(ranges.First().Item1));
-			string svgComponents = 
+			XAttribute curveStyle = new XAttribute("style", "fill:none; stroke:black; stroke-width:2");
+			IEnumerable<string> curveCommands = Enumerables.Concatenate
 			(
-				from range in ranges
-				let controlPoint2 = curve.GetPoint(range.Item1) + (1.0 / (3 * numberOfSegments)) * Velocity(curve.GetDirection(range.Item1), curve.GetSpeed(range.Item1))
-				let controlPoint3 = curve.GetPoint(range.Item2) - (1.0 / (3 * numberOfSegments)) * Velocity(curve.GetDirection(range.Item2), curve.GetSpeed(range.Item2))
-				let controlPoint4 = curve.GetPoint(range.Item2)
-				select " C"+PointToSvgString(controlPoint2)+" "+PointToSvgString(controlPoint3)+" "+PointToSvgString(controlPoint4)
-			)
-			.AggregateString();
+				Enumerables.Create(Svg.MoveTo(curve.GetPoint(0))),
+				from positions in Scalars.GetIntermediateValuesSymmetric(0, 1, SegmentCount + 1).GetRanges()
+				let controlPoint1 = curve.GetPoint(positions.Item1) + (1.0 / (3 * SegmentCount)) * curve.GetVelocity(positions.Item1)
+				let controlPoint2 = curve.GetPoint(positions.Item2) - (1.0 / (3 * SegmentCount)) * curve.GetVelocity(positions.Item2)
+				let point2 = curve.GetPoint(positions.Item2)
+				select Svg.CurveTo(controlPoint1, controlPoint2, point2)
+			);
+			yield return new XElement(Svg.Namespace + "path", curveStyle, new XAttribute("d", curveCommands.Separate(" ").AggregateString()));
 			
-			return svgString+" "+svgComponents;
-		}
-		
-		public String GetCurvatureIndicators(int count) {
-			Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
-			
-			return (
-				from positions in Scalars.GetIntermediateValuesSymmetric(0, 1, 250).GetRanges()
-				let point = 0.5 * (curve.GetPoint(positions.Item1) + curve.GetPoint(positions.Item2))
-				let direction = curve.GetDirection((positions.Item1 + positions.Item2) / 2)
-				let directionVector = new Vector2Double(Scalars.Cosine(direction), Scalars.Sine(direction))
-				let angularDirection = new Vector2Double(directionVector.Y, -directionVector.X)
-				let curvature = curve.GetCurvature((positions.Item1 + positions.Item2) / 2)
-				let curvatureVector = 10000 * curvature * angularDirection
-				select "M "+PointToSvgString(point)+" "+PointToSvgString(point + curvatureVector)+" "
-			)
-			.AggregateString();
-		}
-		
-		String PointToSvgString(Vector2Double point) 
-		{
-			return point.X+","+point.Y;
-		}
-		Vector2Double Velocity(double direction, double speed) 
-		{
-			return new Vector2Double(Math.Cos(direction), Math.Sin(direction)) * speed;
+			XAttribute curvatureMarkersStyle = new XAttribute("style", "fill:none; stroke:blue; stroke-width:0.5");
+			IEnumerable<string> curvatureMarkersCommands =
+			(
+				from positions in Scalars.GetIntermediateValuesSymmetric(0, 1, SegmentCount + 1).GetRanges()
+				let position = Enumerables.Average(positions.Item1, positions.Item2)
+				let curvatureVector = CurvatureMarkersFactor * curve.GetCurvature(position) * curve.GetNormalVector(position)
+				select Svg.Line(curve.GetPoint(position), curve.GetPoint(position) + curvatureVector)
+			);
+			yield return new XElement(Svg.Namespace + "path", curvatureMarkersStyle, new XAttribute("d", curvatureMarkersCommands.Separate(" ").AggregateString()));
 		}
 		
 		void Optimize(BasicSpecification basicSpecification)
@@ -104,7 +93,7 @@ namespace Kurve.Component
 				Console.WriteLine("normalization: {0} s", stopwatch.Elapsed.TotalSeconds);
 
 				stopwatch.Restart();
-				Kurve.Curves.Curve curve = new DiscreteCurve(optimizer.GetCurve(specification));
+				Kurve.Curves.Curve curve = new DiscreteCurve(optimizer.GetCurve(specification), (int)basicSpecification.CurveLength);
 				stopwatch.Stop();
 
 				Console.WriteLine("discrete curve: {0} s", stopwatch.Elapsed.TotalSeconds);

@@ -26,6 +26,7 @@ namespace Kurve.Component
 
 		public BasicSpecification BasicSpecification { get { return curveComponent.BasicSpecification; } }
 		public Curve Curve { get { return curveComponent.Curve; } }
+		public int SegmentCount { get { return curveComponent.SegmentCount; } }
 		public abstract double Position { get; }
 		public bool IsSelected { get { return isSelected; } set { isSelected = value; } }
 		public bool IsDragging { get { return isDragging; } }

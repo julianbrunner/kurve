@@ -24,6 +24,17 @@ namespace Kurve.Component
 		readonly PositionedControlComponent rightComponent;
 
 		Orthotope2Double Bounds { get { return new Orthotope2Double(Point - 0.5 * size, Point + 0.5 * size); } }
+		int SegmentSegmentCount
+		{
+			get
+			{
+				double length = rightComponent.Position - leftComponent.Position;
+
+				if (length == 0) return 1;
+
+				return (int)(length * SegmentCount).Ceiling();
+			}
+		}
 
 		public override double Position { get { return (leftComponent.Position + rightComponent.Position) / 2; } }
 		public Vector2Double Point { get { return Curve == null ? Vector2Double.Origin : Curve.GetPoint(Position); } }
@@ -39,41 +50,11 @@ namespace Kurve.Component
 
 		public override void Draw(Context context)
 		{
-			if (Curve == null) return;
-
-			foreach (Tuple<double, double> positions in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 250).GetRanges()) 
-			{
-				double stretchFactor = Curve.GetSpeed((positions.Item1 + positions.Item2) / 2) / BasicSpecification.CurveLength;
-
-				if (IsSelected) Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
-
-				Krach.Graphics.Color color = StretchedColor(stretchFactor);
-				Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 2, color);
-
-				Vector2Double point = 0.5 * (Curve.GetPoint(positions.Item1) + Curve.GetPoint(positions.Item2));
-				double direction = Curve.GetDirection((positions.Item1 + positions.Item2) / 2);
-				Vector2Double directionVector = new Vector2Double(Scalars.Cosine(direction), Scalars.Sine(direction));
-				Vector2Double angularDirection = new Vector2Double(directionVector.Y, -directionVector.X);
-				double curvature = Curve.GetCurvature((positions.Item1 + positions.Item2) / 2);
-				Vector2Double curvatureVector = 10000 * curvature * angularDirection;
-				Drawing.DrawLine(context, point, point + curvatureVector, 0.5, Colors.Green);
-			}
+			if (Curve != null && IsSelected)
+				foreach (Tuple<double, double> positions in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, SegmentSegmentCount + 1).GetRanges())
+					Drawing.DrawLine(context, Curve.GetPoint(positions.Item1), Curve.GetPoint(positions.Item2), 8, Colors.Green.ReplaceAlpha(0.3));
 
 			base.Draw(context);
-		}
-		static Krach.Graphics.Color StretchedColor(double stretchFactor)
-		{
-			Krach.Graphics.Color baseColor = Krach.Graphics.Color.FromHsv(0, 0, 0);
-
-			OrderedRange<double> source = new OrderedRange<double>(0.75, 1.0);
-			OrderedRange<double> destination = new OrderedRange<double>(0.0, 1.0);
-		
-			IMap<double, double> amplifier = new RangeMap(source, destination, Mappers.Linear);
-		
-			if (stretchFactor < 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Blue, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 * stretchFactor).Clamp(source)));
-			if (stretchFactor > 1) return Krach.Graphics.Color.InterpolateRgb(Colors.Red, baseColor, Scalars.InterpolateLinear, amplifier.Map((1.0 / stretchFactor).Clamp(source)));
-
-			return baseColor;
 		}
 
 		public override bool Contains(Vector2Double position)
@@ -83,7 +64,7 @@ namespace Kurve.Component
 			if (leftComponent is SpecificationComponent && (Curve.GetPoint(leftComponent.Position) - position).Length < 15) return false;
 			if (rightComponent is SpecificationComponent && (Curve.GetPoint(rightComponent.Position) - position).Length < 15) return false;
 
-			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100))
+			foreach (double testedPosition in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, SegmentSegmentCount + 1))
 				if ((Curve.GetPoint(testedPosition) - position).Length < 10)
 					return true;
 
@@ -102,14 +83,13 @@ namespace Kurve.Component
 				OnSpecificationChanged();
 			}
 		}
-
 		public override void MouseUp(Vector2Double mousePosition, MouseButton mouseButton)
 		{
 			if (IsRightMouseDown) 
 			{
 				double closestPosition = 
 				(
-					from position in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, 100)
+					from position in Scalars.GetIntermediateValuesSymmetric(leftComponent.Position, rightComponent.Position, SegmentSegmentCount + 1)
 					let distance = (Curve.GetPoint(position) - mousePosition).Length
 					orderby distance ascending
 					select position
@@ -119,7 +99,7 @@ namespace Kurve.Component
 				OnAddSpecification(closestPosition);
 			}
 
-			base.MouseUp(mousePosition,mouseButton);
+			base.MouseUp(mousePosition, mouseButton);
 		}
 		
 		protected void OnSpecificationChanged()

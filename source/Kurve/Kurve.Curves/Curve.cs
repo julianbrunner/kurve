@@ -1,9 +1,5 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using Krach.Basics;
 using Krach.Extensions;
-using Wrappers.Casadi;
 
 namespace Kurve.Curves
 {
@@ -13,6 +9,23 @@ namespace Kurve.Curves
 		public abstract double GetSpeed(double position);
 		public abstract double GetDirection(double position);
 		public abstract double GetCurvature(double position);
+
+		public Vector2Double GetDirectionVector(double position)
+		{
+			double direction = GetDirection(position);
+
+			return new Vector2Double(Scalars.Cosine(direction), Scalars.Sine(direction));
+		}
+		public Vector2Double GetNormalVector(double position)
+		{
+			Vector2Double directionVector = GetDirectionVector(position);
+
+			return new Vector2Double(directionVector.Y, -directionVector.X);
+		}
+		public Vector2Double GetVelocity(double position)
+		{
+			return GetSpeed(position) * GetDirectionVector(position);
+		}
 	}
 }
 

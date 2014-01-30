@@ -41,7 +41,8 @@ namespace Kurve.Component
 			{ 
 				if (specifiesPoint) return point;
 				else if (Curve != null) return Curve.GetPoint(Position);
-				else return Vector2Double.Origin;			}
+				else return Vector2Double.Origin;
+			}
 			set 
 			{
 				if (specifiesPoint) point = value;
@@ -136,7 +137,7 @@ namespace Kurve.Component
 				{
 					double closestPosition = 
 					(
-						from position in Scalars.GetIntermediateValuesSymmetric(0, 1, 100)
+						from position in Scalars.GetIntermediateValuesSymmetric(0, 1, SegmentCount + 1)
 						let distance = (Curve.GetPoint(position) - mousePosition).Length
 						orderby distance ascending
 						select position
