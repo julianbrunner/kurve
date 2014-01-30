@@ -49,8 +49,7 @@ namespace Kurve.Component
 		public IEnumerable<XElement> GetSvgPaths()
 		{
 			Kurve.Curves.Curve curve = optimizer.GetCurve(specification);
-			
-			XAttribute curveStyle = new XAttribute("style", "fill:none; stroke:black; stroke-width:2");
+
 			IEnumerable<string> curveCommands = Enumerables.Concatenate
 			(
 				Enumerables.Create(Svg.MoveTo(curve.GetPoint(0))),
@@ -60,9 +59,8 @@ namespace Kurve.Component
 				let point2 = curve.GetPoint(positions.Item2)
 				select Svg.CurveTo(controlPoint1, controlPoint2, point2)
 			);
-			yield return new XElement(Svg.Namespace + "path", curveStyle, new XAttribute("d", curveCommands.Separate(" ").AggregateString()));
-			
-			XAttribute curvatureMarkersStyle = new XAttribute("style", "fill:none; stroke:blue; stroke-width:0.5");
+			yield return Svg.PathShape(curveCommands, null, Colors.Black, 2);
+
 			IEnumerable<string> curvatureMarkersCommands =
 			(
 				from positions in Scalars.GetIntermediateValuesSymmetric(0, 1, SegmentCount + 1).GetRanges()
@@ -70,7 +68,40 @@ namespace Kurve.Component
 				let curvatureVector = CurvatureMarkersFactor * curve.GetCurvature(position) * curve.GetNormalVector(position)
 				select Svg.Line(curve.GetPoint(position), curve.GetPoint(position) + curvatureVector)
 			);
-			yield return new XElement(Svg.Namespace + "path", curvatureMarkersStyle, new XAttribute("d", curvatureMarkersCommands.Separate(" ").AggregateString()));
+			yield return Svg.PathShape(curvatureMarkersCommands, null, Colors.Blue, 0.5);
+
+			foreach (PointCurveSpecification pointCurveSpecification in specification.BasicSpecification.CurveSpecifications.OfType<PointCurveSpecification>())
+			{
+				Vector2Double point = curve.GetPoint(pointCurveSpecification.Position);
+
+				yield return Svg.CircleShape(point, 10, Colors.Red, null, 0);
+			}
+			foreach (DirectionCurveSpecification directionCurveSpecification in specification.BasicSpecification.CurveSpecifications.OfType<DirectionCurveSpecification>())
+			{
+					Vector2Double directionVector = curve.GetDirectionVector(directionCurveSpecification.Position);
+					Vector2Double start = curve.GetPoint(directionCurveSpecification.Position) - 1000 * directionVector;
+					Vector2Double end = curve.GetPoint(directionCurveSpecification.Position) + 1000 * directionVector;
+
+					yield return Svg.LineShape(start, end, null, Colors.Green, 2);
+			}
+			foreach (CurvatureCurveSpecification curvatureCurveSpecification in specification.BasicSpecification.CurveSpecifications.OfType<CurvatureCurveSpecification>())
+			{
+				if (curvatureCurveSpecification.Curvature == 0)
+				{
+					Vector2Double directionVector = curve.GetDirectionVector(curvatureCurveSpecification.Position);
+					Vector2Double start = curve.GetPoint(curvatureCurveSpecification.Position) - 1000 * directionVector;
+					Vector2Double end = curve.GetPoint(curvatureCurveSpecification.Position) + 1000 * directionVector;
+
+					yield return Svg.LineShape(start, end, null, Colors.Blue, 2);
+				}
+				else
+				{
+					Vector2Double center = curve.GetPoint(curvatureCurveSpecification.Position) - (1.0 / curvatureCurveSpecification.Curvature) * curve.GetNormalVector(curvatureCurveSpecification.Position);
+					double radius = 1.0 / curvatureCurveSpecification.Curvature.Absolute();
+
+					yield return Svg.CircleShape(center, radius, null, Colors.Blue, 2);
+				}
+			}
 		}
 		
 		void Optimize(BasicSpecification basicSpecification)

@@ -146,11 +146,9 @@ namespace Kurve.Component
 			int width, height;
 			parentWindow.GetSize(out width, out height);
 
-			new XElement
+			Svg.Scene
 			(
-				Svg.Namespace + "svg",
-				new XAttribute("viewBox", string.Format("{0} {1} {2} {3}", 0, 0, width, height)),
-				new XAttribute("version", "1.1"),
+				new Orthotope2Double(0, 0, width, height),
 				from optimizer in optimizers
 				from path in optimizer.GetSvgPaths()
 				select path
