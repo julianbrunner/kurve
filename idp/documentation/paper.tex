@@ -43,7 +43,7 @@
 
 		Raster graphics images (for instance, digital photos and most digitally painted artworks) consist of a finite number of pixels (picture elements) which discretely specify the colors at each point of the image. In contrast, vector graphics designs consist of primitives like curves and surfaces, which describe the shapes present in the design using mathematical functions. This has various advantages over the raster approach, since designs do not suffer from discretization artifacts and can, for instance, be arbitrarily scaled or repeatedly modified without any loss of quality.
 
-		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The artist is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the artist to communicate their intention to the software.
+		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The user is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the user to communicate their intention to the software.
 
 		While there has been some promising research into improving curve design tools \cite{thesis-mvc} \cite{thesis-spiro}, it focuses mostly on the aspect of improving the fairness of curves, rather than usability as a whole. Unfortunately, it also has not had much of an impact on actual vector graphics software used in practice, which continues to focus almost exclusively on Bézier splines to this day.
 
@@ -588,19 +588,17 @@
 			\subsubsection{Expressiveness of the Description Language}
 			\label{section:expressiveness_description_language}
 
-				% TODO: mention that using the description (not specification) language, one can now specify linearly increasing curvature
+				One of the primary goals of this project was to explore more expressive description languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. Furthermore, the fairness measure ensures constant and linearly changing curvature where possible. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that can describe the curve in the most concise fashion.
 
-				One of the primary goals of this project was to explore more expressive description languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that can describe the curve in the most concise fashion.
+				The ability to specify curvature constitues a significant improvement over common curve design tools, where this is usually not possible. Using this functionality, the user can specify curves which are best expressed in terms of curvature in a natural and concise way. Not only does this make the curve design process less tedious, but it may also lead to better curves, since only the essential information about the curve is given to the software. This allows the fairness measure to choose the best curve, something that is not possible if lots of auxiliary information is supplied to the software in order to indirectly influence the curvature.
 
-				The ability to specify curvature constitues a significant improvement over common curve design tools, where this is usually not possible. Using this functionality, the user can specify curves which are best expressed in terms of curvature in a natural and concise way. Not only does this make the curve design process less tedious, but it may also lead to better curves, since only the essential information about the curve is given to the software. This allows the fairness measure to choose the best possible curve, something that is not possible if lots of auxiliary information is supplied to the software in order to indirectly influence the curvature.
+				Curvature specifications are especially useful in conjunction with the MVC fairness measure, which selects constant or linearly changing curvature where possible. This way, placing curvature specifications on an otherwise unconstrained curve allows the user to precisely create spirals. Of course this behavior of the fairness measure also makes it possible to construct circular arcs in various ways, since they are the preferred shape of curve.
 
-				Section \ref{section:specification_language} describes why it makes sense to specify the curve's total arc length. While fixing the arc length of the curve (and thus also the arc length between each specification item) may seem a little restrictive at first, there are actually quite a few upsides. For instance, by adjusting the arc length of a curve with a point specifications on each end, one can conveniently produce curcular arcs between two points, since increasing the arc length will make the curve bulge out, with the fairness making sure that a circular arc is produced.
-				% Using common vector graphics software, one usually has to either risk an asymmetric and/or bumpy arc by specifying it using Bézier splines, or deal with some cumbersome tool for constructing elliptical arcs.
-				Generally speaking, having control over the arc length of the curve results in benign and predictable curve behavior and is often useful for pulling it in place, not unlike the way one would handle a mechanical spline.
+				Section \ref{section:specification_language} describes why it makes sense to specify the curve's total arc length. While fixing the arc length of the curve (and thus also the arc length between each specification item) may seem a little restrictive at first, there are actually quite a few upsides. For instance, by adjusting the arc length of a curve with a point specification item on each end, one can conveniently produce curcular arcs between two points, since increasing the arc length will make the curve bulge out, with the fairness making sure that a circular arc is produced. Generally speaking, having control over the arc length of the curve results in benign and predictable curve behavior and is often useful for pulling it in place, not unlike the way one would handle a mechanical spline.
 
 				On the other hand though, it is not possible not to specify the curve's arc length, and there may be cases where the user wants to leave it to the fairness measure to choose the best arc length for the curve. While it is sometimes possible to work around this issue by placing direction and/or curvature specifications instead of point specifications, that may not always be the case and further investigation into how arc length specification can be made optional while avoiding the problems mentioned in section \ref{section:specification_language} seems advisable.
 
-				As a final way of demonstrating the high expressiveness, it may be noted that it is actually possible to specify segments of the Euler spiral using the specification language. As described in section \ref{section:fairness_measure}, the MVC fairness measure prefers constant or linearly changing curvature. Since every curve with linearly changing curvature is some segment of the Euler spiral, it is easy to specify those using the specification language by leaving the curve otherwise unconstrained.
+				As a final way of demonstrating the high expressiveness of the description language, it may be noted that it actually allows for the description of arbitrary segments of the Euler spiral. Since every segment of the Euler spiral exhibits linearly changing curvature between its start and end points, specififying these curvature values on an otherwise unconstrained curve will cause the fairness measure to select the desired segment of the Euler spiral.
 
 			\subsubsection{Human Interaction with the Specification Language}
 			\label{section:human_interaction_specification_language}
@@ -614,7 +612,9 @@
 			\subsubsection{Smoothness and Minimality of Curves Selected by the Fairness Measure}
 			\label{section:smoothness_minimality_curves_selected_fairness_measure}
 
-				As described in section \ref{section:fairness_measure}, the MVC fairness measure the intuitive notion of smoothness very well, resulting in aesthetically pleasing curves.
+				% TODO: expand, figure out what to write here and in the section about the fairness measure
+
+				As described in section \ref{section:fairness_measure}, the MVC fairness measure captures the intuitive notion of smoothness very well, resulting in aesthetically pleasing curves.
 
 				Unfortunately, the nonlinear optimization approach to finding the best curve can only find local optima, such that in many cases, the curve is not minimal, often containing loops and unnecessary inflection points. However, this is usually easy to fix by adjusting the specifications in such a way that the global optimum is found. For instance, a loop in the curve can often be removed by placing an additional point specification on the loop, pulling it away from the curve until the curve is forced to straighten out and finally removing the point specification again. Once the curve has been pushed into the global optimum like this, it is usually very stable.
 
@@ -623,16 +623,16 @@
 
 				As mentioned in section \ref{section:curve_derivation}, using nonlinear optimization has many advantages for research and proof of concept projects like this one. Unfortunately, the flexibility it grants comes with a price, in that it is much slower and also less reliable than unique mathematical constructions like the ones used for Bézier splines.
 
-				Even on very powerful computers, running nonlinear optimization on splines with many segments and/or polynomials of high degree is too slow for interactive curve design, with updates taking more than 5 seconds. Most curves are very simple and do not need this kind of complexity, but for those that do, the bad performance can be very disruptive.
+				Even on very powerful computers, running nonlinear optimization on splines with many segments and/or polynomials of high degree is too slow for interactive curve design, with updates taking seconds. Most curves are very simple and do not need this kind of complexity, but for those that do, the bad performance can be very disruptive.
 
-				Another issue is reliability. For some descriptions, the iterative optimization algorithm may converge extremely slowly or not at all, thus not producing a curve. In some cases, it is possible that small changes in the description restore the ability to converge on a solution, but sometimes one simply has to start over. There are also cases where the optimization gets stuck in a pathological local optimum, in which case one usually has to start over aswell.
+				Another issue is reliability. For some descriptions, the iterative optimization algorithm may converge extremely slowly or not at all, thus not producing a curve. In some cases, it is possible that small changes in the description restore the ability to converge on a solution, but sometimes one simply has to start over. There are also cases where the optimization gets stuck in a pathological local optimum, in which case one often has to start over aswell.
 
 				All these issues cause the prototype curve design tool to be somewhat impractical for actual curve design work, making this the primary issue with the chosen approach.
 
 		\subsection{Examples}
 		\label{section:examples}
 
-			We will now revisit the examples shown in sections \ref{section:bézier_splines} and \ref{section:spiro_splines} using the prototype curve design tool in order to see how well the description language we propose can handle them.
+			We will now revisit some of the examples shown in sections \ref{section:bézier_splines} and \ref{section:spiro_splines} using the prototype curve design tool in order to see how well the description language we propose can handle them.
 
 			\begin{figure}[htbp]
 				\centering
@@ -646,52 +646,26 @@
 
 			Example 1 shows how adjusting the arc length of an otherwise unconstrained curve allows the convenient creation of curcular arcs between two points.
 
-			Examples 2, 3 and 4 show how to make use of the good expressiveness of the description language.
+			Examples 2, 3 and 4 show how to make use of the high expressiveness of the description language. In example 2, the curve is described mainly using three curvature specification items, the point specification item and the direction specification item acting merely as a fixture for the curve, since the curvature specification items leave it unconstrained with regard to translation and rotation. This way, the curve is basically defined by its length and the three curvature specification items, giving the fairness measure maximal freedom controlling the curve, in this case allowing it to establish linearly changing curvature between each pair of curvature specification items.
 
-			% fluttershy's mane
-			%   spirals done this way are guaranteed to be smooth and not have any unintentional bumps
-			%     since point specifications occur only at the start and end of the curve, there is no danger of introducing unintentional bumps in the middle of the curve
-			%   comparison with bézier
-			%     source image is in flash, already made of bézier splines, easy to trace
-			%     still many more nodes needed
-			%     hard to get actual, perfect spirals right
-			%     curvature incontinuities, small bumps
-			%     a bézier node comes with 2 handles, making it 3 points, or 6 scalar values that are specified, compared to 2 scalars for a DC specification
-			%   somewhat hampered by poor performance and optimization stability issues, concept seems very powerful though
-			% lugia profile view / lugia's back line (curled up)
-			%   profits from global fairness optimization and curvature continuity guarantees
-			%   some curves are more easily described in terms of curvature than points and/or direction
-			% example of stability issues
+			Example 3 also starts out with a position that has all 3 types of specification items attached, but instead of specifying the curvature along the way, opts to use a point specification item to enforce the desired shape, resulting in nonlinear but extremely smooth change of curvature. This technique is useful in cases where either nonlinear changing curvature is desired, or where controlling the curve's shape using only curvature specifications is too tedious (since little errors in curvature specifications propagate and accumulate along the entire curve, making it hard to get the shape right).
 
-		\subsection{Verdict}
-		\label{section:verdict}
+			Example 4 uses a mixture of the techniques used in examples 2 and 3, placing curvature specification items along the curve in order to not unnecessarily restrict the fairness measure's freedom and using a final point specification at the end of the curve to force it into place. This approach ensures that no unintentional bumps are introduced (which can happen easily when placing point specification items in the middle of a curve), while still avoiding the tedious placing of perfectly adjusted curvature specification items (which would be necessary if the final point specification item was not there).
 
-			% idea seems good, optimization issues get in the way
-			% usability of the prototype curve design tool is still bad, but that may not mean the description language is useless, maybe there are better ways than optimization to derive curves from descriptions and to fulfill criterion 6 better
-			% maybe move this to conclusion
+			It may also be worth estimating the amount of information given in the description. Recall that the curve in example 4 was already designed using Bézier splines in section \ref{section:bézier_splines}, using 7 nodes and 12 handles, and Spiro splines in section \ref{section:spiro_splines}, using 7 control points. Here, it is designed using 2 point specifications, 1 direction specification, and 3 curvature specifications and specified arc length. Unfortunately, it is somewhat difficult to directly compare these amounts since specification items use fractions of the arc length for positioning instead of node/control point ordering, as is the case with Bézier splines and Spiro splines. Fraction of arc length positions do of course contain more information than simple orderings, although this is arguably not the case if said positions lie exactly on the start or end of the curve. Furthermore, direction and curvature specification items only specify a scalar value instead of a plane vector, so could be considered to only supply half as much information as a point specification item. So we count 1 scalar value for arc length, 4 scalar values for points, 1 for directions and 1 for curvatures specified at the start or end of the curve, and 4 scalar values for curvatures specified in the middle of the curve, giving us a total of 11 scalar values for the entire specification, just shy of the 14 scalar values for the Spiro spline and a lot less than the 33 scalar values for the Bézier spline (where the loss of one degree of freedom for smooth nodes with colinear velocities has been taken into account). Of course these comparisons cannot be taken as precise, quantitative measurements of conciseness, but they are useful as a coarse judgement on the amount of information that needs to be supplied to define a specific curve.
+
+			Finally, example 5 demonstrates the ability of the MVC fairness to construct aesthetically pleasing, smooth curves. The indicators for the specification items were left out in this example to make it easier to judge the curve's smoothness.
 
 	\section{Conclusion}
 	\label{section:conclusion}
 
-		% most issues stem from the optimization approach
-		%  may make it hard to actually rate usability of the idea behind this
-		% distinguish between further research work and turning the project into practical software)	
-		% further possibilities to instantiate overall structure (different and/or combined spline primitives, constructive instead of optimization approach)
-		% adaptive line segments, adaptive bézier approximation
-		% steps that are necessary to turn this project into a useful application
-		%   make absolutely sure the concept works by testing it with actual users
-		%   performance improvements
-		%   inkscape plugin
-		% possibility to have curves without fixed length? could be useful for curves which only have specifications at the start and/or end of the curve
-		% investigate into the calculus of variations and whether there may be a possibility to construct MVC curves based on our specification format, once the format itsself has proven to be useful
+		Having analyzed the usability both through theoretical analysis and experimentally using the prototype curve design tool, we think that our approach looks promising. The added expressiveness of the proposed description language has certainly proven useful, facilitating the succinct description of curves which, when using conventional curve design tools, are harder to design and/or lack smoothness due to unfitting description languages.
 
-		%   possible performance improvements
-		%     make sure substitutions only happen where and when necessary
-		%     cache partially instantiated IpoptProblem? such that fewer substitutions have to happen when changing a single specification
-		%     use better linear solver with ipopt
-		%     properly configure ipopt options
-		%     adaptive segment density
-		%     adaptive velocity/fairness trapezoid sum
+		While we are very satisfied with the MVC fairness measure, we feel that the specification language can still be improved, for instance by making the specification of the curve's total arc length as well as the specification items' positions optional. Another possible extension would be to allow specification items to be slightly violated in order to improve the curve's fairness (soft specifications). Further experiments using improved versions of the current description language and the prototype curve design tool are needed to make an informed decision here. It would also be advisable to do empirical studies with users of vector graphics software to assess the usability of description languages.
+
+		We observe that the prototype curve design tool's usability is still somewhat impaired by performance and stability issues which stem from the use of optimization for solving the problem of curve derivation. Once the final decisions on the description language have been made, some research into how curve derivation can be made more stable and efficient is in order.
+
+		Ideally, the final step of this research would then be the incorporation of the developed curve design tool into a piece of vector graphics software. The vector graphics editor Inkscape would be a good candidate, mainly because it's free software and thus easy to extend, both technically and from a political/licensing perspective.
 
 	\clearpage
 
