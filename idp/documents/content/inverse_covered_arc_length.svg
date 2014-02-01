@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="speed.svg">
+   sodipodi:docname="inverse_covered_arc_length.svg">
   <defs
      id="defs4">
     <inkscape:path-effect
@@ -90,9 +90,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="282.05902"
-     inkscape:cy="825.82742"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="554.2906"
+     inkscape:cy="516.04434"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -152,18 +152,7 @@
        id="path3923"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csssc" />
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot3765"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="translate(73.36477,18.852392)"><flowRegion
-         id="flowRegion3767"><rect
-           id="rect3769"
-           width="49.497475"
-           height="51.51778"
-           x="64.649765"
-           y="497.71051" /></flowRegion><flowPara
-         id="flowPara3771" /></flowRoot>    <path
+    <path
        style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="M 118.01453,388.17712 C 142.03879,190.1215 193.83197,158.67289 280.10652,175.79227"
        id="path3060"

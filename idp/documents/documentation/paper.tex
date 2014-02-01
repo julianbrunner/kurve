@@ -213,6 +213,7 @@
 
 				% TODO: fairness measure integral is over the arc length of the curve
 				% TODO: mention that mvc facilitates describing circular arcs and spirals (constant and linearly changing curvature)
+				% TODO: MEC cannot handle curvature specifications
 				% TODO: add some illustrations, describe their general behaviour, smoothness
 
 				Different fairness measures for plane curves have been proposed throughout history. Many of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band to minimize, arriving at the following functional describing the minimum energy curve (MEC) \cite{paper-mec}:
@@ -221,11 +222,25 @@
 				\end{equation*}
 				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would always prefer one large circular arc over five small bumps on the curve.
 
+				\begin{figure}[htbp]
+					\centering
+					\includegraphics[width=\textwidth]{../content/documentation/fairness_mec.pdf}
+					\caption{Minimum Energy Curves}
+					\label{figure:minimum_energy_curves}
+				\end{figure}
+
 				In order to adress these issues, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, whose functional is given below:
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
 				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvature, since that will make the derivative of the curvature a constant and thereby minimize the integral over its square. In general, the MVC fairness measure is very good at avoiding bumps and inflection points when possible. Because of these appealing properties, the MVC fairness measure was chosen as part of our description language.
+
+				\begin{figure}[htbp]
+					\centering
+					\includegraphics[width=\textwidth]{../content/documentation/fairness_mvc.pdf}
+					\caption{Minimum Variation Curves}
+					\label{figure:minimum_variation_curves}
+				\end{figure}
 
 		\subsection{Curve Derivation}
 		\label{section:curve_derivation}
@@ -253,19 +268,27 @@
 
 				In the following, we will describe how nonlinear optimization can be used for finding polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
 
-			% TODO: consider structuring and naming this section similarly to the slides
 			\subsubsection{Segmentation and Notation}
 			\label{section:segmentation_notation}
 
-				%\begin{equation*}
-				%	\apply{\phi_i}{t} = \sum_j a_{i,j} \cdot t^j
-				%\end{equation*}
-
-				Since the polynomial spline is uniquely determined by the coefficients of each polynomial segment, the optimization domain is a vector consisting of all these coefficients. Let \(m\) be the number of segments that make up the polynomial spline. We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
+				We start by considering the segment polynomials that make up the polynomial spline we want to find using optimization. Let \(m\) be the number of segments that make up the polynomial spline and let \(d\) be the degree of each segment polynomial. Then the \(i\)th segment polynomial is given by:
+				\begin{equation*}
+					\apply{\phi_i}{t} = \sum_{j = 0}^{d} a_{i,j} \cdot t^j
+				\end{equation*}
+				We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
 				\begin{equation*}
 					\apply{\phi}{\frac{i + t}{m}} = \apply{\phi_i}{t}
 				\end{equation*}
-				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static.
+				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static. Figure \ref{figure:linear_segmentation} shows what the segmentation and parameter mapping look like when using 3 segments.
+
+				\begin{figure}[htbp]
+					\centering
+					\includegraphics[width=100mm]{../content/common/linear_segmentation.pdf}
+					\caption{Linear Segmentation}
+					\label{figure:linear_segmentation}
+				\end{figure}
+
+				Since the polynomial spline is uniquely determined by the coefficients of each segment polynomial, the optimization domain is the vector consisting of all the coefficients \(a_{i,j}\).
 
 				Let \(n\) be the number of specification items. Let \(\hat{t}_i\) be the position of the \(i\)th specification item. If the \(i\)th item is a point specification, the point is denoted \(\hat{\phi}_i\), if it is a direction specification, the direction is denoted \(\hat{\delta}_i\) and if it is a curvature specification, the curvature is doneted \(\hat{\chi}_i\). The specified total arc length for the curve is denoted \(\hat{\lambda}\).
 
