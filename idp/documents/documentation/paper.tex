@@ -32,7 +32,7 @@
 
 	\begin{abstract}
 
-		\noindent We analyze the usability of curve design tools in current vector graphics software and suggest an abstract approach for designing improved, usability-oriented tools. We then instantiate this approach using a powerful description language and the minimum variation curve fairness measure on top of nonlinear optimization, developing a prototype curve design tool in the process. Finally, we evaluate the usability of our approach based on the prototype and suggest ideas for further research and development.
+		\noindent We analyze the usability of curve design tools in current vector graphics software and suggest an abstract approach for designing improved, usability-oriented tools. We then instantiate this approach using a powerful description language and the minimum variation curve fairness measure on top of nonlinear optimization, developing a prototype curve design tool in the process. Finally, we evaluate our approach and its instantiation based on the prototype and suggest ideas for further research and development.
 
 	\end{abstract}
 
@@ -43,7 +43,7 @@
 
 		Raster graphics images (for instance, digital photos and most digitally painted artworks) consist of a finite number of pixels (picture elements) which discretely specify the colors at each point of the image. In contrast, vector graphics designs consist of primitives like curves and surfaces, which describe the shapes present in the design using mathematical functions. This has various advantages over the raster approach, since designs do not suffer from discretization artifacts and can, for instance, be arbitrarily scaled or repeatedly modified without any loss of quality.
 
-		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The user is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow don't allow the user to communicate their intention to the software.
+		The scope of this project is restricted to two-dimensional vector graphics, but many ideas can be applied to three-dimensional vector graphics as well. All elements in two-dimensional vector graphics are described in terms of curves, so the design process of curves is the single most important part of two-dimensional vector graphics. Unfortunately, designing curves using the tools available in current vector graphics software can be very frustrating. The user is often unable to make the curve look the way they want it to. To make matters worse it is often unclear why this is the case, as the software seems to put all the necessary tools into the hands of the designer, yet at times, they somehow do not allow the user to communicate their intention to the software.
 
 		While there has been some promising research into improving curve design tools \cite{thesis-mvc} \cite{thesis-spiro}, it focuses mostly on the aspect of improving the fairness of curves, rather than usability as a whole. Unfortunately, it also has not had much of an impact on actual vector graphics software used in practice, which continues to focus almost exclusively on Bézier splines to this day.
 
@@ -76,7 +76,7 @@
 		\subsection{Usability Criteria for Curve Design Tools}
 		\label{section:usability_criteria_curve_design_tools}
 
-			We conclude that the two ways in which curve design tools can affect the design process, are through their choice of specification language and fairness measure, as well as their practical ability to derive curves from them. Note that while syntactically complete, the semantics of the specification language also depend on the fairness measure. Thus, it makes sense to consider the combination of a specification language and a fairness measure, which we will call a description language.
+			We conclude that the two ways in which curve design tools can affect the design process, are through their choice of specification language and fairness measure, as well as their practical ability to derive curves from them. Note that while syntactically complete, the semantics of the specification language also depend on the fairness measure. Thus, it makes sense to consider the combination of a specification language and a fairness measure, which will be called a description language.
 
 			Ideally, the description language should be very expressive, yet easy to handle for humans, enabling the user to communicate their intent to the software efficiently. The fairness measure should capture the intuitive notion of curve smoothness sufficiently well and select curves that are minimal with respect to the specification. These goals are competing with the software's ability to derive curves from descriptions reliably and efficiently, a process which becomes increasingly difficult with more expressive specification languages and more complex fairness measures.
 
@@ -104,7 +104,7 @@
 
 				When applying the model introduced in section \ref{section:curve_design_process} to Bézier spline design tools, there are two possibilities for modeling the fairness measure. One way to view things is to assume that the user, in supplying the four coefficient points of each curve segment, uniquely specifies each segment's Bézier curve and thus the entire spline, leaving no room for choosing a curve according to some fairness measure. Since users usually don't think about Bézier splines that way, it is more practical to assume that the user only supplies both point and velocity at the start and end of each curve segment, with a fairness measure designed to always choose the cubic Bézier curve that is uniquely specified by the given properties as the fairest curve.
 
-				Applying the criteria established in section \ref{section:usability_criteria_curve_design_tools}, we conclude that the design tools for Bézier splines work sufficiently well in terms of humans trying to read and/or speak their specification language (criteria 2 and 3), a skill that can be acquired with some practice. The curve chosen by the fairness measure is also reasonably minimal (criterion 5), since the spline's complexity is limited by the number of segments that are used, which is in direct correspondence to the specification. Bézier splines are furthermore very simple to derive from their description, fulfilling criterion 6 perfectly. Design tools for Bézier splines have some issues with both the fairness measure's smoothness (criterion 4) and the expressiveness of the description language (criterion 1), both of which shall be analyzed in the following paragraphs.
+				Applying the criteria established in section \ref{section:usability_criteria_curve_design_tools}, we conclude that the design tools for Bézier splines work sufficiently well in terms of humans trying to read and/or speak their specification language (criteria 2 and 3), a skill that can be acquired with some practice. The curve chosen by the fairness measure is also reasonably minimal (criterion 5), since the spline's complexity is limited by the number of segments that are used, which is in direct correspondence to the specification. Bézier splines are furthermore very simple to derive from their description, fulfilling criterion 6 perfectly. We think that design tools for Bézier splines have some issues with both the fairness measure's smoothness (criterion 4) and the expressiveness of the description language (criterion 1), both of which shall be analyzed in the following paragraphs.
 
 				The issue with the fairness measure is that it always selects the uniquely determined cubic Bézier curve for each segment, thus not guaranteeing curvature continuity across segments. It is difficult for humans to choose the coefficient points in such a way that curvature continuity is established, making it hard to create smooth curves if the design software does not support the user in this regard. The problem is aggravated by the fact that curvature discontinuities can be hard to spot and may thus only be discovered much later in the design process, increasing the cost of these mistakes. In case the software allows the user to request curvature continuous Bézier splines, this sacrifices some degree of freedom for each node, thus restricting the way nodes can be manipulated and in turn possibly forcing the user to place more nodes in order to get the desired result. Placing more nodes leads to some disadvantages that will be discussed further in the paragraphs dealing with description language expressiveness.
 
@@ -182,7 +182,7 @@
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
 
-		Having analyzed the usability aspect of curve design tools in section \ref{section:problem_analysis}, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as our specific ideas for developing a piece of software using this approach.
+		Having analyzed the usability aspect of curve design tools in section \ref{section:problem_analysis}, it's time to think about how to properly address their current issues. In the following sections, we propose both an abstract approach for designing usability-oriented curve design tools, as well as specific ideas for developing a piece of software using this approach.
           
 		\subsection{Description-Based Curves}
 		\label{section:description-based_curves}
@@ -216,7 +216,7 @@
 
 				With that in mind, it is now possible to abandon this notion of a combination of point, direction and curvature and instead talk about specification items, a specification item being either a positioned point, a positioned direction or a positioned curvature. For example, a combination of point and curvature at some position thus splits up into a point specification item at this position and a curvature specification item at the same position.
 
-				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
+				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate the design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
 
 				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length. For instance, with three point specification items on the curve, pulling the third one further away from the second will increase the total arc length of the curve, thus also increasing the arc length of the curve segment between the first and the second point specification item, thereby unintentionally creating a bulge between those two specification items.
 
@@ -237,7 +237,7 @@
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
 
-				In this section, we introduce two important fairness measures, the minimum energy curve and the minimum variation curve, both of which are characterized by an integral over the arc length of the curve. For the sake of simplicity, we will assume that the curve has arc length parametrization, such that the integrals are over the curve's parameter on the unit interval.
+				In this section, two important fairness measures are introduced, the minimum energy curve and the minimum variation curve, both of which are characterized by an integral over the arc length of the curve. For the sake of simplicity, the curve will be assumed to have arc length parametrization, such that the integrals are over the curve's parameter on the unit interval.
 
 				Before the advent of computer aided design, mechanical splines made from wood or steel were used in industrial design. Thus, people tried to emulate this behavior using mathematical curves, deriving a term for the bending energy in an idealized steel band, which is subsequently minimized. This leads to the following functional describing the minimum energy curve (MEC) \cite{paper-mec}, which tries to minimize the curvature, and thus the bending energy:
 				\begin{equation*}
@@ -287,16 +287,16 @@
 
 				Note that instead of segments from the rectangular elastica, the characteristic shapes of the minimum variation curves in figure \ref{figure:minimum_variation_curve_examples} are circular arcs and spirals. One may also observe that, instead of trying to bring the curvature to zero towards the endpoints like the MEC does, the MVC tries to establish constant curvature. In contrast to the MEC, the MVC constructs a circular arc in the leftmost example and avoids the inflection point in the rightmost example.
 
-				From these considerations, it seems clear that for use as a fairness measure in our approach to curve design, the minimum variation curve is much better suited than the minimum energy curve, so it was chosen as part of our description language.
+				We think that the minimum variation curve fairness measure is better at producing curves that appear smooth to the human visual system than the minimum energy curve fairness measure. Thus, it produces curves that both look good and are close to what the user expects, given the specification, causing less surprise and frustration when designing curves. Furthermore, it complements the chosen specification language nicely, since, in contrast to the minimum energy curve fairness measure, it works well with curvature specifications. Given these considerations, we have chosen to use the minimum variation curve fairness measure.
 
 		\subsection{Curve Derivation}
 		\label{section:curve_derivation}
 
 			Implementing the approach presented in section \ref{section:description-based_curves} requires a way of turning descriptions into actual curves. We chose to use nonlinear optimization on polynomial splines in order to achieve this goal.
 
-			Nonlinear optimization allowed us to stay relatively flexible with respect to the description language and enabled us to experiment with different specification languages and fairness measures, assessing their usability before settling on the choices presented in section \ref{section:description_language}.
+			Nonlinear optimization grants some flexibility with respect to the description language, enabling experimentation with different specification languages and fairness measures. This made it possible to assess their usability before settling on the choices presented in section \ref{section:description_language}.
 
-			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. Since polynomials of high degree are known to have poor stability, we opted to use polynomial splines, which allows us to increase the segment count, rather than the degree, in order to approximate more complex curves.
+			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. Since polynomials of high degree are known to have poor stability, polynomial splines were used, which allows increasing the segment count, rather than the degree, in order to approximate more complex curves.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
@@ -308,20 +308,20 @@
 						g_l \leq \apply{g}{x^*} \leq g_u
 					\end{gathered}
 				\end{equation*}
-				This allows for the expression of a variety of optimization goals. The ones that are important for us are zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
+				This allows for the expression of a variety of optimization goals, like zero-error constraints (using the constraint function and bounds to specify that an error term should be zero), upper bounds on errors (using the constraint function and bounds to specify an upper bound for an error term) and minimization goals (using the objective function to express that an error term should be minimized).
 
-				Our implementation of choice uses smooth optimization, or, more specifically, an interior point method. This type of algorithm further requires the functions \(f\) and \(g\) to be at least once, ideally twice continuously differentiable.
+				The implementation we chose uses smooth optimization, or, more specifically, an interior point method. This type of algorithm further requires the functions \(f\) and \(g\) to be at least once, ideally twice continuously differentiable.
 
-				In the following, we will describe how nonlinear optimization can be used for finding polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
+				The following sections describe how nonlinear optimization can be used for finding polynomial splines based on descriptions in the language established in section \ref{section:description_language}.
 
 			\subsubsection{Segmentation and Notation}
 			\label{section:segmentation_notation}
 
-				We start by considering the segment polynomials that make up the polynomial spline we want to find using optimization. Let \(m\) be the number of segments that make up the polynomial spline and let \(d\) be the degree of each segment polynomial. Then the \(i\)th segment polynomial is given by:
+				The first step is to consider the segment polynomials that make up the polynomial spline used in the optimization. Let \(m\) be the number of segments that make up the polynomial spline and let \(d\) be the degree of each segment polynomial. Then the \(i\)th segment polynomial is given by:
 				\begin{equation*}
 					\apply{\phi_i}{t} = \sum_{j = 0}^{d} a_{i,j} \cdot t^j
 				\end{equation*}
-				We will use the functions defined in section \ref{section:parametric_plane_curves} with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
+				The functions defined in section \ref{section:parametric_plane_curves} will be used with subscript \(i\) when referring to the \(i\)th segment (\(\apply{\phi_i}{t}\)) and without subscript when referring to the whole spline (\(\apply{\phi}{t}\)). Mapping the parameter \(t\) between the segments and the whole spline works as follows:
 				\begin{equation*}
 					\apply{\phi}{\frac{i + t}{m}} = \apply{\phi_i}{t}
 				\end{equation*}
@@ -341,7 +341,7 @@
 			\subsubsection{Constant Speed}
 			\label{section:constant_speed}
 
-				Since we chose to give the position of a specification item as a fraction of the curve's total arc length, we need the function mapping the covered arc length to the corresponding parameter values in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth optimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way of telling on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. We also need to state the specification of the total arc length of the curve as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is often an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address all these problems, the following error term is used:
+				Since the position of a specification item is given as a fraction of the curve's total arc length, the function mapping the covered arc length to the corresponding parameter values is needed in order to state the optimization goals for the specification items. Unfortunately, this function is not very well-suited to be used as a term in a smooth optimization problem even for simple curves like polynomials. Also, since the function isn't fixed and varies with the coefficients, there is no way of telling on which segment each specification item will end up, something that is also difficult to state in a smooth optimization problem. The specification of the total arc length of the curve also needs to be stated as an optimization goal, which may be difficult if the the covered arc length function is hard to express. Furthermore, the difficulty of expressing the fairness measure, which is often an integral over the arc length of the curve, is dependent on the complexity of the covered arc length function. In order to address all these problems, the following error term is used:
 				\begin{equation*}
 					\max_{t \in \unit} \xa{\apply{\sigma}{t} - \hat{\lambda}}
 				\end{equation*}
@@ -349,7 +349,7 @@
 
 				Since this goal can only be fulfilled approximately by polynomial curves, it is impossible to use the error term given above in a zero-error constraint. It could however be used in both an upper bound on errors and in a minimization goal. Both approaches were implemented and tested, with the latter yielding a more stable optimization process.
 
-				The error term given above is not well-suited for smooth optimization because it incorporates finding a maximum. Since the optimization problem will allow the original error term to be brought close to zero, we can approximate it using the following error term:
+				The error term given above is not well-suited for smooth optimization because it incorporates finding a maximum. Since the optimization problem will allow the original error term to be brought close to zero, it can be approximated using the following error term:
 				\begin{equation*}
 					\hat{\lambda}^{-2}\integral{0}{1}{\xp{\apply{\sigma}{t} - \hat{\lambda}}^2}{t}
 				\end{equation*}
@@ -358,7 +358,7 @@
 			\subsubsection{Continuity Connections}
 			\label{section:continuity_connections}
 
-				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, we will only require \(\contg{2}\) continuity for the whole spline. While the polynomial curves used as segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
+				As mentioned in section \ref{section:description_language}, we are not concerned with properties beyond the second derivative of the curve. Thus, only \(\contg{2}\) continuity will be required. While the polynomial curves used as segments are smooth (\(\contp{\infty}\) continuity), the resulting spline in general is not. The segments have to be pieced together in such a way as to ensure a certain degree of smoothness. Thus, to ensure \(\contg{2}\) continuity for the whole curve, it is sufficient to ensure \(\contg{2}\) continuity at the segment connection points. To do this, the following error terms are added for each connection point (\(0 \leq i \leq m - 1\)):
 				\begin{equation*}
 					\begin{gathered}
 						\apply{\phi_i}{1} - \apply{\phi_{i + 1}}{0}\\
@@ -373,7 +373,7 @@
 			\subsubsection{Specification Items}
 			\label{section:specification_items}
 
-				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. Since the optimization goal in section \ref{section:constant_speed} makes sure that \(\apply{\lambda}{t} \approx \hat{\lambda}t\), we know that the whole spline is parametrized in such a way that the parameter \(t\) is a fraction of the curve's total arc length. This fits perfectly with the fact that the position of each specification item is also specified as a fraction of the curve's total arc length. Thus, for each specification item (\(0 \leq i \leq n\)), we add one of the following error terms, depending on the type of the specification item:
+				Having taken care of the somewhat technical details arising from using polynomial splines, it's time to state the error terms for the specification items. Since the optimization goal in section \ref{section:constant_speed} makes sure that \(\apply{\lambda}{t} \approx \hat{\lambda}t\), the whole spline is parametrized in such a way that the parameter \(t\) is a fraction of the curve's total arc length. This fits perfectly with the fact that the position of each specification item is also specified as a fraction of the curve's total arc length. Thus, for each specification item (\(0 \leq i \leq n\)), one of the following error terms is added, depending on the type of the specification item:
 				\begin{equation*}
 					\begin{gathered}
 						\apply{\phi}{\hat{t}_i} - \hat{\phi}_i\\
@@ -391,7 +391,7 @@
 				\begin{equation*}
 					\hat{\lambda}^2\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
-				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal. Note that similar to the error term for constant speed, we added the factor \(\hat{\lambda}^2\), which causes the fairness measure to be invariant under scaling of the whole curve, enabling static weighting of error terms in the objective function.
+				It's clear that in many cases, this error term will not be zero, and in fact, may be arbitrarily large. Thus, it is not suitable to be constrained to zero or bounded error and has to be stated as a minimization goal. Note that similar to the error term for constant speed, the factor \(\hat{\lambda}^2\) is added, which causes the fairness measure to be invariant under scaling of the whole curve, enabling static weighting of error terms in the objective function.
 
 			\subsubsection{Final Assembly}
 			\label{section:final_assembly}
@@ -655,12 +655,12 @@
 		\subsection{Usability Analysis}
 		\label{section:usability_analysis}
 
-			Having applied the usability criteria from section \ref{section:usability_criteria_curve_design_tools} to Bézier splines and Spiro splines, we will now use them to evaluate usability aspects of the prototype curve design tool.
+			Having applied the usability criteria from section \ref{section:usability_criteria_curve_design_tools} to Bézier splines and Spiro splines, it is now time to use them to evaluate usability aspects of the prototype curve design tool.
 
 			\subsubsection{Expressiveness of the Description Language}
 			\label{section:expressiveness_description_language}
 
-				One of the primary goals of this project was to explore more expressive description languages than those which are currently used in vector graphics software. To that end, our specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. Furthermore, the fairness measure ensures constant and linearly changing curvature where possible. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that can describe the curve in the most concise fashion.
+				One of the primary goals of this project was to explore more expressive description languages than those which are currently used in vector graphics software. To that end, the chosen specification language supports specifying points, directions and curvatures at any number of positions on the curve, as well as the total length of the curve. Furthermore, the fairness measure ensures constant and linearly changing curvature where possible. This grants the user much flexibility in describing the source curve, allowing them to specify those properties that can describe the curve in the most concise fashion.
 
 				The ability to specify curvature constitutes a significant improvement over common curve design tools, where this is usually not possible. Using this functionality, the user can specify curves which are best expressed in terms of curvature in a natural and concise way. Not only does this make the curve design process less tedious, but it may also lead to better curves, since only the essential information about the curve is given to the software. This allows the fairness measure to choose the best curve, something that is not possible if lots of auxiliary information is supplied to the software in order to indirectly influence the curvature.
 
@@ -697,12 +697,12 @@
 
 				Another issue is reliability. For some descriptions, the iterative optimization algorithm may converge extremely slowly or not at all, thus not producing a curve. In some cases, it is possible that small changes in the description restore the ability to converge on a solution, but sometimes one simply has to start over. There are also cases where the optimization gets stuck in a pathological local optimum, in which case one often has to start over as well.
 
-				All these issues cause the prototype curve design tool to be somewhat impractical for actual curve design work, making this the primary issue with the chosen approach.
+				All these issues cause the prototype curve design tool to be somewhat impractical for actual curve design work, making this the primary issue with the current implementation.
 
 		\subsection{Examples}
 		\label{section:examples}
 
-			We will now revisit some of the examples shown in sections \ref{section:bézier_splines} and \ref{section:spiro_splines} using the prototype curve design tool in order to see how well the description language we propose can handle them.
+			It's time to revisit some of the examples shown in sections \ref{section:bézier_splines} and \ref{section:spiro_splines} using the prototype curve design tool in order to see how well the description language we propose can handle them.
 
 			\begin{figure}[htb]
 				\centering
@@ -728,14 +728,14 @@
 
 			Example 4 uses a mixture of the techniques used in examples 2 and 3, placing curvature specification items along the curve in order to not unnecessarily restrict the fairness measure's freedom and using a final point specification at the end of the curve to force it into place. This approach ensures that no unintentional bumps are introduced (which can happen easily when placing point specification items in the middle of a curve), while still avoiding the tedious placing of perfectly adjusted curvature specification items (which would be necessary if the final point specification item was not there).
 
-			It may also be worth estimating the amount of information given in the description. Recall that the curve in example 4 was already designed using Bézier splines in section \ref{section:bézier_splines}, using 7 nodes and 12 handles, and Spiro splines in section \ref{section:spiro_splines}, using 7 control points. Here, it is designed using 2 point specifications, 1 direction specification, and 3 curvature specifications and specified arc length. Unfortunately, it is somewhat difficult to directly compare these amounts since specification items use fractions of the arc length for positioning instead of node/control point ordering, as is the case with Bézier splines and Spiro splines. Fraction of arc length positions do of course contain more information than simple orderings, although this is arguably not the case if said positions lie exactly on the start or end of the curve. Furthermore, direction and curvature specification items only specify a scalar value instead of a plane vector, so could be considered to only supply half as much information as a point specification item. So we count 1 scalar value for arc length, 4 scalar values for points, 1 for directions and 1 for curvatures specified at the start or end of the curve, and 4 scalar values for curvatures specified in the middle of the curve, giving us a total of 11 scalar values for the entire specification, just shy of the 14 scalar values for the Spiro spline and a lot less than the 33 scalar values for the Bézier spline (where the loss of one degree of freedom for smooth nodes with colinear velocities has been taken into account). Of course these comparisons cannot be taken as precise, quantitative measurements of conciseness, but they are useful as a coarse judgment on the amount of information that needs to be supplied to define a specific curve.
+			It may also be worth estimating the amount of information given in the description. Recall that the curve in example 4 was already designed using Bézier splines in section \ref{section:bézier_splines}, using 7 nodes and 12 handles, and Spiro splines in section \ref{section:spiro_splines}, using 7 control points. Here, it is designed using 2 point specifications, 1 direction specification, 3 curvature specifications and specified arc length. Unfortunately, it is somewhat difficult to directly compare these amounts since specification items use fractions of the arc length for positioning instead of node/control point ordering, as is the case with Bézier splines and Spiro splines. Fraction of arc length positions do of course contain more information than simple orderings, although this is arguably not the case if said positions lie exactly on the start or end of the curve. Furthermore, direction and curvature specification items only specify a scalar value instead of a plane vector, so could be considered to only supply half as much information as a point specification item. Thus, there is 1 scalar value for arc length, 4 scalar values for points, 1 for directions and 1 for curvatures specified at the start or end of the curve, and 4 scalar values for curvatures specified in the middle of the curve, giving a total of 11 scalar values for the entire specification, just short of the 14 scalar values for the Spiro spline and a lot less than the 33 scalar values for the Bézier spline (where the loss of one degree of freedom for smooth nodes with colinear velocities has been taken into account). Of course these comparisons cannot be taken as precise, quantitative measurements of conciseness, but they are useful as a coarse judgment on the amount of information that needs to be supplied to define a specific curve.
 
 			Finally, figure \ref{figure:examples_prototype_fairness} demonstrates the ability of the MVC fairness to construct aesthetically pleasing, smooth curves. The indicators for the specification items were left out in this example to make it easier to judge the curve's smoothness.
 
 	\section{Conclusion}
 	\label{section:conclusion}
 
-		Having analyzed the usability both through theoretical analysis and experimentally using the prototype curve design tool, we think that our approach looks promising. The added expressiveness of the proposed description language has certainly proven useful, facilitating the succinct description of curves which, when using conventional curve design tools, are harder to design and/or lack smoothness due to unfitting description languages.
+		Having analyzed the usability both through theoretical analysis and experimentally using the prototype curve design tool, we think that the chosen description language looks promising. The added expressiveness has certainly proven useful, facilitating the succinct description of curves which, when using conventional curve design tools, are hard to design and/or lack smoothness due to unfitting description languages.
 
 		While we are very satisfied with the MVC fairness measure, we feel that the specification language can still be improved, for instance by making the specification of the curve's total arc length as well as the specification items' positions optional. Another possible extension would be to allow specification items to be slightly violated in order to improve the curve's fairness (soft specifications). Further experiments using improved versions of the current description language and the prototype curve design tool are needed to make an informed decision here. It would also be advisable to do empirical studies with users of vector graphics software to assess the usability of description languages.
 
@@ -762,12 +762,12 @@
 		\subsection{Parametric Curves}
 		\label{section:parametric_curves}
 
-			Parametric curves are described using functions \(\phi : \function{\unit}{\R{n}}\), called the parametrization function. The represented curve is then the image of this function. While there are many ways to parametrize a given curve, that is, represent it using a parametrization function, we are usually interested in those which yield a sufficiently smooth parametrization function, allowing for the concise description of curve properties using differential geometry.
+			Parametric curves are described using functions \(\phi : \function{\unit}{\R{n}}\), called the parametrization function. The represented curve is then the image of this function. While there are many ways to parametrize a given curve, that is, represent it using a parametrization function, one is usually interested in those which yield a sufficiently smooth parametrization function, allowing for the concise description of curve properties using differential geometry.
 
 		\subsection{Parametric Plane Curves}
 		\label{section:parametric_plane_curves}
 
-			In the special case of parametric plane curves, that is, parametric curves in the euclidean plane, we can define the following functions:
+			In the special case of parametric plane curves, that is, parametric curves in the euclidean plane, one can define the following functions:
 			\begin{align*}
 				\phi    & : \function{\unit}{\R{2}} &                    &                                                && \text{point}\\
 				\sigma  & : \function{\unit}{\RR}   & \apply{\sigma}{t}  & = \xn{\apply{\phi'}{t}}                        && \text{speed}\\
@@ -785,7 +785,7 @@
 
 			One may notice that this notion of continuity is a little too strict. A curve may look arbitrarily smooth, while its parametrization does not even have \(\contp{1}\) continuity, since the derivatives of the parametrization function may have discontinuities that do not manifest themselves in the curve that they represent. If that is the case, one can always find a different parametrization of the same curve that does not have these discontinuities. This insight gives rise to the definition of geometric continuity, denoted by \(\contg{n}\), which only requires that there exists a reparametrization of the parametric curve which is \(\contp{n}\) continuous.
 
-			It follows immediately that every parametric curve that is \(\contp{n}\) continuous is also \(\contg{n}\) continuous. One may also observe that \(\contp{0}\) continuity and \(\contg{0}\) continuity are equivalent, since discontinuities in the parametrization function itself manifest themselves directly in the curve it represents, and thus have to exist in all parametrizations of this curve. In the case of parametric plane curves, using the definitions from section \ref{section:parametric_plane_curves}, we can equate \(\contg{0}\) continuity with \(\phi\) being continuous, \(\contg{1}\) continuity with \(\delta\) being continuous and \(\contg{2}\) continuity with \(\chi\) being continuous.
+			It follows immediately that every parametric curve that is \(\contp{n}\) continuous is also \(\contg{n}\) continuous. One may also observe that \(\contp{0}\) continuity and \(\contg{0}\) continuity are equivalent, since discontinuities in the parametrization function itself manifest themselves directly in the curve it represents, and thus have to exist in all parametrizations of this curve. In the case of parametric plane curves, using the definitions from section \ref{section:parametric_plane_curves}, one can equate \(\contg{0}\) continuity with \(\phi\) being continuous, \(\contg{1}\) continuity with \(\delta\) being continuous and \(\contg{2}\) continuity with \(\chi\) being continuous.
 
 	\begin{thebibliography}{}
 
