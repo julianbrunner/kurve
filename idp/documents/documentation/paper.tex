@@ -695,14 +695,21 @@
 
 			\begin{figure}[htb]
 				\centering
-				\includegraphics[width=\textwidth]{content/output/examples_prototype.pdf}
-				\caption{Prototype Curve Design Tool Examples (left: Fluttershy \cite{fluttershy})}
+				\begin{subfigure}[b]{8 \textwidth / 13}
+					\includegraphics[width=\textwidth]{content/output/examples_prototype_fluttershy.pdf}
+					\caption{Fluttershy \cite{fluttershy}}
+					\label{figure:examples_prototype_fluttershy}
+				\end{subfigure}%
+				\begin{subfigure}[b]{5 \textwidth / 13}
+					\includegraphics[width=\textwidth]{content/output/examples_prototype_fairness.pdf}
+					\caption{Fairness Measure Example}
+					\label{figure:examples_prototype_fairness}
+				\end{subfigure}
+				\caption{Examples of curves designed using the prototype curve design tool. Point specification items are displayed as red dots, direction specification items are displayed green tangent lines and curvature specification items are displayed using blue circular arcs taken from the osculating circle.}
 				\label{figure:examples_prototype}
 			\end{figure}
 
-			Figure \ref{figure:examples_prototype} shows some examples of curves designed using the prototype curve design tool. Point specification items are displayed as red dots, direction specification items are displayed green tangent lines and curvature specification items are displayed using blue circular arcs taken from the osculating circle.
-
-			Example 1 shows how adjusting the arc length of an otherwise unconstrained curve allows the convenient creation of curcular arcs between two points.
+			Figure \ref{figure:examples_prototype_fluttershy} shows a few curves designed using the prototype curve design tool. Example 1 demonstrates how adjusting the arc length of an otherwise unconstrained curve allows the convenient creation of curcular arcs between two points.
 
 			Examples 2, 3 and 4 show how to make use of the high expressiveness of the description language. In example 2, the curve is described mainly using three curvature specification items, the point specification item and the direction specification item acting merely as a fixture for the curve, since the curvature specification items leave it unconstrained with regard to translation and rotation. This way, the curve is basically defined by its length and the three curvature specification items, giving the fairness measure maximal freedom controlling the curve, in this case allowing it to establish linearly changing curvature between each pair of curvature specification items.
 
@@ -712,7 +719,7 @@
 
 			It may also be worth estimating the amount of information given in the description. Recall that the curve in example 4 was already designed using Bézier splines in section \ref{section:bézier_splines}, using 7 nodes and 12 handles, and Spiro splines in section \ref{section:spiro_splines}, using 7 control points. Here, it is designed using 2 point specifications, 1 direction specification, and 3 curvature specifications and specified arc length. Unfortunately, it is somewhat difficult to directly compare these amounts since specification items use fractions of the arc length for positioning instead of node/control point ordering, as is the case with Bézier splines and Spiro splines. Fraction of arc length positions do of course contain more information than simple orderings, although this is arguably not the case if said positions lie exactly on the start or end of the curve. Furthermore, direction and curvature specification items only specify a scalar value instead of a plane vector, so could be considered to only supply half as much information as a point specification item. So we count 1 scalar value for arc length, 4 scalar values for points, 1 for directions and 1 for curvatures specified at the start or end of the curve, and 4 scalar values for curvatures specified in the middle of the curve, giving us a total of 11 scalar values for the entire specification, just shy of the 14 scalar values for the Spiro spline and a lot less than the 33 scalar values for the Bézier spline (where the loss of one degree of freedom for smooth nodes with colinear velocities has been taken into account). Of course these comparisons cannot be taken as precise, quantitative measurements of conciseness, but they are useful as a coarse judgement on the amount of information that needs to be supplied to define a specific curve.
 
-			Finally, example 5 demonstrates the ability of the MVC fairness to construct aesthetically pleasing, smooth curves. The indicators for the specification items were left out in this example to make it easier to judge the curve's smoothness.
+			Finally, figure \ref{figure:examples_prototype_fairness} demonstrates the ability of the MVC fairness to construct aesthetically pleasing, smooth curves. The indicators for the specification items were left out in this example to make it easier to judge the curve's smoothness.
 
 	\section{Conclusion}
 	\label{section:conclusion}
