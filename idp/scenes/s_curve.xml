@@ -3,7 +3,7 @@
   <specification>
     <basic_specification>
       <basic_specification>
-        <curve_length>1260</curve_length>
+        <curve_length>1200</curve_length>
         <segment_count>5</segment_count>
         <segment_template>
           <polynomial_curve_template>
@@ -15,17 +15,17 @@
             <position>0</position>
             <point>
               <vector_2_double>
-                <x>178</x>
-                <y>363</y>
+                <x>200</x>
+                <y>400</y>
               </vector_2_double>
             </point>
           </point_curve_specification>
           <point_curve_specification>
-            <position>0.50505050505050508</position>
+            <position>0.5</position>
             <point>
               <vector_2_double>
-                <x>344.96892626340104</x>
-                <y>366.83929451847632</y>
+                <x>400</x>
+                <y>400</y>
               </vector_2_double>
             </point>
           </point_curve_specification>
@@ -33,8 +33,8 @@
             <position>1</position>
             <point>
               <vector_2_double>
-                <x>503</x>
-                <y>370</y>
+                <x>600</x>
+                <y>400</y>
               </vector_2_double>
             </point>
           </point_curve_specification>
@@ -42,106 +42,106 @@
       </basic_specification>
     </basic_specification>
     <position>
-      <parameter>178</parameter>
-      <parameter>363</parameter>
-      <parameter>-81.114843777133274</parameter>
-      <parameter>238.59212939755255</parameter>
-      <parameter>-0.45453619630829245</parameter>
-      <parameter>-0.23758995181565357</parameter>
-      <parameter>105.60192045952577</parameter>
-      <parameter>37.192769278512685</parameter>
-      <parameter>-67.094645423769649</parameter>
-      <parameter>-32.870729148955213</parameter>
-      <parameter>229.52339505886138</parameter>
-      <parameter>81.1310545406231</parameter>
-      <parameter>-368.27294290287148</parameter>
-      <parameter>-219.65774349677275</parameter>
-      <parameter>344.69929732551236</parameter>
-      <parameter>229.49725555472642</parameter>
-      <parameter>-186.21079047114435</parameter>
-      <parameter>-134.66572305568903</parameter>
-      <parameter>40.961402928924578</parameter>
-      <parameter>35.885255653525235</parameter>
-      <parameter>195.63825700159705</parameter>
-      <parameter>597.86667877170748</parameter>
-      <parameter>196.24396526057964</parameter>
-      <parameter>158.04345777541729</parameter>
-      <parameter>184.31677577019445</parameter>
-      <parameter>-228.76793943849881</parameter>
-      <parameter>-120.3926604443549</parameter>
-      <parameter>-220.35177606098702</parameter>
-      <parameter>-304.9755271123239</parameter>
-      <parameter>173.0945418376389</parameter>
-      <parameter>276.55070230653672</parameter>
-      <parameter>-46.3945744411186</parameter>
-      <parameter>-164.55753823814533</parameter>
-      <parameter>408.48657815967982</parameter>
-      <parameter>294.63737985035362</parameter>
-      <parameter>-641.76468106514051</parameter>
-      <parameter>-269.6976382622309</parameter>
-      <parameter>375.55812346617449</parameter>
-      <parameter>80.872904584324374</parameter>
-      <parameter>-79.400196433002</parameter>
-      <parameter>368.63662071653084</parameter>
-      <parameter>496.37021257187115</parameter>
-      <parameter>11.94240323596684</parameter>
-      <parameter>-251.71253280510481</parameter>
-      <parameter>-162.2947481929896</parameter>
-      <parameter>-7.7410055147536436</parameter>
-      <parameter>76.293016264297378</parameter>
-      <parameter>75.996810270309766</parameter>
-      <parameter>168.83250705943405</parameter>
-      <parameter>-99.495307971213649</parameter>
-      <parameter>-468.06515987000734</parameter>
-      <parameter>19.77977379501781</parameter>
-      <parameter>727.60170038144418</parameter>
-      <parameter>54.607215949290456</parameter>
-      <parameter>-672.20907254135545</parameter>
-      <parameter>-70.14935736510931</parameter>
-      <parameter>346.99194800950448</parameter>
-      <parameter>41.918546411320321</parameter>
-      <parameter>-76.70136502522341</parameter>
-      <parameter>-9.5153140822918889</parameter>
-      <parameter>321.02785003760192</parameter>
-      <parameter>250.0590412593362</parameter>
-      <parameter>-2.9938221212195906</parameter>
-      <parameter>-251.9781372435352</parameter>
-      <parameter>151.08812996771294</parameter>
-      <parameter>-1.7849574544057563</parameter>
-      <parameter>149.63140826068894</parameter>
-      <parameter>59.945138877567842</parameter>
-      <parameter>-235.45667279961097</parameter>
-      <parameter>123.2723280115726</parameter>
-      <parameter>607.99784611263124</parameter>
-      <parameter>-88.9787894068323</parameter>
-      <parameter>-1174.15114821716</parameter>
-      <parameter>362.176002968523</parameter>
-      <parameter>1015.9686654257438</parameter>
-      <parameter>-615.55427310293214</parameter>
-      <parameter>-417.12008727768148</parameter>
-      <parameter>384.50789843568714</parameter>
-      <parameter>69.62594930683936</parameter>
-      <parameter>-84.796722074330674</parameter>
-      <parameter>485.61811869554617</parameter>
-      <parameter>136.8675302706506</parameter>
-      <parameter>202.78581617833407</parameter>
-      <parameter>149.55152439961887</parameter>
-      <parameter>-182.53273896721896</parameter>
-      <parameter>247.43600406901311</parameter>
-      <parameter>-182.82010851372087</parameter>
-      <parameter>-173.97194227680046</parameter>
-      <parameter>268.41185829506509</parameter>
-      <parameter>-249.80104489903374</parameter>
-      <parameter>28.404164011324074</parameter>
-      <parameter>635.21551975065051</parameter>
-      <parameter>-342.31823957976758</parameter>
-      <parameter>-685.59618510335372</parameter>
-      <parameter>385.57969859803882</parameter>
-      <parameter>468.0321009870537</parameter>
-      <parameter>-204.89718914457919</parameter>
-      <parameter>-194.38135367536424</parameter>
-      <parameter>44.76862042697838</parameter>
-      <parameter>36.647846477565317</parameter>
+      <parameter>200</parameter>
+      <parameter>400</parameter>
+      <parameter>-235.733478073762</parameter>
+      <parameter>45.06764679182956</parameter>
+      <parameter>53.56853434797042</parameter>
+      <parameter>280.38537236325067</parameter>
+      <parameter>222.74665570798481</parameter>
+      <parameter>-42.603735150385262</parameter>
+      <parameter>-27.511616753801764</parameter>
+      <parameter>-131.81854908899771</parameter>
+      <parameter>-56.627576950538348</parameter>
+      <parameter>11.171846157632668</parameter>
+      <parameter>-6.5410420438663852</parameter>
+      <parameter>21.695380647739647</parameter>
+      <parameter>13.238660294519255</parameter>
+      <parameter>6.1871649361805581</parameter>
+      <parameter>0.9958762702924856</parameter>
+      <parameter>-5.7614570855950822</parameter>
+      <parameter>-1.2765440499201921</parameter>
+      <parameter>0.44036255504179578</parameter>
+      <parameter>162.85946874887833</parameter>
+      <parameter>584.76403212669663</parameter>
+      <parameter>196.36168948972912</parameter>
+      <parameter>137.96626524966496</parameter>
+      <parameter>152.28821674170197</parameter>
+      <parameter>-216.72523908483578</parameter>
+      <parameter>-173.21718347620418</parameter>
+      <parameter>-93.620462614121735</parameter>
+      <parameter>-33.743243426932018</parameter>
+      <parameter>123.63933668262355</parameter>
+      <parameter>57.301715835312919</parameter>
+      <parameter>2.1553886170710546</parameter>
+      <parameter>40.698852064140283</parameter>
+      <parameter>-21.273379096725353</parameter>
+      <parameter>-67.463752967906146</parameter>
+      <parameter>-20.604424795962107</parameter>
+      <parameter>32.788624907289361</parameter>
+      <parameter>23.115993430419678</parameter>
+      <parameter>-6.049179307948406</parameter>
+      <parameter>-5.9961952216385148</parameter>
+      <parameter>361.82520860806119</parameter>
+      <parameter>513.42131529319238</parameter>
+      <parameter>112.63540510963493</parameter>
+      <parameter>-211.92036864999835</parameter>
+      <parameter>-102.75062494133866</parameter>
+      <parameter>-54.605539754069149</parameter>
+      <parameter>45.54931556579789</parameter>
+      <parameter>66.50149556330723</parameter>
+      <parameter>45.810808595253263</parameter>
+      <parameter>-33.278994811485191</parameter>
+      <parameter>-49.379094783832777</parameter>
+      <parameter>-19.152215717326456</parameter>
+      <parameter>50.389838473718434</parameter>
+      <parameter>52.830071169142734</parameter>
+      <parameter>-42.018621175467167</parameter>
+      <parameter>-44.188959658616916</parameter>
+      <parameter>20.716143351610867</parameter>
+      <parameter>21.820990207702827</parameter>
+      <parameter>-4.603587411499162</parameter>
+      <parameter>-4.8491089350414276</parameter>
+      <parameter>438.17479139193887</parameter>
+      <parameter>286.57868470680762</parameter>
+      <parameter>112.63540510963527</parameter>
+      <parameter>-211.9203686500002</parameter>
+      <parameter>102.75062494134703</parameter>
+      <parameter>54.605539754050376</parameter>
+      <parameter>45.604621515263752</parameter>
+      <parameter>66.683553980221419</parameter>
+      <parameter>-35.023913538523523</parameter>
+      <parameter>43.240332336096714</parameter>
+      <parameter>-41.277582120002251</parameter>
+      <parameter>-19.202772494891832</parameter>
+      <parameter>21.596983217533548</parameter>
+      <parameter>21.936935225621166</parameter>
+      <parameter>-22.9252088434527</parameter>
+      <parameter>-51.53950532556982</parameter>
+      <parameter>21.653988891749574</parameter>
+      <parameter>30.849763562474568</parameter>
+      <parameter>-6.049179314368101</parameter>
+      <parameter>-5.9961952215068584</parameter>
+      <parameter>637.14053125112139</parameter>
+      <parameter>215.23596787330314</parameter>
+      <parameter>196.36168948973125</parameter>
+      <parameter>137.96626524966555</parameter>
+      <parameter>-152.28821674179247</parameter>
+      <parameter>216.7252390847687</parameter>
+      <parameter>-172.50394043766642</parameter>
+      <parameter>-93.3522263779952</parameter>
+      <parameter>36.545233220551118</parameter>
+      <parameter>-118.20585012893194</parameter>
+      <parameter>77.062557832472834</parameter>
+      <parameter>4.1186788558033074</parameter>
+      <parameter>-6.78441541716507</parameter>
+      <parameter>59.324808556736443</parameter>
+      <parameter>-24.749915316905298</parameter>
+      <parameter>-24.051439753369774</parameter>
+      <parameter>10.493020167023817</parameter>
+      <parameter>1.7981940836848296</parameter>
+      <parameter>-1.2765440473710667</parameter>
+      <parameter>0.4403625563350162</parameter>
     </position>
   </specification>
 </curves>

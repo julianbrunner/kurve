@@ -7,6 +7,7 @@
 \usepackage{parskip}           % replaces hanging paragraphs with spacing between paragraphs
 \usepackage{times}             % replaces Computer Modern font with something resembling Times
 \usepackage{graphicx}          % enables including graphics
+\usepackage{caption}           % provides float caption formatting
 \usepackage{amsmath}           % ams math module
 \usepackage{amssymb}           % ams math symbols
 \usepackage{mathtools}         % fixes a few quirks with the ams packages
@@ -16,6 +17,9 @@
 % tells LaTeX to avoid orphan lines at the beginning or end of a page
 \clubpenalty = 10000
 \widowpenalty = 10000
+
+% setup caption formatting
+\captionsetup{margin = 10pt, font = small, labelfont = bf}
 
 \title{Optimal Fitting of Planar Curves to Prescribed Constraints}
 \author{Julian Asamer, Julian Brunner}
@@ -208,39 +212,45 @@
 					\end{alignedat}
 				\end{equation*}
 
+
 			\subsubsection{Fairness Measure}
 			\label{section:fairness_measure}
 
-				% TODO: fairness measure integral is over the arc length of the curve
-				% TODO: mention that mvc facilitates describing circular arcs and spirals (constant and linearly changing curvature)
-				% TODO: MEC cannot handle curvature specifications
-				% TODO: add some illustrations, describe their general behaviour, smoothness
+				In this section, we introduce two important fairness measures, the minimum energy curve and the minimum variation curve, both of which are characterized by an integral over the arc length of the curve. For the sake of simplicity, we will assume that the curve has arc length parametrization, such that the integrals are over the curve's parameter on the unit interval.
 
-				Different fairness measures for plane curves have been proposed throughout history. Many of them set out to emulate the behavior of mechanical splines made from wood or steel, which were used for industrial design before the advent of computer aided design. The most direct approach of this type uses mechanics to derive a term for the energy in an idealized bent steel band to minimize, arriving at the following functional describing the minimum energy curve (MEC) \cite{paper-mec}:
+				Before the advent of computer aided design, mechanical splines made from wood or steel were used in industrial design. Thus, people tried to emulate this behavior using mathematical curves, deriving a term for the bending energy in an idealized steel band, which is subsequently minimized. This leads to the following functional describing the minimum energy curve (MEC) \cite{paper-mec}, which tries to minimize the curvature, and thus the bending energy:
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi}{t}^2}{t}
 				\end{equation*}
-				While this approach is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would always prefer one large circular arc over five small bumps on the curve.
+
+				While the minimum energy curve is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would always prefer one large arc over multiple small ones. Since the MEC tries to minimize curvature, it is also unsuited for the use with curvature specifications, as it will try to bring the curvature back to zero before and after a nonzero curvature specification.
 
 				\begin{figure}[htbp]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mec.pdf}
-					\caption{Minimum Energy Curves}
-					\label{figure:minimum_energy_curves}
+					\caption{Minimum Energy Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
+					\label{figure:minimum_energy_curve_examples}
 				\end{figure}
 
-				In order to adress these issues, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, whose functional is given below:
+				Figure \ref{figure:minimum_energy_curve_examples} shows a few examples of minimum energy curves under various constraints. Note the characteristic shape of the MEC (rectangular elastica), as well as the fact that, in absence of direction or curvature specification items, its curvature is always zero at the endpoints.
+
+				In order to address the issues of the MEC, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, which tries to minimize the variation of the curvature. The corresponding functional is given below:
 				\begin{equation*}
 					\integral{0}{1}{\apply{\chi'}{t}^2}{t}
 				\end{equation*}
-				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the functional will prefer linearly changing curvature, since that will make the derivative of the curvature a constant and thereby minimize the integral over its square. In general, the MVC fairness measure is very good at avoiding bumps and inflection points when possible. Because of these appealing properties, the MVC fairness measure was chosen as part of our description language.
+
+				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the fairness measure will prefer linearly changing curvature, since that will make the derivative of the curvature a constant and thereby minimize the integral over its square. In general, the MVC fairness measure is very good at avoiding bumps and inflection points when possible. It also works nicely with curvature constraints, since constant curvature is perfectly acceptable for the MVC fairness measure.
 
 				\begin{figure}[htbp]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mvc.pdf}
-					\caption{Minimum Variation Curves}
-					\label{figure:minimum_variation_curves}
+					\caption{Minimum Variation Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
+					\label{figure:minimum_variation_curve_examples}
 				\end{figure}
+
+				Figure \ref{figure:minimum_variation_curve_examples} shows a few examples of minimum variation curves under the same constraints as the curves in figure \ref{figure:minimum_energy_curve_examples}. Note that instead of segments from the rectangular elastica, the MVC's characteristic shapes are circular arcs and spirals. One may also observe that, instead of trying to bring the curvature to zero towards the endpoints like the MEC does, the MVC tries to establish constant curvature. In contrast to the MEC, the MVC constructs a circular arc in the leftmost example and avoids the inflection point in the rightmost example.
+
+				From these considerations, it seems clear that for use as a fairness measure in our approach to curve design, the minimum variation curve is much better suited than the minimum energy curve, so it was chosen as part of our description language.
 
 		\subsection{Curve Derivation}
 		\label{section:curve_derivation}
@@ -664,8 +674,7 @@
 				\label{figure:examples_prototype}
 			\end{figure}
 
-			% TODO: add illustration to section introducing specification language, add reference to it here
-			Figure \ref{figure:examples_prototype} shows some examples of curves designed using the prototype curve design tool. Like in section 1.2.3, point specification items are represented using red dots, direction specification items are represented using green tangent lines and curvature specification items are represented using blue circular arcs taken from the osculating circle.
+			Figure \ref{figure:examples_prototype} shows some examples of curves designed using the prototype curve design tool. Point specification items are represented using red dots, direction specification items are represented using green tangent lines and curvature specification items are represented using blue circular arcs taken from the osculating circle.
 
 			Example 1 shows how adjusting the arc length of an otherwise unconstrained curve allows the convenient creation of curcular arcs between two points.
 
