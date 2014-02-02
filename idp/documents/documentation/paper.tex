@@ -25,7 +25,6 @@
 \author{Julian Asamer, Julian Brunner}
 \date{\today}
 
-% TODO: consider splitting some illustrations into multiple figures if there is still space left at the end
 % TODO: expand n't and *'s contractions
 % TODO: check if all quotations are done `like this'
 % TODO: consistent use of polynomial, planar, plane, parametric, curve
@@ -114,7 +113,7 @@
 
 				The description language used to specify Bézier splines in common design tools is lacking in expressiveness. Specifically, describing curves in terms of their curvature is difficult since curvature may only be specified indirectly through the magnitude of the velocity values (higher velocity resulting in lower curvature). Unfortunately, this is also very dependent on the point and velocity coefficients at the other end of the spline segment. There is also no way to directly specify constant or linearly changing curvature. This makes specifying curvature very tedious, and in case the winding angle of the curve segment is large enough, actually impossible, forcing the designer to use additional nodes in order to get the desired result. Using an excessive number of nodes makes it more tedious and time-consuming for the designer to create and/or modify such curves, since many nodes and handles have to be created or moved in order to change the overall curve. It also sacrifices smoothness, since it's easy to accidently introduce subtle bumps in the curve when using a large number of nodes. Another issue is that without software support for curvature continuity, using more nodes usually also introduces more points where curvature is not continuous. In cases where the curvature is an important property of the curve (for example the constant curvature of circular arcs, or the linearly changing curvature of spirals), it may be very difficult to specify these properties indirectly using the coefficient points.
 
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/examples_bezier.pdf}
 					\caption{Bézier Spline Examples (left: Fluttershy \cite{fluttershy}, right: Lugia \cite{lugia})}
@@ -142,7 +141,7 @@
 
 				Section \ref{section:bézier_splines} discussed how the lack of ability to specify curvature using common Bézier spline design tools adversively affects usability. Many of the same points apply to Spiro spline design tools, since they allow the user to neither specify direction nor curvature. These properties can only be expressed indirectly, by placing the control points in such a way that the algorithm will create a curve that has the desired properties, resulting in the usability issues described previously, such as requiring many control points to be specified even though the curve could be described much more concisely in terms of direction and/or curvature. This seems especially unfortunate when considering that the spline primitive of Spiro splines, the Euler spiral, would lend itsself excellently to the expression of circular arcs, spirals and other shapes exhibiting constant or linearly changing curvature. Sometimes, the algorithm can be coaxed into producing the desired curve by placing just a few control points very carefully, resulting in a series of Euler spiral segments that exhibit the wanted properties. Unfortunately, this is rarely practical, since it both requires a lot of time to set up and doesn't behave very well when modified. These issues are somewhat alleviated by the guaranteed curvature continuity together with the general tendency of the algorithm to produce extremely smooth curves even when many control points are involved. That way, when indirectly specifying tangent angle and/or curvature by placing many control points, it's not as easy to accidently create small bumps as with Bézier splines.
 
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/examples_spiro.pdf}
 					\caption{Spiro Spline Examples (left: Fluttershy \cite{fluttershy}, right: Lugia \cite{lugia})}
@@ -169,7 +168,7 @@
 
 			We think that in order to get the best usability, using a good specification language which does not rely on implementation details has to be the top priority. Together with a good fairness measure, it forms a description language that, if it allows for reliable and efficient derivation of curves, will then lead to usable curve design tools. Since it is not immediately clear which description language is the best, the first step is to move away from the traditional explicit curve construction, and instead use a process that enables the creation of curves based on descriptions.
 
-			\begin{figure}[htbp]
+			\begin{figure}[htb]
 				\centering
 				\includegraphics[width=\textwidth]{content/output/description-based_curves.pdf}
 				\caption{Description-Based Curves}
@@ -196,8 +195,7 @@
 
 				An obvious choice for specifying a position on a curve would be by giving a parameter value for the underlying parametric curve. However, this would violate our design idea of using differential geometric properties of curves. A way of specifying a position on a curve that is independent from its parametrization is the arc length of the curve. Instead of directly using the arc length to give the positions of specification items, we chose to specify positions as fractions of the total arc length of the curve. This way, the position of a specification item relative to the start and end points of the curve is independent of the total arc length of the curve.
 
-				% TODO: explain this in more detail (o--o----------------o, pull last specification, makes wobbly segment at beginning) 
-				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length.
+				With this setup, it seems advisable to also include the curve's total arc length in the specification. This way, one can specify curves that don't have any specification items associated to their start and end points. Also, with unspecified curve length, changing any specification item may inadvertently change the curve's total arc length, thus possibly adversely affecting other parts of the curve whose specification item positions are given as a fraction of the curve's total arc length. For instance, with three point specification items on the curve, pulling the third one further away from the second will increase the total arc length of the curve, thus also increasing the arc length of the curve segment between the first and the second point specification item, thereby unintentionally creating a bulge between those two specification items.
 
 				Thus, the final specification language is as follows:
 				\begin{equation*}
@@ -225,7 +223,7 @@
 
 				While the minimum energy curve is a good idealization of the mechanical spline, it has some disadvantages when used for curve design. For instance, it will not yield a circular arc when the curve is constrained by co-circular points. Generally speaking, the MEC fairness measure is not very sensitive to bumps and inflection points on the curve, as long as they're small. The human visual system on the other hand, very much is and would always prefer one large arc over multiple small ones. Since the MEC tries to minimize curvature, it is also unsuited for the use with curvature specifications, as it will try to bring the curvature back to zero before and after a nonzero curvature specification.
 
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mec.pdf}
 					\caption{Minimum Energy Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
@@ -241,7 +239,7 @@
 
 				Minimum variation curves capture the intuitive notion of smoothness very well. The functional will put straight lines through points that are co-linear and circular arcs through points that are co-circular when otherwise unconstrained. When constraints cause different points on the curve to have different curvatures, the fairness measure will prefer linearly changing curvature, since that will make the derivative of the curvature a constant and thereby minimize the integral over its square. In general, the MVC fairness measure is very good at avoiding bumps and inflection points when possible. It also works nicely with curvature constraints, since constant curvature is perfectly acceptable for the MVC fairness measure.
 
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mvc.pdf}
 					\caption{Minimum Variation Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
@@ -259,8 +257,7 @@
 
 			Nonlinear optimization allowed us to stay relatively flexible with respect to the description language and enabled us to experiment with different specification languages and fairness measures, assessing their usability before settling on the choices presented in section \ref{section:description_language}.
 
-			% TODO: make it clear that splines imply segmentation
-			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. We opted to use polynomial splines since they allow approximating more complex curves without involving polynomials of excessively high degree, which are known to have poor stability.
+			Polynomial curves were chosen since they are mathematically simple, very flexible through the choice of their degree, and well-suited to approximate a variety of smooth curves. Since polynomials of high degree are known to have poor stability, we opted to use polynomial splines, which allows us to increase the segment count, rather than the degree, in order to approximate more complex curves.
 
 			\subsubsection{Optimization Problem}
 			\label{section:optimization_problem}
@@ -291,7 +288,7 @@
 				\end{equation*}
 				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static. Figure \ref{figure:linear_segmentation} shows what the segmentation and parameter mapping look like when using 3 segments.
 
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=100mm]{content/output/linear_segmentation.pdf}
 					\caption{Linear Segmentation}
@@ -364,7 +361,7 @@
 
 				Minimization goals, on the other hand, are assembled in a weighted sum which defines the the objective function \(f\). Since the error terms were designed to be scale invariant, this weighting can be done statically. The exact values of the weights are to be determined empirically.
 
-				% TODO: sketch overall curve derivation process similar to the summary slide
+				Once the optimization problem is put together, it is passed to the opimization solver, which will return the optimized coefficients of the segment polynomials. These segment polynomials are then assembled according to the layout described in section \ref{section:segmentation_notation} in order to obtain the final curve.
 
 	\section{Implementation}
 
@@ -398,7 +395,7 @@
 				
 			\subsubsection{Subsystem Decomposition}	
 			
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/subsystems.pdf}
 					\caption{Subsystem Decomposition of the Kurve Project}
@@ -413,7 +410,7 @@
 			The Curve.Curves project contains the code required to transform input specifications into curves. It relies on CasADi (through Krach.Wrappers.Casadi) to represent curves symbolically and on Ipopt for optimization.
 			
 			\subsection{Specification}
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/specification_class_diagram.pdf}
 					\caption{Class Diagram of Specification-Related Classes}
@@ -434,7 +431,7 @@
 				
 				
 			\subsection{Optimization}
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/optimization_class_diagram.pdf}
 					\caption{Class Diagram of Optimization-Related Classes}
@@ -463,7 +460,7 @@
 				
 		\section{User Interface}
 			\subsection{Implementation}
-				\begin{figure}[htbp]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/ui_components_class_diagram.pdf}
 					\caption{Class Diagram of the User Interface Components}
@@ -502,7 +499,8 @@
 					\item save and load curves
 				\end{itemize}
 				
-				\begin{figure}[htbp]
+				% TODO: make this smaller, maybe use landscape format
+				\begin{figure}[p]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/ui_components.pdf}
 					\caption{Overview of the User Interface in Kurve}
@@ -565,7 +563,8 @@
 					
 					A segment also displays the speed of the curve if it differs from the optimal speed. Too high speed is indicated by a red hue; this can usually be fixed by inserting additional length. Too low speed is indicated by a blue hue; usually there will be both blue and red sections. This usually indicates that the curve is too complex (i.e. there are too many specifications) to achieve a good representation with the current curve template. This can be fixed by either removing specifications, adding internal segments to the curve, or increasing the degree of the polynomial function template used in the curve.
 				
-				\begin{figure}[htbp]
+				% TODO: make this smaller, maybe use landscape format
+				\begin{figure}[p]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/ui_speeds.pdf}
 					\caption{Example of a Curve that is `Overspecified' (i.e. the speed of the curve cannot be kept constant due to the high amount of constraints)}
@@ -667,7 +666,7 @@
 
 			We will now revisit some of the examples shown in sections \ref{section:bézier_splines} and \ref{section:spiro_splines} using the prototype curve design tool in order to see how well the description language we propose can handle them.
 
-			\begin{figure}[htbp]
+			\begin{figure}[htb]
 				\centering
 				\includegraphics[width=\textwidth]{content/output/examples_prototype.pdf}
 				\caption{Prototype Curve Design Tool Examples (left: Fluttershy \cite{fluttershy})}
