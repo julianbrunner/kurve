@@ -35,7 +35,7 @@
 
 	\begin{abstract}
 
-		\noindent We analyze the usability of curve design tools in current vector graphics software and suggest an abstract approach for designing improved, usability-oriented tools. We then instantiate this approach using a powerful description language and the minimum variation curve fairness measure on top of nonlinear optimization, developing a prototype curve design tool in the process. Finally, we evaluate this prototype's usability and suggest ideas for further research and development.
+		\noindent We analyze the usability of curve design tools in current vector graphics software and suggest an abstract approach for designing improved, usability-oriented tools. We then instantiate this approach using a powerful description language and the minimum variation curve fairness measure on top of nonlinear optimization, developing a prototype curve design tool in the process. Finally, we evaluate the usability of our approach based on the prototype and suggest ideas for further research and development.
 
 	\end{abstract}
 
@@ -260,11 +260,11 @@
 					\begin{subfigure}[b]{\textwidth / 3}
 						\includegraphics[width=\textwidth]{content/output/fairness_mec_3.pdf}
 					\end{subfigure}
-					\caption{Minimum Energy Curve Examples. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines.}
+					\caption{Examples of minimum energy curves under various constraints. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines. The thin blue lines visualize the curvature at each point of the curve (longer lines meaning higher curvature).}
 					\label{figure:minimum_energy_curve_examples}
 				\end{figure}
 
-				Figure \ref{figure:minimum_energy_curve_examples} shows a few examples of minimum energy curves under various constraints. Note the characteristic shape of the MEC (rectangular elastica), as well as the fact that, in absence of direction or curvature specification items, its curvature is always zero at the endpoints.
+				Note the characteristic rectangular elastica shapes of the minimum energy curves in figure \ref{figure:minimum_energy_curve_examples}, as well as the fact that, in absence of both direction and curvature specification items, the curvature of a minimum energy curve is always zero at the endpoints.
 
 				In order to address the issues of the MEC, there has also been some research into fairness measures whose design is more directly motivated by the human perception of smoothness in plane curves. One such approach is that of the minimum variation curve (MVC) \cite{thesis-mvc}, which tries to minimize the variation of the curvature. The corresponding functional is given below:
 				\begin{equation*}
@@ -284,11 +284,11 @@
 					\begin{subfigure}[b]{\textwidth / 3}
 						\includegraphics[width=\textwidth]{content/output/fairness_mvc_3.pdf}
 					\end{subfigure}
-					\caption{Minimum Variation Curve Examples. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines.}
+					\caption{Examples of minimum variation curves under the same constraints as the curves in figure \ref{figure:minimum_energy_curve_examples}. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines. The thin blue lines visualize the curvature at each point of the curve (longer lines meaning higher curvature).}
 					\label{figure:minimum_variation_curve_examples}
 				\end{figure}
 
-				Figure \ref{figure:minimum_variation_curve_examples} shows a few examples of minimum variation curves under the same constraints as the curves in figure \ref{figure:minimum_energy_curve_examples}. Note that instead of segments from the rectangular elastica, the MVC's characteristic shapes are circular arcs and spirals. One may also observe that, instead of trying to bring the curvature to zero towards the endpoints like the MEC does, the MVC tries to establish constant curvature. In contrast to the MEC, the MVC constructs a circular arc in the leftmost example and avoids the inflection point in the rightmost example.
+				Note that instead of segments from the rectangular elastica, the characteristic shapes of the minimum variation curves in figure \ref{figure:minimum_variation_curve_examples} are circular arcs and spirals. One may also observe that, instead of trying to bring the curvature to zero towards the endpoints like the MEC does, the MVC tries to establish constant curvature. In contrast to the MEC, the MVC constructs a circular arc in the leftmost example and avoids the inflection point in the rightmost example.
 
 				From these considerations, it seems clear that for use as a fairness measure in our approach to curve design, the minimum variation curve is much better suited than the minimum energy curve, so it was chosen as part of our description language.
 
@@ -719,7 +719,7 @@
 					\caption{Fairness Measure Example}
 					\label{figure:examples_prototype_fairness}
 				\end{subfigure}
-				\caption{Examples of curves designed using the prototype curve design tool. Point specification items are displayed as red dots, direction specification items are displayed green tangent lines and curvature specification items are displayed using blue circular arcs taken from the osculating circle.}
+				\caption{Examples of curves designed using the prototype curve design tool. Point specification items are displayed as red dots, direction specification items are displayed green tangent lines and curvature specification items are displayed using blue circular arcs taken from the osculating circle, or tangent lines if the curve is locally a straght line. The thin blue lines visualize the curvature at each point of the curve (longer lines meaning higher curvature).}
 				\label{figure:examples_prototype}
 			\end{figure}
 
