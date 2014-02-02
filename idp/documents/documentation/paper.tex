@@ -28,7 +28,6 @@
 
 % TODO: expand n't and *'s contractions
 % TODO: check if all quotations are done `like this'
-% TODO: consistent use of polynomial, planar, plane, parametric, curve
 
 \begin{document}
 
@@ -36,7 +35,7 @@
 
 	\begin{abstract}
 
-		\noindent TODO
+		\noindent We analyze the usability of curve design tools in current vector graphics software and suggest an abstract approach for designing improved, usability-oriented tools. We then instantiate this approach using a powerful description language and the minimum variation curve fairness measure on top of nonlinear optimization, developing a prototype curve design tool in the process. Finally, we evaluate this prototype's usability and suggest ideas for further research and development.
 
 	\end{abstract}
 
@@ -329,7 +328,7 @@
 				\begin{equation*}
 					\apply{\phi}{\frac{i + t}{m}} = \apply{\phi_i}{t}
 				\end{equation*}
-				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static. Figure \ref{figure:linear_segmentation} shows what the segmentation and parameter mapping look like when using 3 segments.
+				That is, the segments are simply laid out consecutively in parameter space, scaled to fit the unit interval, making the parameter mapping function linear and static. Note that these segments are independent of the specification items and are, in fact, completely invisible to the user. Figure \ref{figure:linear_segmentation} shows what the segmentation and parameter mapping look like when using 3 segments.
 
 				\begin{figure}[htb]
 					\centering
@@ -428,6 +427,7 @@
 				Kurve offers its own APIs in C\# for working with terms and optimization problems. However, the implementations of the functionalities of these APIs are provided by third-party libraries. Hence, Kurve relies on several libraries, including:
 				
 				\begin{itemize}
+					% TODO: this section could be shortened by simply stating that Ipopt can solve optimization problems as described in section \ref{section:optimization_problem}
 				  	\item Ipopt\footnote{https://projects.coin-or.org/Ipopt} is a library that does numeric non-linear optimization. This library finds optima of optimization problems based on an objective function and its first two derivatives. In addition, it allows the specification of hard constraint functions (and their first two derivatives) that the solutions have to match. This allows Kurve to use hard specifications on curves.
 					\item CasADi\footnote{http://casadi.org} provides functionality to perform automatic differentiation of terms. It interfaces with Ipopt directly, which makes it a perfect match for Kurve's symbolic differentiation needs. CasADi is written in C++, but unfortunately only C functions can be called easily from C\#. For that reason, a small CasADi wrapper written in C was required to implement Kurve's C\# term APIs. 
 				\end{itemize}
@@ -687,8 +687,6 @@
 			\subsubsection{Smoothness and Minimality of Curves Selected by the Fairness Measure}
 			\label{section:smoothness_minimality_curves_selected_fairness_measure}
 
-				% TODO: expand, figure out what to write here and in the section about the fairness measure
-
 				As described in section \ref{section:fairness_measure}, the MVC fairness measure captures the intuitive notion of smoothness very well, resulting in aesthetically pleasing curves.
 
 				Unfortunately, the nonlinear optimization approach to finding the best curve can only find local optima, such that in many cases, the curve is not minimal, often containing loops and unnecessary inflection points. However, this is usually easy to fix by adjusting the specifications in such a way that the global optimum is found. For instance, a loop in the curve can often be removed by placing an additional point specification on the loop, pulling it away from the curve until the curve is forced to straighten out and finally removing the point specification again. Once the curve has been pushed into the global optimum like this, it is usually very stable.
@@ -748,8 +746,6 @@
 
 		Ideally, the final step of this research would then be the incorporation of the developed curve design tool into a piece of vector graphics software. The vector graphics editor Inkscape would be a good candidate, mainly because it's free software and thus easy to extend, both technically and from a political/licensing perspective.
 
-	\clearpage
-
 	\appendix
 
 	\section{Definitions}
@@ -793,8 +789,6 @@
 			One may notice that this notion of continuity is a little too strict. A curve may look arbitrarily smooth, while its parametrization does not even have \(\contp{1}\) continuity, since the derivatives of the parametrization function may have discontinuities that do not manifest themselves in the curve that they represent. If that is the case, one can always find a different parametrization of the same curve that does not have these discontinuities. This insight gives rise to the definition of geometric continuity, denoted by \(\contg{n}\), which only requires that there exists a reparametrization of the parametric curve which is \(\contp{n}\) continuous.
 
 			It follows immediately that every parametric curve that is \(\contp{n}\) continuous is also \(\contg{n}\) continuous. One may also observe that \(\contp{0}\) continuity and \(\contg{0}\) continuity are equivalent, since discontinuities in the parametrization function itsself manifest themselves directly in the curve it represents, and thus have to exist in all parametrizations of this curve. In the case of parametric plane curves, using the definitions from section \ref{section:parametric_plane_curves}, we can equate \(\contg{0}\) continuity with \(\phi\) being continuous, \(\contg{1}\) continuity with \(\delta\) being continuous and \(\contg{2}\) continuity with \(\chi\) being continuous.
-
-	\clearpage
 
 	\begin{thebibliography}{}
 
