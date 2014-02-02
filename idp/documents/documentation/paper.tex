@@ -8,6 +8,7 @@
 \usepackage{times}             % replaces Computer Modern font with something resembling Times
 \usepackage{graphicx}          % enables including graphics
 \usepackage{caption}           % provides float caption formatting
+\usepackage{subcaption}        % provides subfloat functionality and caption formatting
 \usepackage{amsmath}           % ams math module
 \usepackage{amssymb}           % ams math symbols
 \usepackage{mathtools}         % fixes a few quirks with the ams packages
@@ -115,18 +116,30 @@
 
 				\begin{figure}[htb]
 					\centering
-					\includegraphics[width=\textwidth]{content/output/examples_bezier.pdf}
-					\caption{Bézier Spline Examples (left: Fluttershy \cite{fluttershy}, right: Lugia \cite{lugia})}
+					\begin{subfigure}{\textwidth}
+						\includegraphics[width=\textwidth]{content/output/examples_bezier_arc.pdf}
+						\caption{Circular Arc}
+						\label{figure:examples_bézier_arc}
+					\end{subfigure}
+					\begin{subfigure}[b]{0.5 \textwidth}
+						\includegraphics[width=\textwidth]{content/output/examples_bezier_fluttershy.pdf}
+						\caption{Fluttershy \cite{fluttershy}}
+						\label{figure:examples_bézier_fluttershy}
+					\end{subfigure}%
+					\begin{subfigure}[b]{0.5 \textwidth}
+						\includegraphics[width=\textwidth]{content/output/examples_bezier_lugia.pdf}
+						\caption{Lugia \cite{lugia}}
+						\label{figure:examples_bézier_lugia}
+					\end{subfigure}
+					\caption{Bézier splines, as they appear in common curve design tools. Bézier nodes are displayed as red dots, Bézier handles are displayed as green tangent lines.}
 					\label{figure:examples_bézier}
 				\end{figure}
 
-				Figure \ref{figure:examples_bézier} illustrates some of these issues by showing some examples of Bézier splines as they appear in common design tools. Bézier nodes are displayed as red dots, while Bézier handles are displayed as green lines.
+				Figure \ref{figure:examples_bézier_arc} shows two Bézier splines. The left curve is a Bézier spline approximation of a circular arc, exhibiting nearly constant curvature, while the right one is not, going from low curvature to high curvature and back to low curvature. Since the difference can be hard to see, it's easy to make mistakes when trying to approximate circular arcs using Bézier splines.
 
-				Example 1 shows two Bézier splines. The left curve is a Bézier spline approximation of a circular arc, exhibiting nearly constant curvature, while the right one is not, going from low curvature to high curvature and back to low curvature. Since the difference can be hard to see, it's easy to make mistakes when trying to approximate circular arcs using Bézier splines.
+				Figures \ref{figure:examples_bézier_fluttershy} and \ref{figure:examples_bézier_lugia} show curves that could be described more efficiently in terms of curvature. Since there is no way to directly specify curvature using Bézier splines, a considerable number of nodes is needed to get close to the desired curve. This in turn, may lead to decreased smoothness as discussed in the previous paragraphs.
 
-				Examples 2 and 3 show curves that could be described more efficiently in terms of curvature. Since there is no way to directly specify curvature using Bézier splines, a considerable number of nodes is needed to get close to the desired curve. This in turn, may lead to decreased smoothness as discussed in the previous paragraphs.
-
-				Example 4 shows a spline with a curvature discontinuity which went unnoticed by the artist at the time of creation. In fact, this discontinuity would be even less visible if the curve was not vertical at said point, manifesting itself only in a reduced overall smoothness of the curve, without a clear indication of where the problem lies.
+				The red curve segment in figure \ref{figure:examples_bézier_lugia} is a Bézier spline with a curvature discontinuity which went unnoticed by the artist at the time of creation. In fact, this discontinuity would be even less visible if the curve was not vertical at said point, manifesting itself only in a reduced overall smoothness of the curve, without a clear indication of where the problem lies.
 
 			\subsubsection{Spiro Splines}
 			\label{section:spiro_splines}
@@ -226,7 +239,7 @@
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mec.pdf}
-					\caption{Minimum Energy Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
+					\caption{Minimum Energy Curve Examples. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines.}
 					\label{figure:minimum_energy_curve_examples}
 				\end{figure}
 
@@ -242,7 +255,7 @@
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/fairness_mvc.pdf}
-					\caption{Minimum Variation Curve Examples. Point specification items are represented as red dots, direction specification items are represented as green tangent lines.}
+					\caption{Minimum Variation Curve Examples. Point specification items are displayed as red dots, direction specification items are displayed as green tangent lines.}
 					\label{figure:minimum_variation_curve_examples}
 				\end{figure}
 
@@ -673,7 +686,7 @@
 				\label{figure:examples_prototype}
 			\end{figure}
 
-			Figure \ref{figure:examples_prototype} shows some examples of curves designed using the prototype curve design tool. Point specification items are represented using red dots, direction specification items are represented using green tangent lines and curvature specification items are represented using blue circular arcs taken from the osculating circle.
+			Figure \ref{figure:examples_prototype} shows some examples of curves designed using the prototype curve design tool. Point specification items are displayed as red dots, direction specification items are displayed green tangent lines and curvature specification items are displayed using blue circular arcs taken from the osculating circle.
 
 			Example 1 shows how adjusting the arc length of an otherwise unconstrained curve allows the convenient creation of curcular arcs between two points.
 
