@@ -116,17 +116,17 @@
 
 				\begin{figure}[htb]
 					\centering
-					\begin{subfigure}{\textwidth}
+					\begin{subfigure}[b]{\textwidth / 1}
 						\includegraphics[width=\textwidth]{content/output/examples_bezier_arc.pdf}
 						\caption{Circular Arc}
 						\label{figure:examples_bézier_arc}
 					\end{subfigure}
-					\begin{subfigure}[b]{0.5 \textwidth}
+					\begin{subfigure}[b]{\textwidth / 2}
 						\includegraphics[width=\textwidth]{content/output/examples_bezier_fluttershy.pdf}
 						\caption{Fluttershy \cite{fluttershy}}
 						\label{figure:examples_bézier_fluttershy}
 					\end{subfigure}%
-					\begin{subfigure}[b]{0.5 \textwidth}
+					\begin{subfigure}[b]{\textwidth / 2}
 						\includegraphics[width=\textwidth]{content/output/examples_bezier_lugia.pdf}
 						\caption{Lugia \cite{lugia}}
 						\label{figure:examples_bézier_lugia}
@@ -156,18 +156,32 @@
 
 				\begin{figure}[htb]
 					\centering
-					\includegraphics[width=\textwidth]{content/output/examples_spiro.pdf}
-					\caption{Spiro Spline Examples (left: Fluttershy \cite{fluttershy}, right: Lugia \cite{lugia})}
+					\begin{subfigure}[b]{\textwidth / 2}
+						\includegraphics[width=\textwidth]{content/output/examples_spiro_fluttershy.pdf}
+						\caption{Fluttershy \cite{fluttershy}}
+						\label{figure:examples_spiro_fluttershy}
+					\end{subfigure}%
+					\begin{minipage}[b]{\textwidth / 2}
+						\begin{subfigure}[b]{\textwidth}
+							\includegraphics[width=\textwidth]{content/output/examples_spiro_lugia_1.pdf}
+							\caption{Lugia \cite{lugia}}
+							\label{figure:examples_spiro_lugia_1}
+						\end{subfigure}
+						\begin{subfigure}[b]{\textwidth}
+							\includegraphics[width=\textwidth]{content/output/examples_spiro_lugia_2.pdf}
+							\caption{Lugia \cite{lugia}}
+							\label{figure:examples_spiro_lugia_2}
+						\end{subfigure}
+					\end{minipage}
+					\caption{Spiro splines, as they appear in common curve design tools. Control points are displayed as red dots.}
 					\label{figure:examples_spiro}
 				\end{figure}
 
-				Figure \ref{figure:examples_spiro} illustrates some of these issues by showing some examples of Spiro splines as they appear in common design tools. Control points are displayed as red dots.
+				Figure \ref{figure:examples_spiro_fluttershy} shows a shape that is in principle well-suited for being represented by parts of the Euler spiral. Unfortunately, describing the curve using Spiro splines still requires many control points. Note that even though this example has the same number of specified on-curve points (7) as the corresponding example in section \ref{section:bézier_splines}, the latter has an additional 12 velocity specifications, proving that even though curvature cannot be specified explicitly, Spiro splines are a much better choice for curves that are best expressed in terms of curvature than Bézier splines.
 
-				Example 1 shows a shape that is in principle well-suited for being represented by parts of the Euler spiral. Unfortunately, describing the curve using Spiro splines still requires many control points. Note that even though this example has the same number of specified on-curve points (7) as the corresponding example in section \ref{section:bézier_splines}, the latter has an additional 12 velocity specifications, proving that even though curvature cannot be specified explicitly, Spiro splines are a much better choice for curves that are best expressed in terms of curvature than Bézier splines.
+				Figure \ref{figure:examples_spiro_lugia_1} shows how some shapes can be described using Spiro splines by placing only very few control points. In this case, the shape consists of a circular arc with low curvature (red), a segment of linearly increasing curvature (green) and finally a circular arc with high curvature (blue). This shape can be described conveniently using a Spiro spline with just 4 carefully placed control points.
 
-				Example 2 shows how some shapes can be described using Spiro splines by placing only very few control points. In this case, the shape consists of a circular arc with low curvature (segment a), a segment of linearly increasing curvature (segment b) and finally a circular arc with high curvature (segment c). This shape can be described conveniently using a Spiro spline with just 4 carefully placed control points.
-
-				Unfortunately, as can be seen in example 3, this scenario does not handle modifications very well. For instance, increasing the curvature of segment c has to be done indirectly by moving a control point. Unfortunately, this adversely affects segment a, since the curvature there was not specified directly but instead relied on the rather fragile configuration of the 4 control points.
+				Unfortunately, as can be seen in figure \ref{figure:examples_spiro_lugia_2}, this scenario does not handle modifications very well. For instance, increasing the curvature of the blue segment has to be done indirectly by moving a control point. Unfortunately, this adversely affects the red segment, since the curvature there was not specified directly but instead relied on the rather fragile configuration of the 4 control points.
 
 	\section{Proposed Solution}
 	\label{section:proposed_solution}
