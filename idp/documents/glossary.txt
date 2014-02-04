@@ -9,7 +9,7 @@ description
 	fairness measure
 description-based curve
 
-specification item: point specification, direction specification or curvature specification
+specification item: point specification item, direction specification item, curvature specification item
 
 curve
 plane curve
