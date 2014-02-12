@@ -402,6 +402,8 @@
 				Once the optimization problem is put together, it is passed to the optimization solver, which will return the optimized coefficients of the segment polynomials. These segment polynomials are then assembled according to the layout described in section \ref{section:segmentation_notation} in order to obtain the final curve.
 
 	\section{Implementation}
+	
+		In this section, the implementation of our prototype, referred to as Kurve in short, will be described.
 
 		\subsection{Architecture}
 			
@@ -420,11 +422,10 @@
 			
 			\subsubsection{Libraries}
 				
-				Kurve offers its own APIs in C\# for working with terms and optimization problems. However, the implementations of the functionalities of these APIs are provided by third-party libraries. Hence, Kurve relies on several libraries, including:
+				Kurve offers its own APIs in C\# for working with terms and optimization problems. However, the implementation of the functionality of these APIs is provided by third-party libraries. Hence, Kurve relies on several libraries, including:
 				
 				\begin{itemize}
-					% TODO: this section could be shortened by simply stating that Ipopt can solve optimization problems as described in section \ref{section:optimization_problem}
-				  	\item Ipopt\footnote{https://projects.coin-or.org/Ipopt} is a library that does numeric non-linear optimization. This library finds optima of optimization problems based on an objective function and its first two derivatives. In addition, it allows the specification of hard constraint functions (and their first two derivatives) that the solutions have to match. This allows Kurve to use hard specifications on curves.
+				  	\item Ipopt\footnote{https://projects.coin-or.org/Ipopt} is a library that does numeric non-linear optimization. It allows to solve optimization problems as described in \ref{section:optimization_problem}.
 					\item CasADi\footnote{http://casadi.org} provides functionality to perform automatic differentiation of terms. It interfaces with Ipopt directly, which makes it a perfect match for Kurve's symbolic differentiation needs. CasADi is written in C++, but unfortunately only C functions can be called easily from C\#. For that reason, a small CasADi wrapper written in C was required to implement Kurve's C\# term APIs. 
 				\end{itemize}
 			
@@ -436,69 +437,71 @@
 			
 				\begin{figure}[htb]
 					\centering
-					\includegraphics[width=\textwidth]{content/output/subsystems.pdf}
+					\includegraphics[width=110mm]{content/output/subsystems.pdf}
 					\caption{Subsystem Decomposition of the Kurve Project}
 					\label{figure:subsystem_decomposition}
 				\end{figure}
 				
-				Kurve's implementation is split into two primary subsystems: Kurve contains the user interface related code and has a dependency on GTK\# as well as Kurve.Curves; Kurve.Curves is responsible for generating curves from specifications using CasADi through Wrappers.Casadi. 
+				Kurve's implementation is split into two primary subsystems: \verb|Kurve| contains the user interface related code and has a dependency on GTK\# as well as \verb|Kurve.Curves|; \verb|Kurve.Curves| is responsible for generating curves from specifications using CasADi through \verb|Wrappers.Casadi|. 
 				
-				Wrappers.Casadi and Wrappers.Casadi.Native contain a wrapper for CasADi using C\# and C++ code respectively. Wrappers.Casadi uses the functions defined in Wrappers.Casadi.Native. Wrappers.Casadi and Wrappers.Casadi.Native are now part of the general-purpose library Krach to allow easy reuse in other projects.
+				 \verb|Wrappers.Casadi| and \verb|Wrappers.Casadi.Native| contain a wrapper for CasADi using C\# and C++ code respectively. \verb|Wrappers.Casadi| relies on \verb|Wrappers.Casadi.Native|. 
+				 
+				 \verb|Wrappers.Casadi| and \verb|Wrappers.Casadi.Native| are now part of the general-purpose library Krach to allow easy reuse in other projects.
 		
-		\section{Numerical Optimization}
-			The Curve.Curves project contains the code required to transform input specifications into curves. It relies on CasADi (through Krach.Wrappers.Casadi) to represent curves symbolically and on Ipopt for optimization.
+			\subsection{Numerical Optimization}
+				The \verb|Curve.Curves| project contains the code required to transform input specifications into curves. It relies on CasADi (through \verb|Krach.Wrappers.Casadi|) to represent curves symbolically and on Ipopt for optimization.
 			
-			\subsection{Specification}
-				\begin{figure}[htb]
-					\centering
-					\includegraphics[width=\textwidth]{content/output/specification_class_diagram.pdf}
-					\caption{Class Diagram of Specification-Related Classes}
-					\label{figure:specification_class_diagram}
-				\end{figure}
+				\subsubsection{Specification}
+					\begin{figure}[htb]
+						\centering
+						\includegraphics[width=135mm]{content/output/specification_class_diagram.pdf}
+						\caption{Class Diagram of Specification-Related Classes}
+						\label{figure:specification_class_diagram}
+					\end{figure}
 				
-				To fully specify a curve, several different pieces of information are needed:
+					To fully specify a curve, several different pieces of information are needed:
 				
-				\begin{itemize}
-					\item Any number of point, direction and curvature specifications. A set of such CurveSpecifications is stored in a BasicSpecification.
-					\item The curve's total length is also part of a BasicSpecification.
-					\item The curves are represented using a number of segments, each of which is represented by some function, realized using the FunctionTermCurve class. Because of that, the number of segments as well as the function type that is used to represent each segment are part of the BasicSpecification as well. 
-					The type of function used is represented using a FunctionTermCurveTemplate object; this template allows the creation of FunctionTermCurve objects.  
-					However, this information is only used during optimization; if the number of segments and function template yield a curve with enough degrees of freedom with respect to the other specifications, roughly the same curve will be generated even if the number of segments and function template is changed. It is possible to specify the segment count and function template to modify the degrees of freedom that the resulting curves offers (i.e. more degrees of freedom mean the curve can satisfy more curve specifications while maintaining constant speed and good fairness, but the optimization process takes longer).
-					\item Curves could be generated from a BasicSpecification alone. However, if there are multiple curves that fit a BasicSpecification very well (i.e. the optimization problem has multiple local optima), different actual curves could be generated from a BasicSpecification. This results in a number of problems: for example, when saving a curve, if only the BasicSpecification were saved, it would be possible that a different curve is displayed when loading the curve, because a different local optimum was reached in the optimization process. This is clearly undesirable and a way to disambiguate between the different optima is required. 
-					For that reason, a full Specification consists of a BasicSpecification as well as some disambiguation information. That disambiguation information is the result of the optimization, which can be used as a starting position for the optimization process when a curve is loaded. This both ensures that the same curve will be generated and speeds up the optimization process as well.
-				\end{itemize}
-				
-				
-			\subsection{Optimization}
-				\begin{figure}[htb]
-					\centering
-					\includegraphics[width=\textwidth]{content/output/optimization_class_diagram.pdf}
-					\caption{Class Diagram of Optimization-Related Classes}
-					\label{figure:optimization_class_diagram}
-				\end{figure}
-				
-				The Optimizer class handles the optimization process of a curve. By supplying a Specification, a concrete curve as well as a new Specification with updated disambiguation information can be obtained. The resulting curve is represented by a Curve object which allows access to the curve's points, speed, direction and curvature, but carries no information about the internal segmentation and function type used.
-				
-				The optimization process is performed in a number of steps. Depending on the change of the specification, only certain steps have to be run again as previous results can be reused.
+					\begin{itemize}
+						\item Any number of point, direction and curvature specifications. These \verb|CurveSpecification|s are stored in a \verb|BasicSpecification|.
+						\item The curve's total length is also part of a \verb|BasicSpecification|.
+						\item The curves are represented using a number of segments, each of which is represented by some function, realized using the \verb|FunctionTermCurve| class. Because of that, the number of segments as well as the function type that is used to represent each segment are part of \verb|BasicSpecification| as well. 
+						The type of function used is represented using a \verb|FunctionTermCurveTemplate| object; this template allows the creation of \verb|FunctionTermCurve| objects.  
+						However, this information is only used during optimization; if the number of segments and function template yield a curve with enough degrees of freedom with respect to the other specifications, roughly the same curve will be generated even if the number of segments and function template is changed. It is possible to specify the segment count and function template to modify the degrees of freedom that the resulting curves offers (i.e. more degrees of freedom mean the curve can satisfy more curve specifications while maintaining constant speed and good fairness, but the optimization process takes longer).
+						\item Curves could be generated from a \verb|BasicSpecification| alone. However, if there are multiple curves that fit a \verb|BasicSpecification| very well (i.e. the optimization problem has multiple local optima), different actual curves could be generated from a \verb|BasicSpecification|. This results in a number of problems: eg., when saving a curve, if only the \verb|BasicSpecification| were saved, it would be possible that a different curve is displayed when loading the curve, because a different local optimum was reached in the optimization process. This is clearly undesirable and a way to disambiguate between the different optima is required. 
+						For that reason, a full \verb|Specification| consists of a \verb|BasicSpecification| as well as some disambiguation information. That disambiguation information is the result of the optimization, which can be used as a starting position for the optimization process when a curve is loaded. This both ensures that the same curve will be generated and speeds up the optimization process as well.
+					\end{itemize}
 				
 				
-				\subsubsection{Segments}
-					The first step, OptimizationSegments, creates curve segments based on the number of segments and the segment template specified in the BasicSpecification. A list of parameters of all segments is created; by applying concrete values to each of the parameters, a concrete curve can be obtained. The generated segments are cached and do not have to be regenerated if the number of segments and segment template specified in the basic specification do not change.
+				\subsubsection{Optimization}
+					\begin{figure}[htb]
+						\centering
+						\includegraphics[width=110mm]{content/output/optimization_class_diagram.pdf}
+						\caption{Class Diagram of Optimization-Related Classes}
+						\label{figure:optimization_class_diagram}
+					\end{figure}
 					
-				\subsubsection{Optimization Problem}
-					Next, the optimization problem is created. The optimization problem specifies an objective function which includes the speed error discussed in section \ref{section:constant_speed} as well as the fairness function discussed in section \ref{section:fairness_error}. Furthermore the continuity connections discussed in section \ref{section:continuity_connections} and the satisfaction of the specifications of the curve are realized using a constraint function. This step also computes the first and second derivatives of those functions. The concrete values required by the curve specifications are not used; instead, placeholder variables are introduced. For the total length of the curve a placeholder is used as well. This allows the reuse of the optimization problem if curve specifications or curve length change; the derivatives do not have to be recomputed. Thus, the optimization problem is cached and only rebuilt if the optimization segments change or if the number of each type of constraint on the curve changes. If the value of a constraint changes, but the type of constraint remains the same (e.g. a point constraint requires the curve to pass through a different point than before), the optimization problem does not have to be rebuilt.
+					The \verb|Optimizer| class handles the optimization process of a curve. By supplying a \verb|Specification|, a concrete curve as well as a new \verb|Specification| with updated disambiguation information can be obtained. The resulting curve is represented by a \verb|Curve| object which allows access to the curve's points, speed, direction and curvature, but carries no information about the internal segmentation and function type used.
 					
-				\subsubsection{Substitutions}
-					In this step, substitutions for each of the placeholder variables (i.e. for each curve specification and the curve length) are created. These substitutions, when applied to an optimization problem, remove all placeholder variables and yield the optimization problem that needs to be solved to obtain a concrete curve. The substitutions have to be rebuilt whenever a specification changes, the total curve length changes, or any of the previous steps had to be recomputed.
+					The optimization process is performed in a number of steps. Depending on the change of the specification, only certain steps have to be run again as previous results can be reused.
 					
-				\subsubsection{Solver}
-					In this step, a solver for the optimization problem is created. The solver used is provided by Ipopt. A new solver needs to be created whenever either the optimization problem or the substitutions change.
-				
-				\subsubsection{Position}
-					The position represents a result of an optimization process. To obtain this, the solver created in the previous step is run; as the starting position, the previous optimization's position is used. Using the obtained position, a concrete curve can be obtained from the optimization segments. This curve is the desired end result returned by the Optimizer. 
-				
-		\section{User Interface}
-			\subsection{Implementation}
+					\begin{description}
+						\item[Segments]
+						In the first step curve segments are created based on the number of segments and the segment template specified in the \verb|BasicSpecification|. A list of parameters of all segments is created; by applying concrete values to each of the parameters, a concrete curve can be obtained. The generated segments are cached and do not have to be regenerated if the number of segments and segment template specified in the basic specification do not change.
+						
+						\item[Optimization Problem]
+						Next, the optimization problem is created. The optimization problem specifies an objective function which includes the speed error discussed in section \ref{section:constant_speed} as well as the fairness function discussed in section \ref{section:fairness_error}. Furthermore the continuity connections discussed in section \ref{section:continuity_connections} and the satisfaction of the specifications of the curve are realized using a constraint function. This step also computes the first and second derivatives of those functions. The concrete values required by the curve specifications are not used; instead, placeholder variables are introduced. For the total length of the curve a placeholder is used as well. This allows the reuse of the optimization problem if curve specifications or curve length change; the derivatives do not have to be recomputed. Thus, the optimization problem is cached and only rebuilt if the optimization segments change or if the number of each type of constraint on the curve changes. If the value of a constraint changes, but the type of constraint remains the same (e.g. a point constraint requires the curve to pass through a different point than before), the optimization problem does not have to be rebuilt.
+						
+						\item[Substitutions]
+						In this step, substitutions for each of the placeholder variables (i.e. for each curve specification and the curve length) are created. These substitutions, when applied to an optimization problem, remove all placeholder variables and yield the optimization problem that needs to be solved to obtain a concrete curve. The substitutions have to be rebuilt whenever a specification changes, the total curve length changes, or any of the previous steps had to be recomputed.
+						
+						\item[Solver]
+						In this step, a solver for the optimization problem is created. The solver used is provided by Ipopt. A new solver needs to be created whenever either the optimization problem or the substitutions change.
+						\item[Position]
+							The position represents a result of an optimization process. To obtain this, the solver created in the previous step is run; as the starting position, the previous optimization's position is used. Using the obtained position, a concrete curve can be obtained from the optimization segments. This curve is the desired end result returned by the Optimizer.
+					\end{description}
+					
+					
+			\subsection{User Interface Implementation}
 				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/ui_components_class_diagram.pdf}
@@ -508,23 +511,23 @@
 				
 				Kurve's user interface constructed from Components. Components may contain a number of subcomponents, render themselves into a GTK\# context, and handle mouse and keyboards events. 
 				\begin{itemize} 
-					\item MainWindow - The MainWindow is a GTK\# window that contains the RootComponent. It triggers redraws of the RootComponent when appropriate (e.g. when the window is resized) and forwards mouse and keyboard events to the RootComponent.
-					\item Component - Component is the abstract base class of all components that make up Kurve's user interface. It provides default implementations for rendering components, handling mouse and keyboard events, and provides a mechanism to trigger redraws of subcomponents.
-					\item RootComponent - The RootComponent manages a list of CurveComponents and implements functionality to add and remove curve components. Additionally, the RootComponent implements save and load functionality.
-					\item BackgroundComponent - This component can display a background image. This can be used to trace existing images with the Kurve tools.
-					\item CurveComponent - This component represents a curve in the user interface. It consists of any number of PositionedControlComponents (any number of SpecificationComponents and a FixedPositionComponent at both the start and the end of the curve). This yields segments of the curve - one segment between each pair of PositionedControlComponents. These segments are represented by SegmentComponents. A CurveComponent uses a CurveOptimizer to create a curve from the specifications given by the SpecificationComponents. It implements functionality to add and remove SpecificationComponents and to change the curve template used (e.g. change the degree of the polynomial template). 
-					\item LengthControlComponent - A LengthControlComponent is a Component that can modify the length of the Curve in a certain area.
-					\item PositionedControlComponent - A PositionedControlComponent is a component that has a specific position on the curve. 
-					\item SpecificationComponent - A SpecificationComponent allows to specify constraints on a curve. A point, direction and/or curvature can be specified for a given position using various mouse and keyboard commands. SpecificationComponents are visualized as a small black box that can be selected.
-					\item FixedPositionComponent - FixedPositionComponents represent the start and end of a CurveComponent.
-					\item SegmentComponent - A SegmentComponent represents a section of a curve delimited by two PositionedControlComponents. The SegmentComponent renders the curve in that segment, but it also allows to modify the length of the curve in that segment.
-					\item DiscreteCurve and DiscreteCurveItem - A DiscreteCurve represents the data necessary to render a curve in the user interface. It contains information about the curve's points, direction, and curvature. It is represented by a number of DiscreteCurveItems that sample a source curve's point, direction and curvature at certain positions. 
-					The CurveOptimizer yields this type of curve. The reason why this kind of discrete curve is used is because the Curve objects and the Optimizer (from the Kurve.Curves subsystem) cannot be used at the same time. This, in turn, is caused by the CasADi library, which is not thread safe. However, CasADi is used for representing Curves internally, as well as for performing optimization tasks.
-					As Kurve uses a background thread to optimize curves, it is not possible to use the Curve objects yielded by the optimizer to render the curves in the main thread at the same time. For that reason, Curve objects are converted to DiscreteCurve objects in that background process.
-					\item CurveOptimizer and OptimizationWorker - As the optimization process required to generate a curve from specifications takes too much time to perform in the main thread (the user interface would be blocked for too long), optimization is performed in a background thread. Each CurveComponent uses a CurveOptimizer to submit changed specifications. A single shared OptimizationWorker handles the synchronization and makes sure each submitted specification gets processed one by one. It is necessary to ensure that no optimization processes run in parallel, as the CasADi library (which is used in this process) is not thread safe.
+					\item \verb|MainWindow| - The \verb|MainWindow| is a GTK\# window that contains the \verb|RootComponent|. It triggers redraws of the \verb|RootComponent| when appropriate (e.g. when the window is resized) and forwards mouse and keyboard events to the \verb|RootComponent|.
+					\item \verb|Component| - \verb|Component| is the abstract base class of all components that make up Kurve's user interface. It provides default implementations for rendering components, handling mouse and keyboard events, and provides a mechanism to trigger redraws of subcomponents.
+					\item \verb|RootComponent| - The \verb|RootComponent| manages a list of \verb|CurveComponent|s and implements functionality to add and remove curve components. Additionally, the RootComponent implements save and load functionality.
+					\item \verb|BackgroundComponent| - This component can display a background image. This can be used to trace existing images with the Kurve tools.
+					\item \verb|CurveComponent| - This component represents a curve in the user interface. It consists of several \verb|PositionedControlComponent|s (any number of \verb|SpecificationComponent|s and a \verb|FixedPositionComponent| at both the start and the end of the curve). This yields segments of the curve - one segment between each pair of \verb|PositionedControlComponent|s. These segments are represented by \verb|SegmentComponent|s. A \verb|CurveOptimizer| is used to create a curve from the specifications given by the \verb|SpecificationComponent|s. \verb|CurveComponent| implements functionality to add and remove \verb|SpecificationComponent|s and to change the curve template used (e.g. change the degree of the polynomial template). 
+					\item \verb|LengthControlComponent| - A \verb|LengthControlComponent| is a \verb|Component| that can modify the length of the \verb|Curve| in a certain area.
+					\item \verb|PositionedControlComponent| - A \verb|PositionedControlComponent| is a component that has a specific position on the curve. 
+					\item \verb|SpecificationComponent| - A \verb|SpecificationComponent| allows to specify constraints on a curve. A point, direction and/or curvature can be specified for a given position using various mouse and keyboard commands. \verb|SpecificationComponent|s are visualized as a small black box that can be selected.
+					\item \verb|FixedPositionComponent| - \verb|FixedPositionComponent|s represent the start and end of a CurveComponent.
+					\item \verb|SegmentComponent| - A \verb|SegmentComponent| represents a section of a curve delimited by two PositionedControlComponents. The SegmentComponent renders the curve in that segment, but it also allows to modify the length of the curve in that segment.
+					\item \verb|DiscreteCurve| and \verb|DiscreteCurveItem| - A \verb|DiscreteCurve| represents the data necessary to render a curve in the user interface. It contains information about the curve's points, direction, and curvature. It is represented by a number of \verb|DiscreteCurveItem|s that sample a source curve's point, direction and curvature at certain positions. 
+					The \verb|CurveOptimizer| yields this type of curve. The reason why this kind of discrete curve is used is because the \verb|Curve| objects and the \verb|Optimizer| (from the \verb|Kurve.Curves| subsystem) cannot be used at the same time. This, in turn, is caused by the CasADi library, which is not thread safe. However, CasADi is used for representing \verb|Curve|s internally, as well as for performing optimization tasks.
+					As Kurve uses a background thread to optimize curves, it is not possible to use the \verb|Curve| objects yielded by the optimizer to render the curves in the main thread at the same time. For that reason, \verb|Curve| objects are converted to \verb|DiscreteCurve| objects in that background process.
+					\item \verb|CurveOptimizer| and \verb|OptimizationWorker| - As the optimization process required to generate a curve from specifications takes too much time to perform in the main thread (the user interface would be blocked for too long), optimization is performed in a background thread. Each \verb|CurveComponent| uses a \verb|CurveOptimizer| to submit changed specifications. A single shared \verb|OptimizationWorker| handles the synchronization and makes sure each submitted specification gets processed one by one. It is necessary to ensure that no optimization processes run in parallel, as the CasADi library (which is used in this process) is not thread safe.
 				\end{itemize}
 
-			\subsection{Usage}
+			\subsection{Using Kurve}
 				
 				The user interface does not focus on user friendliness. Its purpose is to test the validity of the approach to curve design researched in this project. For that reason, most actions are performed using keyboard shortcuts. Many user interface elements can be selected with the mouse; this enables to use keyboard shortcuts that affect that component only. It is possible to interact with some components using the mouse. However, there is no toolbar or similar user interface elements that would make any of the features more accessible.
 				
@@ -538,17 +541,16 @@
 					\item save and load curves
 				\end{itemize}
 				
-				% TODO: make this smaller, maybe use landscape format
-				\begin{figure}[p]
+				\begin{figure}[htb]
 					\centering
-					\includegraphics[width=\textwidth]{content/output/ui_components.pdf}
+					\includegraphics[width=130mm]{content/output/ui_components.pdf}
 					\caption{Overview of the User Interface in Kurve}
 					\label{figure:ui_components}
 				\end{figure}
 				
 				\subsubsection{General Commands}
 				
-					A curve can be added by pressing `N'. A new Curve will appear in window that is initialized with a length of 100, and two specification controls specifying points. The curve uses one segment that uses a polynomial curve template with a degree of 10.
+					A curve can be added by pressing `N'. A new curve will appear in window that is initialized with a length of 100, and two specification controls specifying points. The curve uses one segment that uses a polynomial curve template with a degree of 10.
 					
 					To save all curves in the window, press `S'. A save file dialog will appear that allows the user to specify a file name. Saved files can later be loaded by pressing `L' which displays an open file dialog. Keep in mind that loading a file dismisses all curves in the current window.
 					
@@ -602,8 +604,7 @@
 					
 					A segment also displays the speed of the curve if it differs from the optimal speed. Too high speed is indicated by a red hue; this can usually be fixed by inserting additional length. Too low speed is indicated by a blue hue; usually there will be both blue and red sections. This usually indicates that the curve is too complex (i.e. there are too many specifications) to achieve a good representation with the current curve template. This can be fixed by either removing specifications, adding internal segments to the curve, or increasing the degree of the polynomial function template used in the curve.
 				
-				% TODO: make this smaller, maybe use landscape format
-				\begin{figure}[p]
+				\begin{figure}[htb]
 					\centering
 					\includegraphics[width=\textwidth]{content/output/ui_speeds.pdf}
 					\caption{Example of a Curve that is `overspecified' (i.e. the speed of the curve cannot be kept constant due to the high amount of constraints)}
