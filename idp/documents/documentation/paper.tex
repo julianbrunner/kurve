@@ -193,7 +193,7 @@
 
 			\begin{figure}[htb]
 				\centering
-				\includegraphics[width=\textwidth]{content/output/description-based_curves.pdf}
+				\includegraphics[width=115mm]{content/output/description-based_curves.pdf}
 				\caption{Description-Based Curves}
 				\label{figure:description-based_curves}
 			\end{figure}
@@ -509,7 +509,7 @@
 					\label{figure:ui_components_class_diagram}
 				\end{figure}
 				
-				Kurve's user interface constructed from Components. Components may contain a number of subcomponents, render themselves into a GTK\# context, and handle mouse and keyboards events. 
+				Kurve's user interface is constructed from \verb|Component|s. \verb|Component|s may contain a number of subcomponents, render themselves into a GTK\# context, and handle mouse and keyboards events. 
 				\begin{itemize} 
 					\item \verb|MainWindow| - The \verb|MainWindow| is a GTK\# window that contains the \verb|RootComponent|. It triggers redraws of the \verb|RootComponent| when appropriate (e.g. when the window is resized) and forwards mouse and keyboard events to the \verb|RootComponent|.
 					\item \verb|Component| - \verb|Component| is the abstract base class of all components that make up Kurve's user interface. It provides default implementations for rendering components, handling mouse and keyboard events, and provides a mechanism to trigger redraws of subcomponents.
