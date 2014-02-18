@@ -284,9 +284,9 @@ namespace Kurve.Component
 		{
 			if (Selected)
 			{
-				if (newDegree < 4)
+				if (newDegree < 1)
 				{
-					Console.WriteLine("polynomial template degree cannot be less than 4");
+					Console.WriteLine("polynomial template degree cannot be less than 1");
 
 					return;
 				}

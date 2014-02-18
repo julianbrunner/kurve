@@ -146,9 +146,9 @@ namespace Kurve.Component
 			int width, height;
 			parentWindow.GetSize(out width, out height);
 
-			Svg.Scene
+			Svg.Document
 			(
-				new Orthotope2Double(0, 0, width, height),
+				new Orthotope2Double(0, width, 0, height),
 				from optimizer in optimizers
 				from path in optimizer.GetSvgPaths()
 				select path
