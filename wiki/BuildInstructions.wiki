@@ -1,0 +1,30 @@
+#summary build instructions for kurve and all prerequisites on unix
+#labels Phase-Deploy
+
+= kurve build instructions =
+
+== prerequisites ==
+
+  * ipopt
+  * casadi
+  * mono (runtime and compiler)
+
+== building kurve ==
+
+  * obtain a working copy (https://code.google.com/p/kurve/source/checkout)
+  * update krach by running `cd libraries && ./update`
+  * build kurve by running `cd source/Kurve && xbuild`
+
+= ipopt build instructions =
+
+  * install BLAS, LAPACK, fortran compiler
+  * get latest source tarball from http://www.coin-or.org/download/source/Ipopt/
+  * extract tarball
+  * run `cd ThirdParty/Mumps && ./get.Mumps` to download mumps source code
+  * run `./configure --prefix=/usr/local`
+  * run `make`
+  * run `make install`
+
+= casadi build instructions =
+
+https://github.com/casadi/casadi/wiki/InstallationLinux

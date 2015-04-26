@@ -1,0 +1,86 @@
+#summary foundational ideas and reasoning for the project
+#labels Phase-Requirements
+
+= goal statement =
+
+improve the usability of curves in vector graphics by analyzing artists' needs and designing the software tools accordingly
+
+= abbreviations =
+
+  * curve: visually represented source curve
+  * parameters: properties which the software uses as defining parameters for curves
+
+= analyzing artists' needs =
+
+== model of curve design process ==
+
+  # obtain source curve as either a real or a mental image of the curve
+  # try to extract those properties from the source curve which the software uses as defining parameters for curves
+  # provide these properties to the software to obtain the result curve
+  # compare the result curve to the source curve
+  # make adjustments to the parameters of the result curve in order to better match the source curve
+
+depending on the artist, the focus may be on the initial result curve or the iterative refinement. both workflows should be supported.
+
+in this model, continuity constraints are simply properties of the source curve that need to be expressed using the parameters.
+
+== requirements following from model of curve design process ==
+
+  # conversion "curve - parameters" should be easy to comprehend (follows from 2 and 5)
+  # parameters should be easy to input to the software (follows from 3)
+  # effects of changing parameters should be local (follows from 5)
+
+== parameter choice ==
+
+since the choice of parameters has the single most significant influence on the requirements, this choice should be flexible in the experimentation prototype
+
+== examples ==
+
+=== free-hand curves ===
+
+the parameters are all the points making up the curve. conversion "curve - parameters" is very straightforward. parameters are very hard to input to the software since there are so many of them. effects of changing parameters are perfectly local.
+
+=== Bézier splines ===
+
+conversion "curve - parameters" is not easy to comprehend, given a visual representation of the source curve, it is hard to extract the parameters which give rise to the source curve. it is especially hard to figure out which parameters result in a curve with curvature continuity. while it is easy to predict how a change in parameters will affect the result curve at the point of change, these changes often affect further parts of the curve in an unwanted fashion with no obvious way to prevent such effects. parameters are easy to input to the software and effects of changing parameters are reasonably local.
+
+=== spiro splines ===
+
+conversion "curve - parameters" is not easy to comprehend, the apparent properties of spiro splines (all nodes are points on the result curve) are not enough to uniquely specify the source curve. the way spiro splines behave at points between two nodes is not obvious enough to immediately specify the nodes such that the result curve resembles the source curve. also, one has to find a small set of nodes in order to preserve the property of easy input to the software (one could always build the curve using hundreds of nodes, but that would result in more severe input errors). effects of changing parameters are somewhat local.
+
+= improved software tools =
+
+== parameters ==
+
+  * continuity constraints
+  * specification of position, tangent direction and curvature at various points of the curve
+
+conversion "curve - parameters" is easy to comprehend. even though between specification nodes the curve behavior is non-obvious, the rich specification options allow unique determination of the important properties of the curve. parameters are easy to input to the software and effects of parameter changes are reasonably local.
+
+TODO
+  * most important aspect of project is the separation of implementation and specification, the curve specification does not have to follow the format of the curve model
+  * maybe the problem with bézier curves is not so much the hardness of understanding the conversion parameters - curve, but more the fact it's hard to get the desired result without compromising the fairness of other parts of the curve
+
+= implementation =
+
+{{{
+bézier spline approximation
+  parametric curve
+    specification
+      user input
+    fairness
+}}}
+
+specification and fairness may only refer to differential geometric properties of curves
+
+== spline primitives ==
+  * euler spiral
+  * polynomial parametric curves
+  * algebraic curves
+  * conic sections
+
+== IDP ==
+
+  * user input -> specification: proof of concept UI
+  * specification -> parametric curve: numeric optimization based on polynomial splines (other possibilities include using different spline primitives or a constructive approach)
+  * parametric curve -> bézier spline approximation: not part of IDP

@@ -1,0 +1,8 @@
+#summary quirks in monodevelop
+#labels Phase-Implementation
+
+= copy to output directory functionality =
+
+  * monodevelop will not deploy the files of exclusively transitively referenced projects
+  * monodevelop will only deploy the files of transitively referenced projects if the direct reference comes before all indirect ones
+  * monodevelop will not change the reference order if no references are added and/or removed before closing the dialog

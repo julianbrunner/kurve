@@ -1,0 +1,21 @@
+#summary visibility of segmentation, natural vs. arc-length parametrization
+#labels Phase-Requirements
+
+{{{
+segmentation
+    exposed
+    opaque
+
+specification position
+    parameter value
+    fraction of arc-length
+
+exposed segmentation, specification position in parameter value
+    what we have now
+exposed segmentation, specification position in fraction of arc-length
+    could work
+opaque segmentation, specification position in parameter value
+    probably pointless, position in parameter value is meaningless without segmentation information
+opaque segmentation, specification position in fraction of arc-length
+    could work
+}}}

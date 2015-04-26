@@ -1,0 +1,30 @@
+#labels Phase-Support
+= General =
+  * N: Add new curve
+  * L: Load from file
+  * S: Save to file
+  * 1: decrease internal segment count
+  * 2: increase internal segment count
+  * Alt+1: decrease polynomial template degree
+  * Alt+2: increase polynomial template degree
+
+= Components in General =
+  * Click to select component
+  * Shift-Click to select multiple components
+  * Shift+Scroll(+Alt): Insert length at component (slowly)
+
+= Specification (when selected) =
+  * Ctrl+Scroll(+Alt): Change position of specification (slowly)
+  * Shift+Drag: Change position of specification (Adjusts point of point specifications)
+  * R: Removes the specification
+
+  * P: Triggers point specification
+    * Drag(+Alt): Move point (slowly)
+  * D: Triggers direction specification
+    * Scroll(+Alt): Change direction (slowly)
+  * C: Triggers curvature specification
+    * Win+Scroll(+Alt): Change curvature (slowly)
+
+= Segments =
+  * Right-click: insert empty specification at that location
+  * Drag: Moves any point specifications delimiting the segment. (If there is no point specification, nothing happens)

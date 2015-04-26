@@ -1,0 +1,61 @@
+#summary past, current and future status of development
+
+=Finished=
+  * specification of project goals
+  * decide on programming language and UI framework
+    * C# and GTK#
+  * find library for numerical optimization
+    * Ipopt for now
+  * collect ideas for specification
+    * position: point on curve
+    * tangent direction: normalized velocity vector
+    * curvature:
+      * 0 in case of straight line
+      * inverse of radius of osculating circle otherwise
+  * collect candidates for spline primitives
+    * polynomial parametric curves
+  * read tutorial of Ipopt (http://drops.dagstuhl.de/volltexte/2009/2089/pdf/09061.WaechterAndreas.Paper.2089.pdf)
+  * read http://en.wikipedia.org/wiki/Differential_geometry_of_curves
+  * read http://en.wikipedia.org/wiki/Osculating_circle
+  * implement robust term and function library
+  * implement any number of specifications per segment
+  * implement velocity-only specifications
+  * improve term library performance
+  * experiment with velocity objective some more
+  * figure out segmentation and specification position
+  * add acceleration specifications
+  * add acceleration connections
+  * figure out segmentation faults in native casadi wrapper
+  * make sure native wrappers are built and copied correctly
+  * figure out how to formulate unconstrained optimization problems
+  * expose casadi/ipopt errors
+  * build preliminary user interface specifying points, specification positions and curve length
+  * finalize curve control design to realize non-absolute curve properties
+  * move curve length specification to curvecomponent
+  * visualize curve velocity deviation
+  * improve curve evaluation performance
+  * add interspecification handles to modify curve length between specifications
+  * figure out if user-specified curve length, specification positions and curve length insertion are viable (yes!)
+  * extend user interface to cover direction and curvature
+  * specify specification format
+  * implement user interface
+  * move from velocity and acceleration to direction and curvature
+  * fixed fairness problems
+  * tried using bernstein polynomial basis (no significant difference to standard polynomial basis)
+  * added possibility to add/remove (internal) segments using the user interface
+  * added possibility to increase/decrease polynomial template degree using the user interface
+
+=Performance Improvements=
+  * make sure substitutions only happen where and when necessary
+  * cache partially instantiated IpoptProblem such that fewer substitutions have to happen when changing a single specification
+  * use better linear solver with ipopt
+  * properly configure ipopt options
+  * adaptive segment density
+  * adaptive velocity/fairness trapezoid sum
+
+=Planned=
+  * implement weighted specifications
+  * add a way to connect curves at a PDC specification
+  * investigate whether euler spirals or the solutions to the MVC functional in general can be used to construct curves from specification directly
+  * try formulating everything in terms of the tangent angle and its derivatives, thereby guaranteeing some degree of independence from parametrization
+  * make sure that arc-length is handled properly, compare with scale-invariance in MEC or MVC curves

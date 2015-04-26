@@ -1,0 +1,82 @@
+#summary development log
+
+=research=
+
+  * 4/2011: conception
+  * 4/2012: first ideas
+  * 4/2012 - 10/2012: refinement of data flow, ideas for specification
+  * 10/2012: discussion of general approach
+  * 10/2012: research in differential geometry of curves an optimization libraries
+
+=implementation=
+
+  * 11/6/2012: 4h trying to build ipopt
+  * 11/8/2012: 3h succeded in building ipopt, begin implementation of ipopt wrapper
+  * 11/10/2012: 3h finish implementation of ipopt wrapper
+  * 11/20/2012: 3h improved implementation of ipopt wrapper
+  * 11/26/2012: 4h trying to get ipopt wrapper to work
+  * 12/06/2012: 5h ipopt wrapper is working, started implementing GUI
+  * 12/08/2012: 4h started working on GUI, curves backend design
+  * 12/09/2012: 2.5h continued working on curves backend design
+  * 12/17/2012: 2.5h started working on symbolic term handling
+  * 12/18/2012: 2.5h continued working on symbolic term handling
+  * 01/08/2013: 2.5h continued working on parametric curve implementation
+  * 01/20/2013: 3.5h finished first implementation of Optimizer
+  * 01/21/2013: 2.5h finished test environment for testing optimizer
+  * 01/22/2013: 2.5h fixed a bug in derivation implementation, line optimizer working
+  * 01/26/2013: 3.5h started refactoring for better experimentation, added velocity specification
+  * 02/01/2013: 2.5h finished refactoring, started working on direction specification instead of velocity specification
+  * 02/28/2013: 1.5h planned next steps to separate segmentation and specification
+  * 03/01/2013: 6h started separating segmentation and specification
+  * 03/03/2013: 8h started work on combining functionality of terms and functions
+  * 03/04/2013: 5h finalized term and function architecture
+  * 03/05/2013: 9h fixed small issues with term architecture, implemented term rewriting
+  * 03/06/2013: 3h moved Kurve.Ipopt to new term and function architecture
+  * 03/07/2013: 6h started using new term architecture in Kurve.Curves, started work on vector-valued terms and functions
+  * 03/08/2013: 8h implemented vector-valued terms
+  * 03/19/2013: 4h refactoring of term architecture
+  * 03/20/2013: 3h refactoring of term architecture
+  * 03/21/2013: 4h refactoring of term architecture
+  * 03/22/2013: 5h refactoring of term architecture
+  * 03/23/2013: 2h refactoring of term architecture
+  * 03/24/2013: 3h refactoring of term architecture
+  * 03/25/2013: 4h refactoring of term architecture
+  * 03/26/2013: 4h started porting kurve to new term architecture
+  * 03/27/2013: 6h started porting kurve to new term architecture
+  * 03/28/2013: 3h fixed more bugs in term architecture
+  * 03/29/2013: 4h improved performance of rewriting
+  * 03/30/2013: 7h figured out term rewriting scripts, more performance improvements
+  * 03/31/2013: 3h improved performance of rewriting
+  * 04/01/2013: 6h got part of first prototype working again
+  * 04/04/2013: 4h started incorporating new specification format in kurve
+  * 04/06/2013: 3h finished incorporating new specification format in kurve
+  * 04/07/2013: 5h fixed bug in ipopt wrapper causing bad performance and wrong optimization results, started working out goals and next steps
+  * 04/08/2013: 2h started working out goals and next steps
+  * 04/09/2013: 2h tried using constant velocity as optimization objective
+  * 04/10/2013: 5h improved performance of term library
+  * 04/13/2013: 2h more experiments with constant velocity
+  * 04/17/2013: 3h transferred specifications to constraints, added acceleration connections and specifications
+  * 04/19/2013: 4h specified curve length, started looking into automatic differentiation libraries
+  * 04/23/2013: 2h started experimenting with the casadi library
+  * 04/24/2013: 6h started migrating to casadi/ipopt
+  * 04/25/2013: 2h got everything working again
+  * 04/26/2013: 5h trying to fix memory management issue with casadi
+  * 04/27/2013: 3h fixed memory management issue with casadi
+  * 04/28/2013: 5h started experimenting with fairness
+  * 05/01/2013: 4h worked on turning velocity and acceleration into direction and curvature
+  * 05/14/2013: 2.5h worked on new specification format, added XML serialization
+  * 05/22/2013: 1.5h started working on user interface
+  * 05/24/2013: 5h continued working on user interface
+  * 05/30/2013: 3h continued working on caching
+  * 06/05/2013: 5h continued working on caching
+  * 06/06/2013: 5h continued working on caching
+  * 06/12/2013: 7h continued working on caching, some minor cleanup
+  * 06/13/2013: 4.5h finalized caching architecture, started working on UI
+  * 06/19/2013: 6h first working prototype of GUI, some backend refactoring
+  * 06/20/2013: 3h improved component architecture
+  * 06/26/2013: 9h continued working on user interface
+  * 06/26/2013: 5h small usability improvements in user interface
+  * 07/03/2013: 6h more usability in user interfaces, first real test with traces
+  * 07/04/2013: 5h added direction and curvature specifications
+  * 07/10/2013: 4h improved fairness function, started experimenting with bernstein polynomials
+  * 07/11/2013: 5h fixed a few UI bugs, added possibility to remove curves, change internal segment count and polynomial template degree using UI
