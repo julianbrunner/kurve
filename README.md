@@ -1,0 +1,3 @@
+kurve aims to improve the approaches used for designing two-dimensional curves using computer software. More information about the general ideas behind kurve can be found at [Foundation].
+
+kurve uses [ipopt](http://www.coin-or.org/Ipopt/) for numerical optimization and [casadi](http://www.casadi.org/) for symbolic differentiation. It is implemented in C# and can be used with both the [.NET Framework](http://www.microsoft.com/net) and [mono](http://www.mono-project.com/Main_Page).
