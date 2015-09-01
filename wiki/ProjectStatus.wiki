@@ -59,3 +59,12 @@
   * investigate whether euler spirals or the solutions to the MVC functional in general can be used to construct curves from specification directly
   * try formulating everything in terms of the tangent angle and its derivatives, thereby guaranteeing some degree of independence from parametrization
   * make sure that arc-length is handled properly, compare with scale-invariance in MEC or MVC curves
+
+=Issues=
+  * it's not possible to not specify arc length
+    * figure out how to make this possible while avoiding the problems discussed in section \ref{section:specification_language}
+    * maybe by making point specifications sliding and direction/curvature fixed?
+      * what makes point specifications special/different?
+        * this seems to crop up in other places, too, see workaround suggested in section \label{section:expressiveness_specification_language}
+      * how can we still allow to specify arc length in other places then?
+    * arc length specification should simply be an optional specification item for each interspecefication segment
